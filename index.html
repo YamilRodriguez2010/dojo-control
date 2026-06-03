@@ -27,7 +27,7 @@
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            -webkit-tap-highlight-color: transparent; /* Elimina parpadeo azul en móviles */
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -101,11 +101,11 @@
             margin-bottom: 5px;
         }
 
-        /* Tarjetas de Resumen (Widgets) */
+        /* Tarjetas de Resumen */
         .widgets {
             grid-column: 1 / -1;
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 2x2 en celulares de forma nativa */
+            grid-template-columns: repeat(2, 1fr);
             gap: 12px;
             margin-bottom: 5px;
         }
@@ -171,10 +171,10 @@
 
         .form-control {
             width: 100%;
-            padding: 12px; /* Mayor tamaño para dedos */
+            padding: 12px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            font-size: 15px; /* Evita que iOS / Android hagan zoom automático molesto */
+            font-size: 15px;
         }
 
         .form-control:disabled {
@@ -187,7 +187,7 @@
             background-color: var(--primary);
             color: white;
             border: none;
-            padding: 14px; /* Botón grande y cómodo */
+            padding: 14px;
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
@@ -201,7 +201,7 @@
         }
 
         .btn-sm {
-            padding: 10px 14px; /* Botones de acción aumentados para móviles */
+            padding: 10px 14px;
             font-size: 13px;
             width: auto;
             display: inline-block;
@@ -213,7 +213,6 @@
         .btn-secondary:hover { background-color: #2d3748; }
         .btn-warning { background-color: var(--warning); color: white; }
 
-        /* Estilos de Tabla y Transformación a Tarjetas en Celulares */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -248,13 +247,12 @@
             display: none;
         }
 
-        /* DISEÑO RESPONSIVO EXCLUSIVO PARA PANTALLAS DE CELULARES */
+        /* DISEÑO PARA PANTALLAS DE CELULARES */
         @media (max-width: 768px) {
             .container {
                 grid-template-columns: 1fr;
             }
 
-            /* Transformación mágica: Convierte filas de tabla en tarjetas verticales legibles */
             table, thead, tbody, th, td, tr { 
                 display: block; 
             }
@@ -294,7 +292,6 @@
                 margin-top: 5px;
             }
             
-            /* Inyecta los títulos correspondientes a cada dato en móvil */
             td:before { 
                 position: absolute;
                 top: 10px;
@@ -320,7 +317,6 @@
             }
         }
 
-        /* ESTILOS PARA IMPRESIÓN */
         @media print {
             body { background-color: #ffffff; color: #000000; padding: 0; }
             header, .card:has(#form-alumno), .btn-sm, th:last-child, td:last-child, .alert-banner { display: none !important; }
@@ -344,7 +340,7 @@
             <img src="logo.png" alt="Logo" class="dojo-logo" onerror="this.style.display='none'">
             <h1>BUTOKU-KAI KARATE-DO</h1>
         </div>
-        <div><span>v1.7 Mobile</span></div>
+        <div><span>v1.8 Mobile</span></div>
     </header>
 
     <div class="print-header">
@@ -390,8 +386,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="telefono">Número de Teléfono</label>
-                    <input type="tel" id="telefono" class="form-control" placeholder="Ej. 3735123456" required>
+                    <label for="telefono">Número de Teléfono (con código de área)</label>
+                    <input type="tel" id="telefono" class="form-control" placeholder="Ej. 5493735123456" required>
                 </div>
                 
                 <div class="form-group">
@@ -500,7 +496,7 @@
 
         function calcularMetricas() {
             const totalAlumnos = alumnos.length;
-            const alDia = alumnos.filter(a => a.pagoRealized || a.pagoRealizado).length; 
+            const alDia = alumnos.filter(a => a.pagoRealizado).length; 
             const morosos = totalAlumnos - alDia;
             const totalCaja = alumnos.filter(a => a.pagoRealizado).reduce((sum, a) => sum + a.cuota, 0);
 
@@ -546,9 +542,13 @@
                     fechaFormateada = `${dia}/${mes}/${anio}`;
                 }
 
-                // Limpiar teléfono para el enlace de WhatsApp nativo del celular
+                // Limpiar número y agregar texto predeterminado para WhatsApp
                 let numLimpio = alumno.telefono ? alumno.telefono.replace(/[^0-9]/g, '') : '';
-                let linkWhatsApp = numLimpio ? `<a href="https://wa.me/${numLimpio}" target="_blank" style="text-decoration:none; margin-left:5px;" title="Enviar Mensaje">💬</a>` : '';
+                
+                // Mensaje automatizado codificado para la URL
+                let mensajePredeterminado = encodeURIComponent(`Hola ${alumno.nombre}! Te avisamos que tu cuota de karate ha vencido. Por favor, regulariza tu situación. Saludos, Sensei.`);
+                
+                let linkWhatsApp = numLimpio ? `<a href="https://wa.me/${numLimpio}?text=${mensajePredeterminado}" target="_blank" style="text-decoration:none; margin-left:8px;" title="Enviar Recordatorio">💬</a>` : '';
 
                 tr.innerHTML = `
                     <td><strong>${alumno.nombre}</strong></td>
