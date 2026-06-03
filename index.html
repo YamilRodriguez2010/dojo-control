@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dojo Control - Gestión de Cuotas</title>
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="application-name" content="DojoControl">
+
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-main: #2d3748;
+            --primary: #d32f2f; /* Rojo Karate Do */
+            --primary-hover: #b71c1c;
+            --success: #2e7d32;
+            --warning: #f57c00;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent; /* Elimina parpadeo azul en móviles */
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 15px;
+        }
+
+        header {
+            background-color: #1a1a1a;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 4px solid var(--primary);
+        }
+
+        .header-title-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dojo-logo {
+            width: 45px;
+            height: 45px;
+            object-fit: contain;
+            border-radius: 50%;
+            background-color: white;
+            padding: 2px;
+        }
+
+        header h1 {
+            font-size: 18px;
+            letter-spacing: 0.5px;
+        }
+        
+        header span {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 15px;
+        }
+
+        /* Alerta de Morosos */
+        .alert-banner {
+            grid-column: 1 / -1;
+            background-color: #fff5f5;
+            border-left: 5px solid #e53e3e;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            display: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            font-size: 14px;
+        }
+
+        .alert-banner strong {
+            font-size: 15px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* Tarjetas de Resumen (Widgets) */
+        .widgets {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2x2 en celulares de forma nativa */
+            gap: 12px;
+            margin-bottom: 5px;
+        }
+
+        @media (min-width: 768px) {
+            .widgets {
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            }
+        }
+
+        .card-widget {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-left: 5px solid var(--primary);
+        }
+
+        .card-widget h3 {
+            font-size: 12px;
+            color: #718096;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .card-widget p {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        /* Formularios y Tablas */
+        .card {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            height: fit-content;
+        }
+
+        .card-header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .card h2 {
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px; /* Mayor tamaño para dedos */
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 15px; /* Evita que iOS / Android hagan zoom automático molesto */
+        }
+
+        .form-control:disabled {
+            background-color: #edf2f7;
+            color: #4a5568;
+            cursor: not-allowed;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px; /* Botón grande y cómodo */
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-sm {
+            padding: 10px 14px; /* Botones de acción aumentados para móviles */
+            font-size: 13px;
+            width: auto;
+            display: inline-block;
+        }
+
+        .btn-success { background-color: var(--success); }
+        .btn-success:hover { background-color: #1b5e20; }
+        .btn-secondary { background-color: #4a5568; }
+        .btn-secondary:hover { background-color: #2d3748; }
+        .btn-warning { background-color: var(--warning); color: white; }
+
+        /* Estilos de Tabla y Transformación a Tarjetas en Celulares */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: #64748b;
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .badge-paid { background-color: #e8f5e9; color: var(--success); }
+        .badge-debt { background-color: #ffe0b2; color: var(--warning); }
+
+        .print-header {
+            display: none;
+        }
+
+        /* DISEÑO RESPONSIVO EXCLUSIVO PARA PANTALLAS DE CELULARES */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            /* Transformación mágica: Convierte filas de tabla en tarjetas verticales legibles */
+            table, thead, tbody, th, td, tr { 
+                display: block; 
+            }
+            
+            thead tr { 
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            
+            tr {
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                margin-bottom: 15px;
+                padding: 10px;
+                background: #fff;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            }
+            
+            td { 
+                border: none;
+                border-bottom: 1px dashed #edf2f7;
+                position: relative;
+                padding-left: 45%; 
+                text-align: right;
+                padding-top: 10px;
+                padding-bottom: 10px;
+            }
+            
+            td:last-child { 
+                border-bottom: none; 
+                text-align: center;
+                padding-left: 0;
+                display: flex;
+                justify-content: center;
+                gap: 10px;
+                margin-top: 5px;
+            }
+            
+            /* Inyecta los títulos correspondientes a cada dato en móvil */
+            td:before { 
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                width: 40%; 
+                padding-right: 10px; 
+                white-space: nowrap;
+                text-align: left;
+                font-weight: bold;
+                color: #718096;
+            }
+            
+            td:nth-of-type(1):before { content: "Alumno"; }
+            td:nth-of-type(2):before { content: "Teléfono"; }
+            td:nth-of-type(3):before { content: "Fecha Pago"; }
+            td:nth-of-type(4):before { content: "Cuota"; }
+            td:nth-of-type(5):before { content: "Estado"; }
+            td:nth-of-type(6):before { content: "Acciones"; }
+
+            .btn-sm {
+                flex: 1;
+                text-align: center;
+            }
+        }
+
+        /* ESTILOS PARA IMPRESIÓN */
+        @media print {
+            body { background-color: #ffffff; color: #000000; padding: 0; }
+            header, .card:has(#form-alumno), .btn-sm, th:last-child, td:last-child, .alert-banner { display: none !important; }
+            .print-header { display: flex !important; align-items: center; gap: 20px; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 3px solid #000000; }
+            .print-header img { width: 70px; height: 70px; }
+            .print-header h1 { font-size: 26px; text-transform: uppercase; }
+            .container { display: block; max-width: 100%; }
+            .widgets { grid-template-columns: repeat(4, 1fr) !important; margin-bottom: 30px; }
+            .card-widget { border: 1px solid #cbd5e1 !important; box-shadow: none !important; padding: 10px; }
+            .card { box-shadow: none !important; padding: 0; }
+            .badge { border: 1px solid #000 !important; background: none !important; color: #000 !important; }
+            table { width: 100% !important; }
+            th { background-color: #e2e8f0 !important; color: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-title-container">
+            <img src="logo.png" alt="Logo" class="dojo-logo" onerror="this.style.display='none'">
+            <h1>BUTOKU-KAI KARATE-DO</h1>
+        </div>
+        <div><span>v1.7 Mobile</span></div>
+    </header>
+
+    <div class="print-header">
+        <img src="logo.png" alt="Logo">
+        <div>
+            <h1>Butoku-Kai Shotokan Karate-Do</h1>
+            <p>Reporte Oficial de Control de Cuotas Mensuales</p>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <div id="alerta-morosos" class="alert-banner">
+            <strong>⚠️ ALERTA DE VENCIMIENTO</strong>
+            <span id="texto-alerta"></span>
+        </div>
+
+        <div class="widgets">
+            <div class="card-widget" style="border-left-color: #3182ce;">
+                <h3>Total Alumnos</h3>
+                <p id="widget-alumnos">0</p>
+            </div>
+            <div class="card-widget" style="border-left-color: var(--success);">
+                <h3>Al Día</h3>
+                <p id="widget-aldia">0</p>
+            </div>
+            <div class="card-widget" style="border-left-color: var(--warning);">
+                <h3>Morosos</h3>
+                <p id="widget-morosos">0</p>
+            </div>
+            <div class="card-widget" style="border-left-color: #ecc94b;">
+                <h3>Caja Mensual</h3>
+                <p id="widget-caja">$0</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Registrar Alumno</h2>
+            <form id="form-alumno">
+                <div class="form-group">
+                    <label for="nombre">Nombre Completo</label>
+                    <input type="text" id="nombre" class="form-control" placeholder="Ej. Pedro Rodríguez" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="telefono">Número de Teléfono</label>
+                    <input type="tel" id="telefono" class="form-control" placeholder="Ej. 3735123456" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fechaPago">Fecha de Pago</label>
+                    <input type="date" id="fechaPago" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="cuota">Valor Cuota Mensual ($)</label>
+                    <input type="number" id="cuota" class="form-control" value="25000" disabled>
+                </div>
+                <button type="submit" class="btn">Añadir Alumno</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <div class="card-header-actions">
+                <h2>Listado de Alumnos</h2>
+                <button class="btn btn-sm btn-secondary" onclick="imprimirReporte()" style="display:flex; align-items:center; gap:5px;">
+                    🖨️ Imprimir
+                </button>
+            </div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Alumno</th>
+                            <th>Teléfono</th>
+                            <th>Fecha de Pago</th>
+                            <th>Cuota</th>
+                            <th>Estado</th>
+                            <th class="acciones-header">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-alumnos"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const PASSWORD_REQUERIDA = "Sensei2026"; 
+        const VALOR_CUOTA_FIJO = 25000;
+
+        let alumnos = JSON.parse(localStorage.getItem('dojo_alumnos')) || [];
+
+        const form = document.getElementById('form-alumno');
+        const tabla = document.getElementById('tabla-alumnos');
+
+        function actualizarApp() {
+            localStorage.setItem('dojo_alumnos', JSON.stringify(alumnos));
+            renderalumnos();
+            calcularMetricas();
+            verificarAlertas();
+        }
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const nuevoAlumno = {
+                id: Date.now(),
+                nombre: document.getElementById('nombre').value,
+                telefono: document.getElementById('telefono').value,
+                fechaPago: document.getElementById('fechaPago').value,
+                cuota: VALOR_CUOTA_FIJO,
+                pagoRealizado: false 
+            };
+
+            alumnos.push(nuevoAlumno);
+            form.reset();
+            document.getElementById('cuota').value = VALOR_CUOTA_FIJO;
+            actualizarApp();
+        });
+
+        function cambiarEstadoPago(id) {
+            const passwordIngresada = prompt("Por favor, ingrese la contraseña de autorización:");
+            if (passwordIngresada === null) return;
+
+            if (passwordIngresada === PASSWORD_REQUERIDA) {
+                alumnos = alumnos.map(alumno => {
+                    if (alumno.id === id) {
+                        alumno.pagoRealizado = !alumno.pagoRealizado;
+                    }
+                    return alumno;
+                });
+                actualizarApp();
+            } else {
+                alert("Contraseña incorrecta. Acción denegada.");
+            }
+        }
+
+        function eliminarAlumno(id) {
+            const passwordIngresada = prompt("Para dar de baja a un alumno se requiere autorización. Ingrese contraseña:");
+            if (passwordIngresada === null) return;
+
+            if (passwordIngresada === PASSWORD_REQUERIDA) {
+                if(confirm('¿Confirmas que deseas eliminar por completo a este alumno?')) {
+                    alumnos = alumnos.filter(alumno => alumno.id !== id);
+                    actualizarApp();
+                }
+            } else {
+                alert("Contraseña incorrecta. No se pudo eliminar al alumno.");
+            }
+        }
+
+        function calcularMetricas() {
+            const totalAlumnos = alumnos.length;
+            const alDia = alumnos.filter(a => a.pagoRealized || a.pagoRealizado).length; 
+            const morosos = totalAlumnos - alDia;
+            const totalCaja = alumnos.filter(a => a.pagoRealizado).reduce((sum, a) => sum + a.cuota, 0);
+
+            document.getElementById('widget-alumnos').innerText = totalAlumnos;
+            document.getElementById('widget-aldia').innerText = alDia;
+            document.getElementById('widget-morosos').innerText = morosos;
+            document.getElementById('widget-caja').innerText = `$${totalCaja.toLocaleString('es-AR')}`;
+        }
+
+        function verificarAlertas() {
+            const alertaDiv = document.getElementById('alerta-morosos');
+            const textoAlerta = document.getElementById('texto-alerta');
+            const diaActual = new Date().getDate();
+            const deudores = alumnos.filter(a => !a.pagoRealizado);
+
+            if (diaActual > 10 && deudores.length > 0) {
+                const nombresDeudores = deudores.map(a => a.nombre).join(', ');
+                textoAlerta.innerText = `Hoy es día ${diaActual} y los siguientes alumnos registran cuotas pendientes: ${nombresDeudores}.`;
+                alertaDiv.style.display = 'block';
+            } else {
+                alertaDiv.style.display = 'none';
+            }
+        }
+
+        function imprimirReporte() {
+            window.print();
+        }
+
+        function renderalumnos() {
+            tabla.innerHTML = '';
+
+            if (alumnos.length === 0) {
+                tabla.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#a0aec0; padding: 20px;">No hay alumnos registrados en el dojo.</td></tr>`;
+                return;
+            }
+
+            alumnos.forEach(alumno => {
+                const tr = document.createElement('tr');
+                
+                let fechaFormateada = "-";
+                if (alumno.fechaPago) {
+                    const [anio, mes, dia] = alumno.fechaPago.split('-');
+                    fechaFormateada = `${dia}/${mes}/${anio}`;
+                }
+
+                // Limpiar teléfono para el enlace de WhatsApp nativo del celular
+                let numLimpio = alumno.telefono ? alumno.telefono.replace(/[^0-9]/g, '') : '';
+                let linkWhatsApp = numLimpio ? `<a href="https://wa.me/${numLimpio}" target="_blank" style="text-decoration:none; margin-left:5px;" title="Enviar Mensaje">💬</a>` : '';
+
+                tr.innerHTML = `
+                    <td><strong>${alumno.nombre}</strong></td>
+                    <td>${alumno.telefono || '-'}${linkWhatsApp}</td>
+                    <td>${fechaFormateada}</td>
+                    <td>$${alumno.cuota.toLocaleString('es-AR')}</td>
+                    <td>
+                        <span class="badge ${alumno.pagoRealizado ? 'badge-paid' : 'badge-debt'}">
+                            ${alumno.pagoRealizado ? 'Al Día' : 'Pendiente'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm ${alumno.pagoRealizado ? 'btn-warning' : 'btn-success'}" onclick="cambiarEstadoPago(${alumno.id})">
+                            ${alumno.pagoRealizado ? 'Deshacer' : 'Pagar'}
+                        </button>
+                        <button class="btn btn-sm" style="background-color:#e53e3e;" onclick="eliminarAlumno(${alumno.id})">❌</button>
+                    </td>
+                `;
+                tabla.appendChild(tr);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderalumnos();
+            calcularMetricas();
+            verificarAlertas();
+        });
+    </script>
+</body>
+</html>
