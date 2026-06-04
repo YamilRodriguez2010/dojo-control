@@ -531,7 +531,7 @@
             <button class="theme-toggle-btn" id="theme-toggle" title="Cambiar Modo Claro/Oscuro">
                 <i class="fas fa-moon" id="theme-icon"></i>
             </button>
-            <div><span>v3.0 Nube Reg.</span></div>
+            <div><span>v3.1 Nube + Contactos</span></div>
         </div>
     </header>
 
@@ -579,7 +579,12 @@
             <form id="form-alumno">
                 <div class="form-group">
                     <label for="nombre">Nombre Completo</label>
-                    <input type="text" id="nombre" class="form-control" placeholder="Ej. Pedro Rodríguez" required>
+                    <div class="input-group-editable">
+                        <input type="text" id="nombre" class="form-control" placeholder="Ej. Pedro Rodríguez" required>
+                        <button type="button" id="btn-importar-contacto" class="btn btn-secondary btn-inline-sm" title="Importar desde la agenda del celular">
+                            <i class="fas fa-address-book"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -633,14 +638,13 @@
         // REEMPLAZA ESTE CONFIG CON EL QUE TE ENTREGUE LA CONSOLA DE GOOGLE FIREBASE
         // =========================================================================
         const firebaseConfig = {
-            apiKey: "AIzaSyA1DlBwlRxa55Qp8WmZSP6AdKTHRcHFOj0",
-            authDomain: "dojocontrol-e63db.firebaseapp.com",
-            databaseURL: "https://dojocontrol-e63db-default-rtdb.firebaseio.com",
-            projectId: "dojocontrol-e63db",
-            storageBucket: "dojocontrol-e63db.firebasestorage.app",
-            messagingSenderId: "421860399543",
-            appId: "1:421860399543:web:ebafaa46671ee50596b032",
-            measurementId: "G-2LWQR58KXC"
+            apiKey: "TU_API_KEY_AQUÍ",
+            authDomain: "tu-proyecto.firebaseapp.com",
+            databaseURL: "https://tu-proyecto-default-rtdb.firebaseio.com",
+            projectId: "tu-proyecto",
+            storageBucket: "tu-proyecto.appspot.com",
+            messagingSenderId: "1234567890",
+            appId: "1:123456:web:abcdef"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -659,6 +663,7 @@
         const themeIcon = document.getElementById('theme-icon');
         const themeToggle = document.getElementById('theme-toggle');
         const btnImprimir = document.getElementById('btn-imprimir');
+        const btnImportarContacto = document.getElementById('btn-importar-contacto');
 
         // GESTIÓN DEL TEMA VISUAL (Persistido Localmente)
         function conmutarTema() {
@@ -721,6 +726,43 @@
             btnGuardar.style.display = 'none'; 
             btnEditar.style.display = 'block'; 
             alert(`El valor predeterminado de la cuota se actualizó a $${cuotaPredeterminada}.`);
+        });
+
+        // NUEVA FUNCIÓN: IMPORTAR DESDE LA AGENDA NATIVA DEL CELULAR
+        btnImportarContacto.addEventListener('click', async () => {
+            // Verificar si el navegador soporta la API de Contactos
+            if (!('contacts' in navigator && 'Properties' in window)) {
+                alert("La selección de contactos de la agenda no es compatible con este navegador o dispositivo. Prueba abriendo el enlace HTTPS desde Google Chrome en tu celular Android.");
+                return;
+            }
+
+            try {
+                // Definimos qué propiedades del contacto queremos leer (Nombre y Teléfono)
+                const propiedades = ['name', 'tel'];
+                // Forzamos que solo se pueda elegir 1 contacto a la vez
+                const opciones = { multiple: false }; 
+                
+                // Abre la interfaz nativa del sistema del teléfono
+                const contactosSeleccionados = await navigator.contacts.select(propiedades, opciones);
+                
+                if (contactosSeleccionados && contactosSeleccionados.length > 0) {
+                    const contacto = contactosSeleccionados[0];
+                    
+                    // Extraer Nombre
+                    if (contacto.name && contacto.name.length > 0) {
+                        document.getElementById('nombre').value = contacto.name[0];
+                    }
+                    
+                    // Extraer Teléfono y limpiarlo un poco si es necesario
+                    if (contacto.tel && contacto.tel.length > 0) {
+                        let telLimpio = contacto.tel[0].replace(/\s+/g, ''); // Remueve espacios en blanco comunes en la agenda
+                        document.getElementById('telefono').value = telLimpio;
+                    }
+                }
+            } catch (err) {
+                // Maneja el caso de que el usuario cancele la selección o deniegue el permiso
+                console.log("Selección de contacto cancelada o fallida: ", err);
+            }
         });
 
         // CONEXIÓN DIRECTA CON FIREBASE (LECTURA EN TIEMPO REAL)
