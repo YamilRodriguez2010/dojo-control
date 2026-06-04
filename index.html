@@ -370,11 +370,22 @@
             display: inline-flex;
             justify-content: center;
             align-items: center;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
         }
 
-        .btn-success { background-color: var(--success); }
+        /* ESTILO ESPECÍFICO PARA BOTONES SÓLO ÍCONO EN LA TABLA */
+        .btn-icon-only {
+            width: 38px;
+            height: 38px;
+            padding: 0;
+            font-size: 16px;
+        }
+
+        .btn-success { background-color: var(--success); color: white; }
         .btn-success:hover { background-color: #1b5e20; }
-        .btn-secondary { background-color: #4a5568; }
+        .btn-secondary { background-color: #4a5568; color: white; }
         .btn-secondary:hover { background-color: #2d3748; }
         .btn-warning { background-color: var(--warning); color: white; }
 
@@ -483,8 +494,7 @@
             td:nth-of-type(6):before { content: "Acciones"; }
 
             .btn-sm {
-                flex: 1;
-                text-align: center;
+                flex: initial;
             }
             .table-date-input {
                 max-width: 100%;
@@ -616,7 +626,6 @@
 
                 <div class="form-group">
                     <label for="telefono">Número de Teléfono</label>
-                    <!-- INTEGRACIÓN VISUAL DEL BOTÓN DE AGENDA -->
                     <div class="phone-input-group">
                         <input type="tel" id="telefono" class="form-control" placeholder="Ej. 5493735123456">
                         <button type="button" id="btn-contactos" class="btn-contacts" title="Elegir desde la agenda">
@@ -696,7 +705,7 @@
         const btnImprimir = document.getElementById('btn-imprimir');
         const btnContactos = document.getElementById('btn-contactos');
 
-        // NUEVA LOGICA MEJORADA DE AGENDA DE CONTACTOS
+        // LÓGICA DE AGENDA DE CONTACTOS
         btnContactos.addEventListener('click', async () => {
             if ('contacts' in navigator && 'ContactsManager' in window) {
                 try {
@@ -717,7 +726,6 @@
                     console.error("Error al acceder a los contactos: ", err);
                 }
             } else {
-                // Alerta informativa si el dispositivo o navegador actual no lo permite
                 alert("La selección automática de contactos no es compatible con este navegador o dispositivo (común en computadoras convencionales y sistemas iOS de Apple).\n\nPor favor, escribe el número manualmente.");
             }
         });
@@ -941,11 +949,12 @@
                     <td>${celdaFecha}</td>
                     <td>$${alumno.cuota}</td>
                     <td><span class="badge ${pagoRealizado ? 'badge-paid' : 'badge-debt'}">${pagoRealizado ? 'Pagado' : 'Pendiente'}</span></td>
-                    <td class="acciones-header">
-                        <button class="btn-sm ${pagoRealizado ? 'btn-secondary' : 'btn-success'}" onclick="cambiarEstadoPago('${alumno.id}')" style="margin-bottom: 5px;">
-                            ${pagoRealizado ? '<i class="fas fa-undo"></i> Anular' : '<i class="fas fa-check"></i> Pagar'}
+                    <td class="acciones-header" style="display: flex; gap: 6px; justify-content: center; align-items: center;">
+                        <!-- NUEVOS BOTONES OPTIMIZADOS SÓLO CON ÍCONO -->
+                        <button class="btn-sm btn-icon-only ${pagoRealizado ? 'btn-secondary' : 'btn-success'}" onclick="cambiarEstadoPago('${alumno.id}')" title="${pagoRealizado ? 'Anular Pago' : 'Registrar Pago'}">
+                            ${pagoRealizado ? '<i class="fas fa-undo"></i>' : '<i class="fas fa-money-bill-wave"></i>'}
                         </button>
-                        <button class="btn-sm btn-secondary" style="background-color: #e53e3e;" onclick="eliminarAlumno('${alumno.id}')">
+                        <button class="btn-sm btn-icon-only" style="background-color: #e53e3e; color: white;" onclick="eliminarAlumno('${alumno.id}')" title="Eliminar Alumno">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
