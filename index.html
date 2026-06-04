@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dojo Control - Gestión de Cuotas</title>
+    <title>Dojo Control - Gestión de Cuotas en la Nube</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -115,7 +115,6 @@
             opacity: 0.8;
         }
 
-        /* Botón de Interruptor de Tema */
         .theme-toggle-btn {
             background: none;
             border: none;
@@ -141,7 +140,6 @@
             gap: 15px;
         }
 
-        /* Selector de Periodo */
         .period-selector {
             grid-column: 1 / -1;
             background: var(--card-bg);
@@ -170,7 +168,6 @@
             outline: none;
         }
 
-        /* Alerta de Morosos */
         .alert-banner {
             grid-column: 1 / -1;
             background-color: #fff5f5;
@@ -194,7 +191,6 @@
             margin-bottom: 5px;
         }
 
-        /* Tarjetas de Resumen */
         .widgets {
             grid-column: 1 / -1;
             display: grid;
@@ -232,7 +228,6 @@
             font-weight: bold;
         }
 
-        /* Formularios y Tablas */
         .card {
             background: var(--card-bg);
             padding: 15px;
@@ -297,7 +292,6 @@
             flex-shrink: 0;
         }
 
-        /* Campo de fecha dentro de la tabla */
         .table-date-input {
             padding: 6px;
             border: 1px solid var(--border-color);
@@ -393,7 +387,7 @@
             display: none;
         }
 
-        /* DISEÑO PARA PANTALLAS DE CELULARES */
+        /* DISEÑO PARA CELULARES */
         @media (max-width: 768px) {
             .container {
                 grid-template-columns: 1fr;
@@ -466,7 +460,7 @@
             }
         }
 
-        /* CONFIGURACIÓN DE IMPRESIÓN (Siempre Fondo Blanco) */
+        /* CONFIGURACIÓN DE IMPRESIÓN */
         @media print {
             body { background-color: #ffffff !important; color: #000000 !important; padding: 0; }
             header, .card:has(#form-alumno), .btn-sm, th:last-child, td:last-child, .alert-banner, .period-selector input::-webkit-calendar-picker-indicator { display: none !important; }
@@ -534,10 +528,10 @@
             </div>
         </div>
         <div class="header-right">
-            <button class="theme-toggle-btn" id="theme-toggle" onclick="conmutarTema()" title="Cambiar Modo Claro/Oscuro">
+            <button class="theme-toggle-btn" id="theme-toggle" title="Cambiar Modo Claro/Oscuro">
                 <i class="fas fa-moon" id="theme-icon"></i>
             </button>
-            <div><span>v2.2 Fecha Reg.</span></div>
+            <div><span>v3.0 Nube Reg.</span></div>
         </div>
     </header>
 
@@ -597,8 +591,8 @@
                     <label for="cuota">Valor Cuota Mensual ($)</label>
                     <div class="input-group-editable">
                         <input type="number" id="cuota" class="form-control" value="25000" disabled required>
-                        <button type="button" id="btn-editar" class="btn btn-secondary btn-inline-sm" onclick="habilitarEdicionCuota()" title="Desbloquear edición de cuota"><i class="fas fa-lock-open"></i></button>
-                        <button type="button" id="btn-guardar" class="btn btn-success btn-inline-sm" onclick="guardarNuevoValorCuota()" style="display:none;" title="Guardar nuevo monto"><i class="fas fa-floppy-disk"></i></button>
+                        <button type="button" id="btn-editar" class="btn btn-secondary btn-inline-sm" title="Desbloquear edición de cuota"><i class="fas fa-lock-open"></i></button>
+                        <button type="button" id="btn-guardar" class="btn btn-success btn-inline-sm" style="display:none;" title="Guardar nuevo monto"><i class="fas fa-floppy-disk"></i></button>
                     </div>
                 </div>
                 <button type="submit" class="btn"><i class="fas fa-user-plus"></i> Añadir Alumno</button>
@@ -608,7 +602,7 @@
         <div class="card">
             <div class="card-header-actions">
                 <h2 style="margin:0;">Listado de Alumnos</h2>
-                <button class="btn btn-sm btn-secondary" onclick="imprimirReporte()" title="Imprimir Reporte">
+                <button class="btn btn-sm btn-secondary" id="btn-imprimir" title="Imprimir Reporte">
                     <i class="fas fa-print"></i>
                 </button>
             </div>
@@ -631,11 +625,30 @@
 
     </div>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // =========================================================================
+        // REEMPLAZA ESTE CONFIG CON EL QUE TE ENTREGUE LA CONSOLA DE GOOGLE FIREBASE
+        // =========================================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyA1DlBwlRxa55Qp8WmZSP6AdKTHRcHFOj0",
+            authDomain: "dojocontrol-e63db.firebaseapp.com",
+            databaseURL: "https://dojocontrol-e63db-default-rtdb.firebaseio.com",
+            projectId: "dojocontrol-e63db",
+            storageBucket: "dojocontrol-e63db.firebasestorage.app",
+            messagingSenderId: "421860399543",
+            appId: "1:421860399543:web:ebafaa46671ee50596b032",
+            measurementId: "G-2LWQR58KXC"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
         const PASSWORD_REQUERIDA = "sensei2026"; 
         let cuotaPredeterminada = 25000;
-
-        let alumnos = JSON.parse(localStorage.getItem('dojo_alumnos_v2')) || [];
+        let alumnos = [];
 
         const form = document.getElementById('form-alumno');
         const tabla = document.getElementById('tabla-alumnos');
@@ -644,15 +657,13 @@
         const btnEditar = document.getElementById('btn-editar');
         const btnGuardar = document.getElementById('btn-guardar');
         const themeIcon = document.getElementById('theme-icon');
+        const themeToggle = document.getElementById('theme-toggle');
+        const btnImprimir = document.getElementById('btn-imprimir');
 
-        // FUNCIÓN PARA CAMBIAR ENTRE MODO CLARO Y OSCURO
+        // GESTIÓN DEL TEMA VISUAL (Persistido Localmente)
         function conmutarTema() {
             const temaActual = document.documentElement.getAttribute('data-theme');
-            let nuevoTema = 'light';
-            
-            if (temaActual !== 'dark') {
-                nuevoTema = 'dark';
-            }
+            let nuevoTema = (temaActual !== 'dark') ? 'dark' : 'light';
             
             document.documentElement.setAttribute('data-theme', nuevoTema);
             localStorage.setItem('dojo_theme', nuevoTema);
@@ -660,11 +671,7 @@
         }
 
         function actualizarIconoTema(tema) {
-            if (tema === 'dark') {
-                themeIcon.className = 'fas fa-sun';
-            } else {
-                themeIcon.className = 'fas fa-moon';
-            }
+            themeIcon.className = (tema === 'dark') ? 'fas fa-sun' : 'fas fa-moon';
         }
 
         function cargarTemaInicial() {
@@ -673,18 +680,23 @@
             actualizarIconoTema(temaGuardado);
         }
 
+        // CONTROL DE FORMULARIOS E INTERFAZ
         function inicializarSelector() {
             const hoy = new Date();
             const mesStr = hoy.getFullYear() + '-' + String(hoy.getMonth() + 1).padStart(2, '0');
             mesSelector.value = mesStr;
-            mesSelector.addEventListener('change', actualizarApp);
+            mesSelector.addEventListener('change', () => {
+                renderalumnos();
+                calcularMetricas();
+                verificarAlertas();
+            });
         }
 
         function obtenerPeriodoSeleccionado() {
             return mesSelector.value;
         }
 
-        function habilitarEdicionCuota() {
+        btnEditar.addEventListener('click', () => {
             const passwordIngresada = prompt("Por favor, ingrese la contraseña de autorización para cambiar la cuota:");
             if (passwordIngresada === null) return;
 
@@ -696,95 +708,112 @@
             } else {
                 alert("Contraseña incorrecta. Acción denegada.");
             }
-        }
+        });
 
-        function guardarNuevoValorCuota() {
+        btnGuardar.addEventListener('click', () => {
             const valor = parseInt(inputCuota.value);
             if (!valor || valor <= 0) {
                 alert("Por favor, ingrese un monto de cuota válido.");
                 return;
             }
-            
             cuotaPredeterminada = valor;
             inputCuota.disabled = true;
             btnGuardar.style.display = 'none'; 
             btnEditar.style.display = 'block'; 
             alert(`El valor predeterminado de la cuota se actualizó a $${cuotaPredeterminada}.`);
-        }
+        });
 
-        function actualizarApp() {
-            localStorage.setItem('dojo_alumnos_v2', JSON.stringify(alumnos));
+        // CONEXIÓN DIRECTA CON FIREBASE (LECTURA EN TIEMPO REAL)
+        const alumnosRef = ref(db, 'alumnos');
+        onValue(alumnosRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                alumnos = Object.keys(data).map(key => ({
+                    id: key,
+                    ...data[key]
+                }));
+            } else {
+                alumnos = [];
+            }
             renderalumnos();
             calcularMetricas();
             verificarAlertas();
-        }
+        });
 
+        // REGISTRAR ALUMNO EN LA NUBE
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             
             const cuotaIngresada = parseInt(inputCuota.value) || cuotaPredeterminada;
+            const nuevoId = Date.now().toString(); 
             
             const nuevoAlumno = {
-                id: Date.now(),
                 nombre: document.getElementById('nombre').value.trim(),
                 telefono: document.getElementById('telefono').value.trim(),
                 cuota: cuotaIngresada,
-                pagos: {} 
+                pagos: { "inicializacion": "true" } 
             };
 
-            alumnos.push(nuevoAlumno);
-            form.reset();
-            
-            cuotaPredeterminada = cuotaIngresada;
-            inputCuota.value = cuotaPredeterminada;
-            inputCuota.disabled = true;
-            btnGuardar.style.display = 'none';
-            btnEditar.style.display = 'block';
-            
-            actualizarApp();
+            set(ref(db, 'alumnos/' + nuevoId), nuevoAlumno)
+                .then(() => {
+                    form.reset();
+                    cuotaPredeterminada = cuotaIngresada;
+                    inputCuota.value = cuotaPredeterminada;
+                    inputCuota.disabled = true;
+                    btnGuardar.style.display = 'none';
+                    btnEditar.style.display = 'block';
+                })
+                .catch(error => alert("Error en la nube: " + error.message));
         });
 
-        function cambiarEstadoPago(id) {
+        // REGISTRAR O ANULAR PAGO EN LA NUBE
+        window.cambiarEstadoPago = function(id) {
             const passwordIngresada = prompt("Por favor, ingrese la contraseña de autorización:");
             if (passwordIngresada === null) return;
 
             if (passwordIngresada === PASSWORD_REQUERIDA) {
                 const periodo = obtenerPeriodoSeleccionado();
-
-                alumnos = alumnos.map(alumno => {
-                    if (alumno.id === id) {
-                        if (!alumno.pagos) alumno.pagos = {};
-                        
-                        if (alumno.pagos[periodo]) {
-                            delete alumno.pagos[periodo];
-                        } else {
-                            const inputFecha = document.getElementById(`fecha-pago-${id}`);
-                            const fechaElegida = inputFecha ? inputFecha.value : new Date().toISOString().split('T')[0];
-                            alumno.pagos[periodo] = fechaElegida;
-                        }
+                const alumno = alumnos.find(a => a.id === id);
+                
+                if (alumno) {
+                    if (!alumno.pagos) alumno.pagos = {};
+                    
+                    if (alumno.pagos[periodo]) {
+                        delete alumno.pagos[periodo];
+                    } else {
+                        const inputFecha = document.getElementById(`fecha-pago-${id}`);
+                        const fechaElegida = inputFecha ? inputFecha.value : new Date().toISOString().split('T')[0];
+                        alumno.pagos[periodo] = fechaElegida;
                     }
-                    return alumno;
-                });
-                actualizarApp();
+
+                    set(ref(db, 'alumnos/' + id), {
+                        nombre: alumno.nombre,
+                        telefono: alumno.telefono,
+                        cuota: alumno.cuota,
+                        pagos: alumno.pagos
+                    }).catch(error => alert("Error al procesar pago: " + error.message));
+                }
             } else {
                 alert("Contraseña incorrecta. Acción denegada.");
             }
-        }
+        };
 
-        function eliminarAlumno(id) {
+        // ELIMINAR REGISTRO DE LA NUBE
+        window.eliminarAlumno = function(id) {
             const passwordIngresada = prompt("Para dar de baja a un alumno se requiere autorización. Ingrese contraseña:");
             if (passwordIngresada === null) return;
 
             if (passwordIngresada === PASSWORD_REQUERIDA) {
                 if(confirm('¿Confirmas que deseas eliminar por completo a este alumno del dojo?')) {
-                    alumnos = alumnos.filter(alumno => alumno.id !== id);
-                    actualizarApp();
+                    set(ref(db, 'alumnos/' + id), null)
+                        .catch(error => alert("Error al eliminar: " + error.message));
                 }
             } else {
                 alert("Contraseña incorrecta. No se pudo eliminar al alumno.");
             }
-        }
+        };
 
+        // RENDEREADO Y LOGICA DE INTERFAZ INTERNA
         function calcularMetricas() {
             const periodo = obtenerPeriodoSeleccionado();
             const totalAlumnos = alumnos.length;
@@ -818,10 +847,6 @@
             } else {
                 alertaDiv.style.display = 'none';
             }
-        }
-
-        function imprimirReporte() {
-            window.print();
         }
 
         function renderalumnos() {
@@ -871,20 +896,23 @@
                         </span>
                     </td>
                     <td>
-                        <button class="btn btn-sm ${pagoRealizado ? 'btn-warning' : 'btn-success'}" onclick="cambiarEstadoPago(${alumno.id})" title="${pagoRealizado ? 'Anular Pago' : 'Registrar Pago'}">
+                        <button class="btn btn-sm ${pagoRealizado ? 'btn-warning' : 'btn-success'}" onclick="cambiarEstadoPago('${alumno.id}')" title="${pagoRealizado ? 'Anular Pago' : 'Registrar Pago'}">
                             ${pagoRealizado ? '<i class="fas fa-rotate-left"></i>' : '<i class="fas fa-check"></i>'}
                         </button>
-                        <button class="btn btn-sm" style="background-color:#e53e3e;" onclick="eliminarAlumno(${alumno.id})" title="Dar de baja"><i class="fas fa-trash"></i></button>
+                        <button class="btn btn-sm" style="background-color:#e53e3e;" onclick="eliminarAlumno('${alumno.id}')" title="Dar de baja"><i class="fas fa-trash"></i></button>
                     </td>
                 `;
                 tabla.appendChild(tr);
             });
         }
 
+        // ASIGNACIÓN DE ESCUCHAS REQUERIDAS POR USO DE MÓDULOS
+        themeToggle.addEventListener('click', conmutarTema);
+        btnImprimir.addEventListener('click', () => window.print());
+
         document.addEventListener('DOMContentLoaded', () => {
             cargarTemaInicial();
             inicializarSelector();
-            actualizarApp();
         });
     </script>
 </body>
