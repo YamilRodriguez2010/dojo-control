@@ -10,6 +10,8 @@
     <meta name="theme-color" content="#1a1a1a">
     <meta name="application-name" content="DojoControl">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
         :root {
             --bg-color: #f4f6f9;
@@ -218,6 +220,21 @@
             cursor: not-allowed;
         }
 
+        /* Fila del input de la cuota con botones chicos y alineados */
+        .input-group-editable {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .btn-inline-sm {
+            width: auto !important;
+            padding: 12px 14px !important;
+            font-size: 15px !important;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
         /* Campo de fecha dentro de la tabla */
         .table-date-input {
             padding: 6px;
@@ -248,6 +265,10 @@
             font-size: 15px;
             width: 100%;
             transition: background 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
         }
 
         .btn:hover {
@@ -256,9 +277,11 @@
 
         .btn-sm {
             padding: 10px 14px;
-            font-size: 13px;
+            font-size: 14px;
             width: auto;
-            display: inline-block;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .btn-success { background-color: var(--success); }
@@ -439,17 +462,17 @@
             <img src="logo.png" alt="Logo" class="dojo-logo" onerror="this.style.display='none'">
             <div>
                 <h1>BUTOKU-KAI KARATE-DO</h1>
-                <div class="header-subtitle">Sede Villa Ángela | Dir. Sensei Yamil Rodriguez</div>
+                <div class="header-subtitle">Sede Villa Ángela | Sensei Yamil Rodriguez</div>
             </div>
         </div>
-        <div><span>v2.1 Fecha Reg.</span></div>
+        <div><span>v2.2 Fecha Reg.</span></div>
     </header>
 
     <div class="print-header">
         <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
         <div style="width: 100%;">
             <h1>Butoku-Kai Shotokan Karate-Do</h1>
-            <p><strong>Reporte Oficial de Control de Cuotas</strong><br>Sede Villa Ángela | Dir. Sensei Yamil Rodriguez</p>
+            <p><strong>Reporte Oficial de Control de Cuotas</strong><br>Sede Villa Ángela | Sensei Yamil Rodriguez</p>
         </div>
     </div>
 
@@ -499,17 +522,21 @@
                 
                 <div class="form-group">
                     <label for="cuota">Valor Cuota Mensual ($)</label>
-                    <input type="number" id="cuota" class="form-control" value="25000" disabled>
+                    <div class="input-group-editable">
+                        <input type="number" id="cuota" class="form-control" value="25000" disabled required>
+                        <button type="button" id="btn-editar" class="btn btn-secondary btn-inline-sm" onclick="habilitarEdicionCuota()" title="Desbloquear edición de cuota"><i class="fas fa-lock-open"></i></button>
+                        <button type="button" id="btn-guardar" class="btn btn-success btn-inline-sm" onclick="guardarNuevoValorCuota()" style="display:none;" title="Guardar nuevo monto"><i class="fas fa-floppy-disk"></i></button>
+                    </div>
                 </div>
-                <button type="submit" class="btn">Añadir Alumno</button>
+                <button type="submit" class="btn"><i class="fas fa-user-plus"></i> Añadir Alumno</button>
             </form>
         </div>
 
         <div class="card">
             <div class="card-header-actions">
                 <h2 style="margin:0;">Listado de Alumnos</h2>
-                <button class="btn btn-sm btn-secondary" onclick="imprimirReporte()" style="display:flex; align-items:center; gap:5px;">
-                    🖨️ Imprimir
+                <button class="btn btn-sm btn-secondary" onclick="imprimirReporte()" title="Imprimir Reporte">
+                    <i class="fas fa-print"></i>
                 </button>
             </div>
             <div style="overflow-x: auto;">
@@ -532,14 +559,17 @@
     </div>
 
     <script>
-        const PASSWORD_REQUERIDA = "Sensei2026"; 
-        const VALOR_CUOTA_FIJO = 25000;
+        const PASSWORD_REQUERIDA = "sensei2026"; 
+        let cuotaPredeterminada = 25000;
 
         let alumnos = JSON.parse(localStorage.getItem('dojo_alumnos_v2')) || [];
 
         const form = document.getElementById('form-alumno');
         const tabla = document.getElementById('tabla-alumnos');
         const mesSelector = document.getElementById('mes-selector');
+        const inputCuota = document.getElementById('cuota');
+        const btnEditar = document.getElementById('btn-editar');
+        const btnGuardar = document.getElementById('btn-guardar');
 
         function inicializarSelector() {
             const hoy = new Date();
@@ -552,6 +582,34 @@
             return mesSelector.value;
         }
 
+        function habilitarEdicionCuota() {
+            const passwordIngresada = prompt("Por favor, ingrese la contraseña de autorización para cambiar la cuota:");
+            if (passwordIngresada === null) return;
+
+            if (passwordIngresada === PASSWORD_REQUERIDA) {
+                inputCuota.disabled = false;
+                inputCuota.focus();
+                btnEditar.style.display = 'none'; 
+                btnGuardar.style.display = 'block'; 
+            } else {
+                alert("Contraseña incorrecta. Acción denegada.");
+            }
+        }
+
+        function guardarNuevoValorCuota() {
+            const valor = parseInt(inputCuota.value);
+            if (!valor || valor <= 0) {
+                alert("Por favor, ingrese un monto de cuota válido.");
+                return;
+            }
+            
+            cuotaPredeterminada = valor;
+            inputCuota.disabled = true;
+            btnGuardar.style.display = 'none'; 
+            btnEditar.style.display = 'block'; 
+            alert(`El valor predeterminado de la cuota se actualizó a $${cuotaPredeterminada}.`);
+        }
+
         function actualizarApp() {
             localStorage.setItem('dojo_alumnos_v2', JSON.stringify(alumnos));
             renderalumnos();
@@ -562,17 +620,25 @@
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             
+            const cuotaIngresada = parseInt(inputCuota.value) || cuotaPredeterminada;
+            
             const nuevoAlumno = {
                 id: Date.now(),
                 nombre: document.getElementById('nombre').value.trim(),
                 telefono: document.getElementById('telefono').value.trim(),
-                cuota: VALOR_CUOTA_FIJO,
+                cuota: cuotaIngresada,
                 pagos: {} 
             };
 
             alumnos.push(nuevoAlumno);
             form.reset();
-            document.getElementById('cuota').value = VALOR_CUOTA_FIJO;
+            
+            cuotaPredeterminada = cuotaIngresada;
+            inputCuota.value = cuotaPredeterminada;
+            inputCuota.disabled = true;
+            btnGuardar.style.display = 'none';
+            btnEditar.style.display = 'block';
+            
             actualizarApp();
         });
 
@@ -588,10 +654,8 @@
                         if (!alumno.pagos) alumno.pagos = {};
                         
                         if (alumno.pagos[periodo]) {
-                            // Si ya existía pago, se anula
                             delete alumno.pagos[periodo];
                         } else {
-                            // Si no existía, se lee la fecha ingresada en su correspondiente campo selector
                             const inputFecha = document.getElementById(`fecha-pago-${id}`);
                             const fechaElegida = inputFecha ? inputFecha.value : new Date().toISOString().split('T')[0];
                             alumno.pagos[periodo] = fechaElegida;
@@ -623,9 +687,11 @@
             const periodo = obtenerPeriodoSeleccionado();
             const totalAlumnos = alumnos.length;
             
-            const alDia = alumnos.filter(a => a.pagos && a.pagos[periodo]).length; 
+            const alumnosAlDia = alumnos.filter(a => a.pagos && a.pagos[periodo]);
+            const alDia = alumnosAlDia.length; 
             const morosos = totalAlumnos - alDia;
-            const totalCaja = alDia * VALOR_CUOTA_FIJO;
+            
+            const totalCaja = alumnosAlDia.reduce((sum, alumno) => sum + (alumno.cuota || 0), 0);
 
             document.getElementById('widget-alumnos').innerText = totalAlumnos;
             document.getElementById('widget-aldia').innerText = alDia;
@@ -672,7 +738,6 @@
                 const tr = document.createElement('tr');
                 const pagoRealizado = alumno.pagos && alumno.pagos[periodo] ? true : false;
                 
-                // CAMBIO AQUÍ: Si ya pagó muestra la fecha fija, si no, muestra el campo para elegirla
                 let celdaFecha = "";
                 if (pagoRealizado) {
                     const [anio, mes, dia] = alumno.pagos[periodo].split('-');
@@ -691,21 +756,24 @@
                 let mensajePredeterminado = encodeURIComponent(`¡Hola ${alumno.nombre}! Te avisamos que tu cuota de Karate correspondiente al mes de ${nombreMes} se encuentra vencida. Por favor, regulariza tu situación. Saludos, Sensei.`);
                 let linkWhatsApp = numLimpio ? `<a href="https://wa.me/${numLimpio}?text=${mensajePredeterminado}" target="_blank" style="text-decoration:none; margin-left:8px; font-size:16px;" title="Enviar Recordatorio por WhatsApp">💬</a>` : '';
 
+                const cuotaAlumno = alumno.cuota !== undefined ? alumno.cuota : 25000;
+
+                // Modificación aquí para usar iconos en Registrar / Anular Pago
                 tr.innerHTML = `
                     <td><strong>${alumno.nombre}</strong></td>
                     <td>${alumno.telefono || '-'}${!pagoRealizado ? linkWhatsApp : ''}</td>
                     <td>${celdaFecha}</td>
-                    <td>$${alumno.cuota.toLocaleString('es-AR')}</td>
+                    <td>$${cuotaAlumno.toLocaleString('es-AR')}</td>
                     <td>
                         <span class="badge ${pagoRealizado ? 'badge-paid' : 'badge-debt'}">
                             ${pagoRealizado ? 'Al Día' : 'Pendiente'}
                         </span>
                     </td>
                     <td>
-                        <button class="btn btn-sm ${pagoRealizado ? 'btn-warning' : 'btn-success'}" onclick="cambiarEstadoPago(${alumno.id})">
-                            ${pagoRealizado ? 'Anular Pago' : 'Registrar Pago'}
+                        <button class="btn btn-sm ${pagoRealizado ? 'btn-warning' : 'btn-success'}" onclick="cambiarEstadoPago(${alumno.id})" title="${pagoRealizado ? 'Anular Pago' : 'Registrar Pago'}">
+                            ${pagoRealizado ? '<i class="fas fa-rotate-left"></i>' : '<i class="fas fa-check"></i>'}
                         </button>
-                        <button class="btn btn-sm" style="background-color:#e53e3e;" onclick="eliminarAlumno(${alumno.id})" title="Dar de baja">❌</button>
+                        <button class="btn btn-sm" style="background-color:#e53e3e;" onclick="eliminarAlumno(${alumno.id})" title="Dar de baja"><i class="fas fa-trash"></i></button>
                     </td>
                 `;
                 tabla.appendChild(tr);
