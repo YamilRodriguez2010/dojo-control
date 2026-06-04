@@ -10,6 +10,10 @@
     <meta name="theme-color" content="#1a1a1a">
     <meta name="application-name" content="DojoControl">
 
+    <link rel="icon" type="image/png" sizes="192x192" href="logo.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="logo.png">
+    <link rel="shortcut icon" href="logo.png" type="image/x-icon">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -758,7 +762,6 @@
 
                 const cuotaAlumno = alumno.cuota !== undefined ? alumno.cuota : 25000;
 
-                // Modificación aquí para usar iconos en Registrar / Anular Pago
                 tr.innerHTML = `
                     <td><strong>${alumno.nombre}</strong></td>
                     <td>${alumno.telefono || '-'}${!pagoRealizado ? linkWhatsApp : ''}</td>
