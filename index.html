@@ -278,6 +278,38 @@
             cursor: not-allowed;
         }
 
+        /* DISEÑO DE GRUPO INTEGRADO PARA EL TELÉFONO */
+        .phone-input-group {
+            display: flex;
+            width: 100%;
+            align-items: stretch;
+        }
+
+        .phone-input-group .form-control {
+            flex: 1;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .phone-input-group .btn-contacts {
+            background-color: #4a5568;
+            color: white;
+            border: 1px solid var(--border-color);
+            border-left: none;
+            border-top-right-radius: 6px;
+            border-bottom-right-radius: 6px;
+            padding: 0 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .phone-input-group .btn-contacts:hover {
+            background-color: #2d3748;
+        }
+
         .input-group-editable {
             display: flex;
             gap: 5px;
@@ -531,7 +563,7 @@
             <button class="theme-toggle-btn" id="theme-toggle" title="Cambiar Modo Claro/Oscuro">
                 <i class="fas fa-moon" id="theme-icon"></i>
             </button>
-            <div><span>v3.1 Nube + Contactos</span></div>
+            <div><span>v3.0 Nube Reg.</span></div>
         </div>
     </header>
 
@@ -579,17 +611,18 @@
             <form id="form-alumno">
                 <div class="form-group">
                     <label for="nombre">Nombre Completo</label>
-                    <div class="input-group-editable">
-                        <input type="text" id="nombre" class="form-control" placeholder="Ej. Pedro Rodríguez" required>
-                        <button type="button" id="btn-importar-contacto" class="btn btn-secondary btn-inline-sm" title="Importar desde la agenda del celular">
-                            <i class="fas fa-address-book"></i>
-                        </button>
-                    </div>
+                    <input type="text" id="nombre" class="form-control" placeholder="Ej. Pedro Rodríguez" required>
                 </div>
 
                 <div class="form-group">
                     <label for="telefono">Número de Teléfono</label>
-                    <input type="tel" id="telefono" class="form-control" placeholder="Ej. 5493735123456">
+                    <!-- INTEGRACIÓN VISUAL DEL BOTÓN DE AGENDA -->
+                    <div class="phone-input-group">
+                        <input type="tel" id="telefono" class="form-control" placeholder="Ej. 5493735123456">
+                        <button type="button" id="btn-contactos" class="btn-contacts" title="Elegir desde la agenda">
+                            <i class="fas fa-address-book"></i>
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -634,17 +667,15 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // =========================================================================
-        // REEMPLAZA ESTE CONFIG CON EL QUE TE ENTREGUE LA CONSOLA DE GOOGLE FIREBASE
-        // =========================================================================
         const firebaseConfig = {
-            apiKey: "TU_API_KEY_AQUÍ",
-            authDomain: "tu-proyecto.firebaseapp.com",
-            databaseURL: "https://tu-proyecto-default-rtdb.firebaseio.com",
-            projectId: "tu-proyecto",
-            storageBucket: "tu-proyecto.appspot.com",
-            messagingSenderId: "1234567890",
-            appId: "1:123456:web:abcdef"
+            apiKey: "AIzaSyA1DlBwlRxa55Qp8WmZSP6AdKTHRcHFOj0",
+            authDomain: "dojocontrol-e63db.firebaseapp.com",
+            databaseURL: "https://dojocontrol-e63db-default-rtdb.firebaseio.com",
+            projectId: "dojocontrol-e63db",
+            storageBucket: "dojocontrol-e63db.firebasestorage.app",
+            messagingSenderId: "421860399543",
+            appId: "1:421860399543:web:ebafaa46671ee50596b032",
+            measurementId: "G-2LWQR58KXC"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -663,9 +694,35 @@
         const themeIcon = document.getElementById('theme-icon');
         const themeToggle = document.getElementById('theme-toggle');
         const btnImprimir = document.getElementById('btn-imprimir');
-        const btnImportarContacto = document.getElementById('btn-importar-contacto');
+        const btnContactos = document.getElementById('btn-contactos');
 
-        // GESTIÓN DEL TEMA VISUAL (Persistido Localmente)
+        // NUEVA LOGICA MEJORADA DE AGENDA DE CONTACTOS
+        btnContactos.addEventListener('click', async () => {
+            if ('contacts' in navigator && 'ContactsManager' in window) {
+                try {
+                    const props = ['name', 'tel'];
+                    const opts = { multiple: false };
+                    const contacts = await navigator.contacts.select(props, opts);
+                    
+                    if (contacts.length > 0) {
+                        const contacto = contacts[0];
+                        if (contacto.name && contacto.name.length > 0) {
+                            document.getElementById('nombre').value = contacto.name[0];
+                        }
+                        if (contacto.tel && contacto.tel.length > 0) {
+                            document.getElementById('telefono').value = contacto.tel[0].replace(/[\s-]/g, '');
+                        }
+                    }
+                } catch (err) {
+                    console.error("Error al acceder a los contactos: ", err);
+                }
+            } else {
+                // Alerta informativa si el dispositivo o navegador actual no lo permite
+                alert("La selección automática de contactos no es compatible con este navegador o dispositivo (común en computadoras convencionales y sistemas iOS de Apple).\n\nPor favor, escribe el número manualmente.");
+            }
+        });
+
+        // GESTIÓN DEL TEMA VISUAL
         function conmutarTema() {
             const temaActual = document.documentElement.getAttribute('data-theme');
             let nuevoTema = (temaActual !== 'dark') ? 'dark' : 'light';
@@ -728,44 +785,7 @@
             alert(`El valor predeterminado de la cuota se actualizó a $${cuotaPredeterminada}.`);
         });
 
-        // NUEVA FUNCIÓN: IMPORTAR DESDE LA AGENDA NATIVA DEL CELULAR
-        btnImportarContacto.addEventListener('click', async () => {
-            // Verificar si el navegador soporta la API de Contactos
-            if (!('contacts' in navigator && 'Properties' in window)) {
-                alert("La selección de contactos de la agenda no es compatible con este navegador o dispositivo. Prueba abriendo el enlace HTTPS desde Google Chrome en tu celular Android.");
-                return;
-            }
-
-            try {
-                // Definimos qué propiedades del contacto queremos leer (Nombre y Teléfono)
-                const propiedades = ['name', 'tel'];
-                // Forzamos que solo se pueda elegir 1 contacto a la vez
-                const opciones = { multiple: false }; 
-                
-                // Abre la interfaz nativa del sistema del teléfono
-                const contactosSeleccionados = await navigator.contacts.select(propiedades, opciones);
-                
-                if (contactosSeleccionados && contactosSeleccionados.length > 0) {
-                    const contacto = contactosSeleccionados[0];
-                    
-                    // Extraer Nombre
-                    if (contacto.name && contacto.name.length > 0) {
-                        document.getElementById('nombre').value = contacto.name[0];
-                    }
-                    
-                    // Extraer Teléfono y limpiarlo un poco si es necesario
-                    if (contacto.tel && contacto.tel.length > 0) {
-                        let telLimpio = contacto.tel[0].replace(/\s+/g, ''); // Remueve espacios en blanco comunes en la agenda
-                        document.getElementById('telefono').value = telLimpio;
-                    }
-                }
-            } catch (err) {
-                // Maneja el caso de que el usuario cancele la selección o deniegue el permiso
-                console.log("Selección de contacto cancelada o fallida: ", err);
-            }
-        });
-
-        // CONEXIÓN DIRECTA CON FIREBASE (LECTURA EN TIEMPO REAL)
+        // CONEXIÓN CON FIREBASE
         const alumnosRef = ref(db, 'alumnos');
         onValue(alumnosRef, (snapshot) => {
             const data = snapshot.val();
@@ -808,7 +828,7 @@
                 .catch(error => alert("Error en la nube: " + error.message));
         });
 
-        // REGISTRAR O ANULAR PAGO EN LA NUBE
+        // REGISTRAR O ANULAR PAGO
         window.cambiarEstadoPago = function(id) {
             const passwordIngresada = prompt("Por favor, ingrese la contraseña de autorización:");
             if (passwordIngresada === null) return;
@@ -840,7 +860,7 @@
             }
         };
 
-        // ELIMINAR REGISTRO DE LA NUBE
+        // ELIMINAR REGISTRO
         window.eliminarAlumno = function(id) {
             const passwordIngresada = prompt("Para dar de baja a un alumno se requiere autorización. Ingrese contraseña:");
             if (passwordIngresada === null) return;
@@ -855,7 +875,7 @@
             }
         };
 
-        // RENDEREADO Y LOGICA DE INTERFAZ INTERNA
+        // RENDEREADO DE INTERFAZ
         function calcularMetricas() {
             const periodo = obtenerPeriodoSeleccionado();
             const totalAlumnos = alumnos.length;
@@ -912,50 +932,34 @@
                     const [anio, mes, dia] = alumno.pagos[periodo].split('-');
                     celdaFecha = `<strong>${dia}/${mes}/${anio}</strong>`;
                 } else {
-                    celdaFecha = `
-                        <input type="date" id="fecha-pago-${alumno.id}" class="table-date-input" value="${hoyStr}">
-                        <span class="print-only">-</span>
-                    `;
+                    celdaFecha = `<input type="date" id="fecha-pago-${alumno.id}" class="table-date-input" value="${hoyStr}">`;
                 }
 
-                let numLimpio = alumno.telefono ? alumno.telefono.replace(/[^0-9]/g, '') : '';
-                const [pAnio, pMes] = periodo.split('-');
-                const nombreMes = new Date(pAnio, pMes - 1).toLocaleString('es', { month: 'long' });
-                
-                let mensajePredeterminado = encodeURIComponent(`¡Hola ${alumno.nombre}! Te avisamos que tu cuota de Karate correspondiente al mes de ${nombreMes} se encuentra vencida. Por favor, regulariza tu situación. Saludos, Sensei.`);
-                let linkWhatsApp = numLimpio ? `<a href="https://wa.me/${numLimpio}?text=${mensajePredeterminado}" target="_blank" style="text-decoration:none; margin-left:8px; font-size:16px;" title="Enviar Recordatorio por WhatsApp">💬</a>` : '';
-
-                const cuotaAlumno = alumno.cuota !== undefined ? alumno.cuota : 25000;
-
                 tr.innerHTML = `
-                    <td><strong>${alumno.nombre}</strong></td>
-                    <td>${alumno.telefono || '-'}${!pagoRealizado ? linkWhatsApp : ''}</td>
+                    <td>${alumno.nombre}</td>
+                    <td>${alumno.telefono || '-'}</td>
                     <td>${celdaFecha}</td>
-                    <td>$${cuotaAlumno.toLocaleString('es-AR')}</td>
-                    <td>
-                        <span class="badge ${pagoRealizado ? 'badge-paid' : 'badge-debt'}">
-                            ${pagoRealizado ? 'Al Día' : 'Pendiente'}
-                        </span>
-                    </td>
-                    <td>
-                        <button class="btn btn-sm ${pagoRealizado ? 'btn-warning' : 'btn-success'}" onclick="cambiarEstadoPago('${alumno.id}')" title="${pagoRealizado ? 'Anular Pago' : 'Registrar Pago'}">
-                            ${pagoRealizado ? '<i class="fas fa-rotate-left"></i>' : '<i class="fas fa-check"></i>'}
+                    <td>$${alumno.cuota}</td>
+                    <td><span class="badge ${pagoRealizado ? 'badge-paid' : 'badge-debt'}">${pagoRealizado ? 'Pagado' : 'Pendiente'}</span></td>
+                    <td class="acciones-header">
+                        <button class="btn-sm ${pagoRealizado ? 'btn-secondary' : 'btn-success'}" onclick="cambiarEstadoPago('${alumno.id}')" style="margin-bottom: 5px;">
+                            ${pagoRealizado ? '<i class="fas fa-undo"></i> Anular' : '<i class="fas fa-check"></i> Pagar'}
                         </button>
-                        <button class="btn btn-sm" style="background-color:#e53e3e;" onclick="eliminarAlumno('${alumno.id}')" title="Dar de baja"><i class="fas fa-trash"></i></button>
+                        <button class="btn-sm btn-secondary" style="background-color: #e53e3e;" onclick="eliminarAlumno('${alumno.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </td>
                 `;
                 tabla.appendChild(tr);
             });
         }
 
-        // ASIGNACIÓN DE ESCUCHAS REQUERIDAS POR USO DE MÓDULOS
+        // INICIALIZACIÓN DE LA APP
+        cargarTemaInicial();
+        inicializarSelector();
         themeToggle.addEventListener('click', conmutarTema);
-        btnImprimir.addEventListener('click', () => window.print());
+        btnImprimir.addEventListener('click', () => { window.print(); });
 
-        document.addEventListener('DOMContentLoaded', () => {
-            cargarTemaInicial();
-            inicializarSelector();
-        });
     </script>
 </body>
 </html>
