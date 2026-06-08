@@ -1,78 +1,43 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dojo Control - Gestión de Cuotas</title>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUTOKU-KAI SHOTOKAN KARATE-DO</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        :root {
-            --bg-color: #f4f6f9; --card-bg: #ffffff; --text-main: #2d3748;
-            --primary: #d32f2f; --border-color: #e2e8f0; --table-th-bg: #f8fafc;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-        body { background-color: var(--bg-color); padding: 15px; }
-
-        /* ESTILOS PARA MÓVIL: VISTA LINEAL */
-        .card { background: var(--card-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); }
-        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th, td { padding: 10px; border-bottom: 1px solid var(--border-color); font-size: 13px; text-align: center; }
+        /* Estilos base (Simulando tu estructura original) */
+        :root { --primary: #3182ce; --success: #48bb78; --warning: #ed8936; --bg-color: #f4f6f9; }
+        body { font-family: sans-serif; background: var(--bg-color); padding: 10px; }
+        .card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+        .badge-paid { background: #c6f6d5; color: #22543d; }
+        .badge-debt { background: #fed7d7; color: #822727; }
         
-        @media screen and (max-width: 768px) {
-            th, td { font-size: 11px; padding: 8px 4px; }
-            .btn-sm { padding: 5px !important; }
-        }
-
-        /* CONFIGURACIÓN DE IMPRESIÓN */
-        .print-only, .print-header, .print-mes-container { display: none; }
-
-        @media print {
-            body { background: #fff; padding: 0; }
-            header, .card:has(#form-alumno), .period-selector, .btn-sm, .acciones-header, .alert-banner { display: none !important; }
-            
-            .print-header { display: block !important; position: relative; text-align: center; padding-bottom: 10px; border-bottom: 3px solid #000; }
-            .print-header img { position: absolute; left: 0; top: 0; width: 70px; }
-            .print-mes-container { display: block !important; text-align: center; margin: 15px 0; font-weight: bold; }
-            
-            table { width: 100% !important; border-top: 2px solid #000; border-bottom: 2px solid #000; }
-            th { background: #eee !important; border-bottom: 2px solid #000 !important; }
-            td { border-bottom: 1px solid #000 !important; }
-            .table-date-input { display: none !important; }
-            .print-only { display: inline !important; }
+        /* OPTIMIZACIÓN MÓVIL: Una sola línea por alumno */
+        @media (max-width: 600px) {
+            .col-telefono, .col-oculta-principal { display: none !important; }
+            table td { padding: 8px 4px !important; font-size: 13px !important; white-space: nowrap; }
+            .table-date-input { width: 90px !important; }
+            .acciones-header { gap: 2px !important; justify-content: center !important; }
         }
     </style>
 </head>
 <body>
 
-    <div class="print-header">
-        <img src="logo.png" alt="Logo">
-        <h1>Butoku-Kai Shotokan Karate-Do</h1>
-        <p>Reporte Oficial de Control de Cuotas</p>
-    </div>
-    <div class="print-mes-container">
-        Mes de Gestión: <span id="print-mes"></span>
-    </div>
-
     <div class="container">
-        <div class="period-selector">
-            <input type="month" id="mes-selector">
-        </div>
-
         <div class="card">
-            <h2>Listado de Alumnos</h2>
-            <div class="table-wrapper">
+            <input type="month" id="mes-selector">
+            <div style="overflow-x: auto;">
                 <table>
                     <thead>
                         <tr>
                             <th>Alumno</th>
-                            <th>Teléfono</th>
-                            <th>Fecha de Pago</th>
-                            <th>Cuota</th>
-                            <th>Estado</th>
+                            <th class="col-telefono">Teléfono</th>
+                            <th>Fecha</th>
+                            <th class="col-oculta-principal">Cuota</th>
+                            <th class="col-oculta-principal">Estado</th>
                             <th class="acciones-header">Acciones</th>
                         </tr>
                     </thead>
@@ -82,23 +47,90 @@
         </div>
     </div>
 
+    <!-- Modal Info -->
+    <div id="modal-info" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+        <div class="modal-content" style="background:white; padding:20px; border-radius:8px;">
+            <span id="close-modal" style="cursor:pointer; float:right;">&times;</span>
+            <h2 id="modal-nombre"></h2>
+            <p><strong>Teléfono:</strong> <span id="modal-telefono"></span></p>
+            <p><strong>Cuota:</strong> <span id="modal-cuota"></span></p>
+            <p><strong>Estado:</strong> <span id="modal-estado"></span></p>
+            <a id="btn-whatsapp" href="#" target="_blank" style="display:none; padding:10px; background:#25D366; color:white; text-decoration:none;">Recordar Pago</a>
+        </div>
+    </div>
+
     <script type="module">
-        // (Tu lógica de Firebase y renderizado sigue funcionando igual)
-        // Solo asegúrate de conectar el print-mes al selector:
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = { apiKey: "AIzaSyA1DlBwlRxa55Qp8WmZSP6AdKTHRcHFOj0", authDomain: "dojocontrol-e63db.firebaseapp.com", databaseURL: "https://dojocontrol-e63db-default-rtdb.firebaseio.com", projectId: "dojocontrol-e63db", storageBucket: "dojocontrol-e63db.firebasestorage.app", messagingSenderId: "421860399543", appId: "1:421860399543:web:ebafaa46671ee50596b032" };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const PASSWORD_REQUERIDA = "sensei2026";
+        let alumnos = [];
+        const tabla = document.getElementById('tabla-alumnos');
         const mesSelector = document.getElementById('mes-selector');
-        const printMes = document.getElementById('print-mes');
-        
-        function actualizarMesImpresion() {
-            const fecha = new Date(mesSelector.value + "-02");
-            const nombreMes = fecha.toLocaleString('es-ES', { month: 'long', year: 'numeric' });
-            printMes.innerText = nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1);
+        const modalInfo = document.getElementById('modal-info');
+        const btnWhatsapp = document.getElementById('btn-whatsapp');
+
+        // Configurar mes por defecto al actual
+        mesSelector.value = new Date().toISOString().slice(0, 7);
+
+        function renderalumnos() {
+            tabla.innerHTML = '';
+            const periodo = mesSelector.value;
+            const hoyStr = new Date().toISOString().split('T')[0];
+
+            [...alumnos].sort((a, b) => a.nombre.localeCompare(b.nombre)).forEach(alumno => {
+                const tr = document.createElement('tr');
+                const pagoRealizado = alumno.pagos && alumno.pagos[periodo] ? true : false;
+                
+                tr.innerHTML = `
+                    <td style="white-space: nowrap;">${alumno.nombre}</td>
+                    <td class="col-telefono">${alumno.telefono || '-'}</td>
+                    <td>${pagoRealizado ? alumno.pagos[periodo].split('-')[2] : `<input type="date" id="fecha-pago-${alumno.id}" class="table-date-input" value="${hoyStr}">`}</td>
+                    <td class="col-oculta-principal">$${alumno.cuota.toLocaleString('es-AR')}</td>
+                    <td class="col-oculta-principal"><span class="badge ${pagoRealizado ? 'badge-paid' : 'badge-debt'}">${pagoRealizado ? 'Pagado' : 'Pendiente'}</span></td>
+                    <td class="acciones-header" style="display: flex; gap: 4px; justify-content: center;">
+                        <button class="btn-sm" onclick="verInfoAlumno('${alumno.id}')"><i class="fas fa-info-circle"></i></button>
+                        <button class="btn-sm" onclick="cambiarEstadoPago('${alumno.id}')"><i class="fas ${pagoRealizado ? 'fa-undo' : 'fa-money-bill-wave'}"></i></button>
+                        <button class="btn-sm" onclick="eliminarAlumno('${alumno.id}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tabla.appendChild(tr);
+            });
         }
-        
-        mesSelector.addEventListener('change', actualizarMesImpresion);
-        // Inicializar
-        const hoy = new Date();
-        mesSelector.value = hoy.getFullYear() + '-' + String(hoy.getMonth() + 1).padStart(2, '0');
-        actualizarMesImpresion();
+
+        window.verInfoAlumno = (id) => {
+            const alumno = alumnos.find(a => a.id === id);
+            document.getElementById('modal-nombre').innerText = alumno.nombre;
+            document.getElementById('modal-telefono').innerText = alumno.telefono || '-';
+            document.getElementById('modal-estado').innerText = alumno.pagos && alumno.pagos[mesSelector.value] ? 'Pagado' : 'Pendiente';
+            modalInfo.style.display = 'flex';
+        };
+
+        window.cambiarEstadoPago = (id) => {
+            if (prompt("Contraseña:") !== PASSWORD_REQUERIDA) return;
+            const alumno = alumnos.find(a => a.id === id);
+            const periodo = mesSelector.value;
+            if (!alumno.pagos) alumno.pagos = {};
+            if (alumno.pagos[periodo]) delete alumno.pagos[periodo];
+            else alumno.pagos[periodo] = new Date().toISOString().split('T')[0];
+            set(ref(db, 'alumnos/' + id), alumno);
+        };
+
+        window.eliminarAlumno = (id) => {
+            if (prompt("Contraseña:") === PASSWORD_REQUERIDA) set(ref(db, 'alumnos/' + id), null);
+        };
+
+        document.getElementById('close-modal').onclick = () => modalInfo.style.display = 'none';
+        mesSelector.onchange = renderalumnos;
+
+        onValue(ref(db, 'alumnos'), (snapshot) => {
+            alumnos = snapshot.val() ? Object.keys(snapshot.val()).map(k => ({id: k, ...snapshot.val()[k]})) : [];
+            renderalumnos();
+        });
     </script>
 </body>
 </html>
