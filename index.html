@@ -456,7 +456,7 @@
                 <div class="form-group">
                     <label for="nombre">Nombre Completo</label>
                     <div class="input-clearable">
-                        <input type="text" id="nombre" class="form-control" placeholder="Ej. Pedro Rodríguez" required>
+                        <input type="text" id="nombre" class="form-control" placeholder="Ej. Cristian Rodriguez" required>
                         <button type="button" class="btn-clear" data-target="nombre" title="Limpiar"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
@@ -465,7 +465,7 @@
                     <label for="telefono">Número de Teléfono</label>
                     <div class="phone-input-group">
                         <div class="input-clearable" style="flex:1; display:flex;">
-                            <input type="tel" id="telefono" class="form-control" placeholder="Ej. 5493735123456" style="border-top-right-radius:0; border-bottom-right-radius:0;">
+                            <input type="tel" id="telefono" class="form-control" placeholder="Ej. 3735537179" style="border-top-right-radius:0; border-bottom-right-radius:0;">
                             <button type="button" class="btn-clear" data-target="telefono" title="Limpiar"><i class="fas fa-times"></i></button>
                         </div>
                         <button type="button" id="btn-contactos" class="btn-contacts" title="Elegir desde la agenda">
@@ -803,7 +803,7 @@
                 if (alumno.telefono && alumno.telefono.trim() !== "") {
                     const [anio, mes] = periodo.split('-');
                     const telefonoLimpio = alumno.telefono.replace(/[^0-9]/g, ''); 
-                    const mensaje = `Hola *${alumno.nombre}*, te saludamos desde el *Dojo Butoku-Kai*. Te recordamos que se encuentra pendiente el pago de la cuota arancelaria correspondiente al mes *${mes}/${anio}* por un valor de *$${alumno.cuota.toLocaleString('es-AR')}*. Si ya realizaste el pago o tuviste algún inconveniente, por favor avísanos. ¡Muchas gracias! Oss.`;
+                    const mensaje = `Hola *${alumno.nombre}*, te saludamos desde el *Dojo Butoku-Kai*. Te recordamos que se encuentra pendiente el pago de la cuota correspondiente al mes *${mes}/${anio}* por un valor de *$${alumno.cuota.toLocaleString('es-AR')}*. Le recordamos que puedes realizar el pago vía transferencia al alias: karate.dojo.mes y enviarnos el comprobante por WhatsApp.Si ya realizaste el pago o tuviste algún inconveniente, por favor avísanos. ¡Muchas gracias! Oss.`;
                     
                     btnWhatsapp.href = `https://wa.me/${telefonoLimpio}?text=${encodeURIComponent(mensaje)}`;
                     btnWhatsapp.style.display = 'inline-flex';
