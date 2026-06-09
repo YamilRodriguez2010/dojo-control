@@ -78,6 +78,8 @@
         
         .theme-toggle-btn { background: none; border: none; color: var(--header-text); font-size: 16px; cursor: pointer; padding: 5px; opacity: 0.9; }
         .theme-toggle-btn:hover { opacity: 1; transform: scale(1.1); }
+        .config-btn { background: none; border: none; color: var(--header-text); font-size: 16px; cursor: pointer; padding: 5px; opacity: 0.9; }
+        .config-btn:hover { opacity: 1; transform: scale(1.1); }
 
         .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 2fr; gap: 15px; }
 
@@ -169,6 +171,19 @@
         .print-only { display: none; }
         .print-header { display: none; }
         .print-mes-container { display: none; }
+
+        /* MODAL DE CONFIGURACIÓN */
+        .modal-config-overlay {
+            display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; backdrop-filter: blur(3px);
+        }
+        .modal-config-content {
+            background-color: var(--card-bg); padding: 24px; border-radius: 8px; width: 90%; max-width: 400px;
+            border: 1px solid var(--border-color); position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        .modal-config-content h3 { font-size: 16px; margin-bottom: 18px; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        .modal-config-actions { display: flex; gap: 10px; margin-top: 18px; }
+        .modal-config-actions .btn { flex: 1; padding: 12px; }
 
         /* FILTRO DE PANTALLA: OCULTA COLUMNAS DE LA PANTALLA EN PC Y MÓVIL */
         @media screen {
@@ -394,24 +409,29 @@
         <div class="header-title-container">
             <img src="logo.png" alt="Logo" class="dojo-logo">
             <div>
-                <h1>BUTOKU-KAI SHOTOKAN KARATE-DO</h1>
-                <div class="header-subtitle">Sede Villa Ángela | Sensei Yamil Rodriguez</div>
+                <h1 id="header-nombre-dojo">BUTOKU-KAI SHOTOKAN KARATE-DO</h1>
+                <div class="header-subtitle" id="header-subtitulo">Sede Villa Ángela | Sensei Yamil Rodriguez</div>
             </div>
         </div>
         <div class="header-right">
-            <button class="theme-toggle-btn" id="theme-toggle" title="Cambiar Modo Claro/Oscuro">
-                <i class="fas fa-moon" id="theme-icon"></i>
-            </button>
-            <div><span>v3.4</span></div>
+            <div style="display:flex; gap:4px;">
+                <button class="config-btn" id="btn-config" title="Configurar Sede y Sensei">
+                    <i class="fas fa-gear"></i>
+                </button>
+                <button class="theme-toggle-btn" id="theme-toggle" title="Cambiar Modo Claro/Oscuro">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                </button>
+            </div>
+            <div><span>v3.4 Nube Reg.</span></div>
         </div>
     </header>
 
     <div class="print-header">
         <img src="logo.png" alt="Logo">
         <div>
-            <h1>Butoku-Kai Shotokan Karate-Do</h1>
+            <h1 id="print-nombre-dojo">Butoku-Kai Shotokan Karate-Do</h1>
             <p><strong>Reporte Oficial de Control de Cuotas</strong></p>
-            <p>Sede Villa Ángela | Sensei Yamil Rodriguez</p>
+            <p id="print-subtitulo">Sede Villa Ángela | Sensei Yamil Rodriguez</p>
         </div>
     </div>
     
@@ -456,7 +476,7 @@
                 <div class="form-group">
                     <label for="nombre">Nombre Completo</label>
                     <div class="input-clearable">
-                        <input type="text" id="nombre" class="form-control" placeholder="Ej. Cristian Rodriguez" required>
+                        <input type="text" id="nombre" class="form-control" placeholder="Ej. Pedro Rodríguez" required>
                         <button type="button" class="btn-clear" data-target="nombre" title="Limpiar"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
@@ -465,7 +485,7 @@
                     <label for="telefono">Número de Teléfono</label>
                     <div class="phone-input-group">
                         <div class="input-clearable" style="flex:1; display:flex;">
-                            <input type="tel" id="telefono" class="form-control" placeholder="Ej. 3735537179" style="border-top-right-radius:0; border-bottom-right-radius:0;">
+                            <input type="tel" id="telefono" class="form-control" placeholder="Ej. 5493735123456" style="border-top-right-radius:0; border-bottom-right-radius:0;">
                             <button type="button" class="btn-clear" data-target="telefono" title="Limpiar"><i class="fas fa-times"></i></button>
                         </div>
                         <button type="button" id="btn-contactos" class="btn-contacts" title="Elegir desde la agenda">
@@ -539,6 +559,35 @@
         </div>
     </div>
 
+    <div id="modal-config" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-modal-config">&times;</span>
+            <h2 style="margin-bottom: 18px; color: var(--primary); font-size: 18px;"><i class="fas fa-gear" style="margin-right:8px;"></i>Configuración del Dojo</h2>
+            <div class="form-group">
+                <label for="config-nombre-dojo">Nombre del Dojo</label>
+                <div class="input-clearable">
+                    <input type="text" id="config-nombre-dojo" class="form-control" placeholder="Ej. Butoku-Kai Shotokan Karate-Do">
+                    <button type="button" class="btn-clear" data-target="config-nombre-dojo" title="Limpiar"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="config-sede">Nombre de la Sede</label>
+                <div class="input-clearable">
+                    <input type="text" id="config-sede" class="form-control" placeholder="Ej. Villa Ángela">
+                    <button type="button" class="btn-clear" data-target="config-sede" title="Limpiar"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="config-sensei">Nombre del Sensei</label>
+                <div class="input-clearable">
+                    <input type="text" id="config-sensei" class="form-control" placeholder="Ej. Yamil Rodriguez">
+                    <button type="button" class="btn-clear" data-target="config-sensei" title="Limpiar"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <button id="btn-guardar-config" class="btn" style="margin-top:5px;"><i class="fas fa-floppy-disk"></i> Guardar en la Nube</button>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -561,6 +610,19 @@
         let cuotaPredeterminada = 25000;
         let alumnos = [];
 
+        // VALORES POR DEFECTO DEL DOJO
+        let nombreDojo = 'BUTOKU-KAI SHOTOKAN KARATE-DO';
+        let nombreSede = 'Villa Ángela';
+        let nombreSensei = 'Yamil Rodriguez';
+
+        function aplicarConfigDojo() {
+            document.getElementById('header-nombre-dojo').innerText = nombreDojo;
+            const subtitulo = `Sede ${nombreSede} | Sensei ${nombreSensei}`;
+            document.getElementById('header-subtitulo').innerText = subtitulo;
+            document.getElementById('print-nombre-dojo').innerText = nombreDojo;
+            document.getElementById('print-subtitulo').innerText = subtitulo;
+        }
+
         const form = document.getElementById('form-alumno');
         const tabla = document.getElementById('tabla-alumnos');
         const mesSelector = document.getElementById('mes-selector');
@@ -580,11 +642,15 @@
         const configRef = ref(db, 'config');
         onValue(configRef, (snapshot) => {
             const data = snapshot.val();
-            if (data && data.cuotaPredeterminada) {
-                cuotaPredeterminada = data.cuotaPredeterminada;
-                if (inputCuota.disabled) {
-                    inputCuota.value = cuotaPredeterminada;
+            if (data) {
+                if (data.cuotaPredeterminada) {
+                    cuotaPredeterminada = data.cuotaPredeterminada;
+                    if (inputCuota.disabled) inputCuota.value = cuotaPredeterminada;
                 }
+                if (data.nombreDojo)   nombreDojo   = data.nombreDojo;
+                if (data.nombreSede)   nombreSede   = data.nombreSede;
+                if (data.nombreSensei) nombreSensei = data.nombreSensei;
+                aplicarConfigDojo();
             }
         });
 
@@ -803,7 +869,7 @@
                 if (alumno.telefono && alumno.telefono.trim() !== "") {
                     const [anio, mes] = periodo.split('-');
                     const telefonoLimpio = alumno.telefono.replace(/[^0-9]/g, ''); 
-                    const mensaje = `Hola *${alumno.nombre}*, te saludamos desde el *Dojo Butoku-Kai*. Te recordamos que se encuentra pendiente tu pago de la cuota correspondiente al mes *${mes}/${anio}* por un valor de *$${alumno.cuota.toLocaleString('es-AR')}*. Recordá que puedes abonar tu cuota vía transferencia al alias: karate.dojo.mes y enviarnos el comprobante por WhatsApp.Si ya realizaste el pago o tuviste algún inconveniente, por favor avísanos. ¡Muchas gracias! Oss.`;
+                    const mensaje = `Hola *${alumno.nombre}*, te saludamos desde el *Dojo Butoku-Kai*. Te recordamos que se encuentra pendiente el pago de la cuota arancelaria correspondiente al mes *${mes}/${anio}* por un valor de *$${alumno.cuota.toLocaleString('es-AR')}*. Si ya realizaste el pago o tuviste algún inconveniente, por favor avísanos. ¡Muchas gracias! Oss.`;
                     
                     btnWhatsapp.href = `https://wa.me/${telefonoLimpio}?text=${encodeURIComponent(mensaje)}`;
                     btnWhatsapp.style.display = 'inline-flex';
@@ -950,6 +1016,49 @@
         inicializarSelector();
         themeToggle.addEventListener('click', conmutarTema);
         btnImprimir.addEventListener('click', () => { window.print(); });
+
+        // MODAL CONFIGURACIÓN DOJO
+        const modalConfig = document.getElementById('modal-config');
+        document.getElementById('btn-config').addEventListener('click', () => {
+            document.getElementById('config-nombre-dojo').value = nombreDojo;
+            document.getElementById('config-sede').value = nombreSede;
+            document.getElementById('config-sensei').value = nombreSensei;
+            // actualizar botones limpiar
+            ['config-nombre-dojo','config-sede','config-sensei'].forEach(id => {
+                actualizarBtnClear(document.getElementById(id));
+            });
+            modalConfig.style.display = 'flex';
+        });
+        document.getElementById('close-modal-config').addEventListener('click', () => { modalConfig.style.display = 'none'; });
+        window.addEventListener('click', (e) => { if (e.target === modalConfig) modalConfig.style.display = 'none'; });
+
+        document.getElementById('btn-guardar-config').addEventListener('click', () => {
+            const passwordIngresada = prompt("Ingrese la contraseña de autorización para guardar los cambios:");
+            if (passwordIngresada === null) return;
+            if (passwordIngresada !== PASSWORD_REQUERIDA) { alert("Contraseña incorrecta. Acción denegada."); return; }
+
+            const nuevoNombreDojo   = document.getElementById('config-nombre-dojo').value.trim();
+            const nuevaSede         = document.getElementById('config-sede').value.trim();
+            const nuevoSensei       = document.getElementById('config-sensei').value.trim();
+
+            if (!nuevoNombreDojo || !nuevaSede || !nuevoSensei) { alert("Por favor completá todos los campos."); return; }
+
+            set(ref(db, 'config'), {
+                cuotaPredeterminada,
+                nombreDojo: nuevoNombreDojo,
+                nombreSede: nuevaSede,
+                nombreSensei: nuevoSensei
+            })
+            .then(() => {
+                nombreDojo   = nuevoNombreDojo;
+                nombreSede   = nuevaSede;
+                nombreSensei = nuevoSensei;
+                aplicarConfigDojo();
+                modalConfig.style.display = 'none';
+                alert("Configuración guardada correctamente en la nube.");
+            })
+            .catch(error => alert("Error al guardar: " + error.message));
+        });
 
         // LISTENER DEL FILTRO DE BÚSQUEDA
         filtroNombre.addEventListener('input', renderalumnos);
