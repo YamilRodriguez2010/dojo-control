@@ -110,6 +110,11 @@
         .form-control { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 15px; background-color: var(--card-bg); color: var(--text-main); }
         .form-control:disabled { background-color: var(--input-disabled-bg); color: var(--text-muted); cursor: not-allowed; }
 
+        /* FILTRO DE BÚSQUEDA */
+        .filtro-busqueda { margin-bottom: 12px; position: relative; }
+        .filtro-busqueda .form-control { padding-left: 38px; }
+        .filtro-busqueda .icono-busqueda { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; pointer-events: none; }
+
         .phone-input-group { display: flex; width: 100%; align-items: stretch; }
         .phone-input-group .form-control { flex: 1; border-top-right-radius: 0; border-bottom-right-radius: 0; }
         .phone-input-group .btn-contacts { background-color: #4a5568; color: white; border: 1px solid var(--border-color); border-left: none; border-top-right-radius: 6px; border-bottom-right-radius: 6px; padding: 0 16px; cursor: pointer; font-size: 16px; }
@@ -191,7 +196,7 @@
             body { background-color: #ffffff !important; color: #000000 !important; padding: 0 !important; margin: 0 !important; }
             
             /* Ocultar elementos de la interfaz interactiva. Quitamos .widgets de aquí para que se imprima */
-            header, .card:has(#form-alumno), .btn-sm, .acciones-header, td.acciones-header, th.acciones-header, .alert-banner, .period-selector, .card-header-actions { 
+            header, .card:has(#form-alumno), .btn-sm, .acciones-header, td.acciones-header, th.acciones-header, .alert-banner, .period-selector, .card-header-actions, .filtro-busqueda { 
                 display: none !important; 
             }
             
@@ -385,6 +390,13 @@
                     <i class="fas fa-print"></i>
                 </button>
             </div>
+
+            <!-- FILTRO DE BÚSQUEDA POR NOMBRE -->
+            <div class="filtro-busqueda">
+                <i class="fas fa-search icono-busqueda"></i>
+                <input type="text" id="filtro-nombre" class="form-control" placeholder="Buscar alumno por nombre...">
+            </div>
+
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
@@ -455,6 +467,7 @@
         const themeToggle = document.getElementById('theme-toggle');
         const btnImprimir = document.getElementById('btn-imprimir');
         const btnContactos = document.getElementById('btn-contactos');
+        const filtroNombre = document.getElementById('filtro-nombre');
         
         const modalInfo = document.getElementById('modal-info');
         const closeModal = document.getElementById('close-modal');
@@ -528,7 +541,6 @@
             return mesSelector.value;
         }
 
-        // --- FUNCIÓN NUEVA PARA FORMATEAR EL MES EN EL REPORTE IMPRESO ---
         function formatearMesTexto(mesString) {
             if(!mesString) return '';
             const [anio, mes] = mesString.split('-');
@@ -706,7 +718,6 @@
             document.getElementById('widget-morosos').innerText = morosos;
             document.getElementById('widget-caja').innerText = `$${totalCaja.toLocaleString('es-AR')}`;
             
-            // ACTUALIZAR EL MES EN EL ENCABEZADO DE IMPRESIÓN
             document.getElementById('print-mes').innerText = formatearMesTexto(periodo);
         }
 
@@ -737,7 +748,16 @@
                 return;
             }
 
-            const alumnosOrdenados = [...alumnos].sort((a, b) => a.nombre.localeCompare(b.nombre));
+            // FILTRO POR NOMBRE + ORDEN ALFABÉTICO
+            const filtro = filtroNombre?.value.toLowerCase().trim() || '';
+            const alumnosOrdenados = [...alumnos]
+                .filter(a => a.nombre.toLowerCase().includes(filtro))
+                .sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+            if (alumnosOrdenados.length === 0) {
+                tabla.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding: 20px;">No se encontraron alumnos con ese nombre.</td></tr>`;
+                return;
+            }
 
             alumnosOrdenados.forEach(alumno => {
                 const tr = document.createElement('tr');
@@ -780,6 +800,9 @@
         inicializarSelector();
         themeToggle.addEventListener('click', conmutarTema);
         btnImprimir.addEventListener('click', () => { window.print(); });
+
+        // LISTENER DEL FILTRO DE BÚSQUEDA
+        filtroNombre.addEventListener('input', renderalumnos);
 
     </script>
 </body>
