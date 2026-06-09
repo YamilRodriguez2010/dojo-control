@@ -180,15 +180,92 @@
         /* DISEÑO PARA CELULARES EN PANTALLA */
         @media screen and (max-width: 768px) {
             .container { grid-template-columns: 1fr; }
-            table, thead, tbody, th, td, tr { display: block; }
-            thead tr { position: absolute; top: -9999px; left: -9999px; }
-            tr { border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 15px; padding: 10px; background: var(--table-row-bg); }
-            td { border: none; position: relative; padding-top: 10px; padding-bottom: 10px; text-align: right; display: flex; justify-content: space-between; align-items: center; }
-            td:first-child { text-align: center; font-size: 16px; font-weight: bold; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; display: block; }
-            td:last-child { text-align: center; display: flex; justify-content: center; gap: 10px; margin-top: 5px; padding-top: 12px; border-top: 1px dashed var(--border-color); }
-            td:not(:first-child):not(:last-child):before { content: attr(data-label); font-weight: bold; color: var(--text-muted); text-transform: uppercase; font-size: 12px; margin-right: 15px; }
-            .btn-sm { flex: initial; }
-            .table-date-input { max-width: 145px; }
+
+            table { width: 100%; border-collapse: collapse; }
+            thead tr { display: none; }
+            tbody { display: block; }
+
+            /* Cada alumno: una sola fila horizontal */
+            tbody tr {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: 6px;
+                background: var(--table-row-bg);
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                margin-bottom: 8px;
+                padding: 8px 10px;
+                min-height: 48px;
+            }
+
+            /* Ocultar columnas innecesarias en móvil */
+            tbody tr td.col-telefono,
+            tbody tr td.col-oculta-principal {
+                display: none !important;
+            }
+
+            /* Nombre: ocupa el espacio libre */
+            tbody tr td:first-child {
+                display: block;
+                flex: 1 1 0;
+                min-width: 0;
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--text-main);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                padding: 0;
+                border: none;
+                text-align: left;
+            }
+
+            /* Celda de fecha / badge pagado */
+            tbody tr td[data-label="Fecha de Pago"] {
+                display: flex !important;
+                align-items: center;
+                flex-shrink: 0;
+                padding: 0;
+                border: none;
+            }
+
+            /* Input de fecha compacto, sin label */
+            .table-date-input {
+                width: 118px;
+                font-size: 11px;
+                padding: 5px 6px;
+                max-width: none;
+            }
+
+            /* Ocultar el span "Pendiente" del print-only en pantalla */
+            .print-only { display: none !important; }
+
+            /* Badge "Pagó" compacto */
+            .badge-paid {
+                font-size: 10px;
+                padding: 4px 9px;
+                white-space: nowrap;
+                border-radius: 10px;
+            }
+
+            /* Columna acciones al final */
+            tbody tr td.acciones-header {
+                display: flex !important;
+                flex-direction: row;
+                align-items: center;
+                gap: 4px;
+                flex-shrink: 0;
+                padding: 0;
+                border: none;
+            }
+
+            /* Botones más chicos en móvil */
+            .btn-sm.btn-icon-only {
+                width: 32px;
+                height: 32px;
+                font-size: 13px;
+            }
         }
 
         /* --- CONFIGURACIÓN EXCLUSIVA PARA IMPRESIÓN MEJORADA --- */
@@ -766,7 +843,10 @@
                 let celdaFechaHtml = "";
                 if (pagoRealizado) {
                     const [anio, mes, dia] = alumno.pagos[periodo].split('-');
-                    celdaFechaHtml = `<strong>${dia}/${mes}/${anio}</strong>`;
+                    celdaFechaHtml = `
+                        <span class="badge badge-paid">Pagó</span>
+                        <span class="print-only" style="margin-left:6px; font-size:12px; color:#555;">${dia}/${mes}/${anio}</span>
+                    `;
                 } else {
                     celdaFechaHtml = `
                         <input type="date" id="fecha-pago-${alumno.id}" class="table-date-input" value="${hoyStr}">
