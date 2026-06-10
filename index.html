@@ -476,7 +476,7 @@
                 <div class="form-group">
                     <label for="nombre">Nombre Completo</label>
                     <div class="input-clearable">
-                        <input type="text" id="nombre" class="form-control" placeholder="Ej. Cristian Rodríguez" required>
+                        <input type="text" id="nombre" class="form-control" placeholder="Ej. Cristian Rodriguez" required>
                         <button type="button" class="btn-clear" data-target="nombre" title="Limpiar"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
@@ -563,6 +563,25 @@
         <div class="modal-content">
             <span class="close-modal" id="close-modal-config">&times;</span>
             <h2 style="margin-bottom: 18px; color: var(--primary); font-size: 18px;"><i class="fas fa-gear" style="margin-right:8px;"></i>Configuración del Dojo</h2>
+
+            <!-- LOGO -->
+            <div class="form-group" style="text-align:center;">
+                <label style="display:block; margin-bottom:8px;">Logo del Dojo</label>
+                <div style="display:flex; align-items:center; justify-content:center; gap:16px; flex-wrap:wrap;">
+                    <img id="config-logo-preview" src="logo.png" alt="Logo actual"
+                        style="width:70px; height:70px; border-radius:50%; object-fit:contain; border:2px solid var(--border-color); background:var(--input-disabled-bg);">
+                    <div style="display:flex; flex-direction:column; gap:8px; align-items:flex-start;">
+                        <label for="config-logo-input" class="btn btn-secondary" style="width:auto; padding:10px 16px; cursor:pointer; font-size:13px; margin:0;">
+                            <i class="fas fa-image"></i> Elegir imagen
+                        </label>
+                        <input type="file" id="config-logo-input" accept="image/*" style="display:none;">
+                        <button type="button" id="btn-reset-logo" class="btn btn-secondary" style="width:auto; padding:10px 16px; font-size:13px; background:#718096;">
+                            <i class="fas fa-undo"></i> Restaurar original
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="form-group">
                 <label for="config-nombre-dojo">Nombre del Dojo</label>
                 <div class="input-clearable">
@@ -614,6 +633,7 @@
         let nombreDojo = 'BUTOKU-KAI SHOTOKAN KARATE-DO';
         let nombreSede = 'Villa Ángela';
         let nombreSensei = 'Yamil Rodriguez';
+        let logoBase64 = null; // null = usar logo.png por defecto
 
         function aplicarConfigDojo() {
             document.getElementById('header-nombre-dojo').innerText = nombreDojo;
@@ -621,6 +641,10 @@
             document.getElementById('header-subtitulo').innerText = subtitulo;
             document.getElementById('print-nombre-dojo').innerText = nombreDojo;
             document.getElementById('print-subtitulo').innerText = subtitulo;
+
+            // Actualizar logos si hay uno guardado
+            const src = logoBase64 || 'logo.png';
+            document.querySelectorAll('.dojo-logo, .print-header img').forEach(img => img.src = src);
         }
 
         const form = document.getElementById('form-alumno');
@@ -650,6 +674,7 @@
                 if (data.nombreDojo)   nombreDojo   = data.nombreDojo;
                 if (data.nombreSede)   nombreSede   = data.nombreSede;
                 if (data.nombreSensei) nombreSensei = data.nombreSensei;
+                if (data.logoBase64)   logoBase64   = data.logoBase64;
                 aplicarConfigDojo();
             }
         });
@@ -942,11 +967,16 @@
                 return;
             }
 
-            // FILTRO POR NOMBRE + ORDEN ALFABÉTICO
+            // FILTRO POR NOMBRE + ORDEN: pagados primero, luego pendientes, cada grupo alfabético
             const filtro = filtroNombre?.value.toLowerCase().trim() || '';
             const alumnosOrdenados = [...alumnos]
                 .filter(a => a.nombre.toLowerCase().includes(filtro))
-                .sort((a, b) => a.nombre.localeCompare(b.nombre));
+                .sort((a, b) => {
+                    const aPago = a.pagos && a.pagos[periodo] ? 1 : 0;
+                    const bPago = b.pagos && b.pagos[periodo] ? 1 : 0;
+                    if (bPago !== aPago) return bPago - aPago; // pagados primero
+                    return a.nombre.localeCompare(b.nombre);   // luego alfabético
+                });
 
             if (alumnosOrdenados.length === 0) {
                 tabla.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding: 20px;">No se encontraron alumnos con ese nombre.</td></tr>`;
@@ -1019,11 +1049,15 @@
 
         // MODAL CONFIGURACIÓN DOJO
         const modalConfig = document.getElementById('modal-config');
+        let logoBase64Pendiente = null; // logo seleccionado pero aún no guardado
+
         document.getElementById('btn-config').addEventListener('click', () => {
             document.getElementById('config-nombre-dojo').value = nombreDojo;
             document.getElementById('config-sede').value = nombreSede;
             document.getElementById('config-sensei').value = nombreSensei;
-            // actualizar botones limpiar
+            // Mostrar logo actual en preview
+            document.getElementById('config-logo-preview').src = logoBase64 || 'logo.png';
+            logoBase64Pendiente = null;
             ['config-nombre-dojo','config-sede','config-sensei'].forEach(id => {
                 actualizarBtnClear(document.getElementById(id));
             });
@@ -1032,27 +1066,57 @@
         document.getElementById('close-modal-config').addEventListener('click', () => { modalConfig.style.display = 'none'; });
         window.addEventListener('click', (e) => { if (e.target === modalConfig) modalConfig.style.display = 'none'; });
 
+        // SELECCIÓN DE IMAGEN
+        document.getElementById('config-logo-input').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (file.size > 300 * 1024) {
+                alert("La imagen es demasiado grande. Por favor usá una imagen de menos de 300KB.");
+                e.target.value = '';
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                logoBase64Pendiente = ev.target.result;
+                document.getElementById('config-logo-preview').src = logoBase64Pendiente;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // RESTAURAR LOGO ORIGINAL
+        document.getElementById('btn-reset-logo').addEventListener('click', () => {
+            logoBase64Pendiente = '';  // string vacío = borrar de Firebase
+            document.getElementById('config-logo-preview').src = 'logo.png';
+            document.getElementById('config-logo-input').value = '';
+        });
+
         document.getElementById('btn-guardar-config').addEventListener('click', () => {
             const passwordIngresada = prompt("Ingrese la contraseña de autorización para guardar los cambios:");
             if (passwordIngresada === null) return;
             if (passwordIngresada !== PASSWORD_REQUERIDA) { alert("Contraseña incorrecta. Acción denegada."); return; }
 
-            const nuevoNombreDojo   = document.getElementById('config-nombre-dojo').value.trim();
-            const nuevaSede         = document.getElementById('config-sede').value.trim();
-            const nuevoSensei       = document.getElementById('config-sensei').value.trim();
+            const nuevoNombreDojo = document.getElementById('config-nombre-dojo').value.trim();
+            const nuevaSede       = document.getElementById('config-sede').value.trim();
+            const nuevoSensei     = document.getElementById('config-sensei').value.trim();
 
             if (!nuevoNombreDojo || !nuevaSede || !nuevoSensei) { alert("Por favor completá todos los campos."); return; }
+
+            // Determinar qué logo guardar
+            const logoAGuardar = logoBase64Pendiente !== null ? logoBase64Pendiente : (logoBase64 || '');
 
             set(ref(db, 'config'), {
                 cuotaPredeterminada,
                 nombreDojo: nuevoNombreDojo,
                 nombreSede: nuevaSede,
-                nombreSensei: nuevoSensei
+                nombreSensei: nuevoSensei,
+                logoBase64: logoAGuardar
             })
             .then(() => {
                 nombreDojo   = nuevoNombreDojo;
                 nombreSede   = nuevaSede;
                 nombreSensei = nuevoSensei;
+                logoBase64   = logoAGuardar || null;
+                logoBase64Pendiente = null;
                 aplicarConfigDojo();
                 modalConfig.style.display = 'none';
                 alert("Configuración guardada correctamente en la nube.");
