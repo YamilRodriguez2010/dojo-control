@@ -214,32 +214,33 @@
             thead tr { display: none; }
             tbody { display: block; }
 
-            /* Cada alumno: una sola fila horizontal */
+            /* Cada alumno: una sola fila horizontal sin scroll */
             tbody tr {
                 display: flex;
                 flex-direction: row;
                 align-items: center;
-                gap: 6px;
+                gap: 4px;
                 background: var(--table-row-bg);
                 border: 1px solid var(--border-color);
                 border-radius: 8px;
                 margin-bottom: 8px;
-                padding: 8px 10px;
-                min-height: 48px;
+                padding: 6px 8px;
+                min-height: 44px;
+                overflow: hidden;
+                width: 100%;
+                box-sizing: border-box;
             }
 
             /* Ocultar columnas innecesarias en móvil */
             tbody tr td.col-telefono,
-            tbody tr td.col-oculta-principal {
-                display: none !important;
-            }
+            tbody tr td.col-oculta-principal { display: none !important; }
 
-            /* Nombre: ocupa el espacio libre */
+            /* Nombre: flex:1 con ellipsis para no desbordar */
             tbody tr td:first-child {
                 display: block;
                 flex: 1 1 0;
                 min-width: 0;
-                font-size: 13px;
+                font-size: 12px;
                 font-weight: 600;
                 color: var(--text-main);
                 white-space: nowrap;
@@ -250,51 +251,53 @@
                 text-align: left;
             }
 
-            /* Celda de fecha / badge pagado */
+            /* Celda de fecha / badge: tamaño fijo, no crece */
             tbody tr td[data-label="Fecha de Pago"] {
                 display: flex !important;
                 align-items: center;
                 justify-content: center;
-                flex: 1 1 0;
+                flex: 0 0 auto;
                 padding: 0;
                 border: none;
             }
 
-            /* Input de fecha compacto, sin label */
+            /* Input de fecha bien compacto */
             .table-date-input {
-                width: 118px;
-                font-size: 11px;
-                padding: 5px 6px;
-                max-width: none;
+                width: 100px;
+                max-width: 100px;
+                font-size: 10px;
+                padding: 4px 4px;
             }
 
-            /* Ocultar el span "Pendiente" del print-only en pantalla */
+            /* Ocultar span print-only en pantalla */
             .print-only { display: none !important; }
 
-            /* Badge "Pagó" compacto */
-            .badge-paid {
+            /* Badge Pagó compacto */
+            tbody tr td[data-label="Fecha de Pago"] .badge-paid {
                 font-size: 10px;
-                padding: 4px 9px;
+                padding: 3px 7px;
                 white-space: nowrap;
                 border-radius: 10px;
             }
 
-            /* Columna acciones al final */
+            /* Columna acciones: tamaño fijo, no crece */
             tbody tr td.acciones-header {
                 display: flex !important;
                 flex-direction: row;
                 align-items: center;
-                gap: 4px;
-                flex-shrink: 0;
+                gap: 3px;
+                flex: 0 0 auto;
                 padding: 0;
                 border: none;
             }
 
-            /* Botones más chicos en móvil */
+            /* Botones bien compactos */
             .btn-sm.btn-icon-only {
-                width: 32px;
-                height: 32px;
-                font-size: 13px;
+                width: 27px;
+                height: 27px;
+                font-size: 11px;
+                padding: 0;
+                flex-shrink: 0;
             }
         }
 
@@ -422,7 +425,7 @@
                     <i class="fas fa-moon" id="theme-icon"></i>
                 </button>
             </div>
-            <div><span>v3.4</span></div>
+            <div><span>v3.4 Nube Reg.</span></div>
         </div>
     </header>
 
@@ -476,7 +479,7 @@
                 <div class="form-group">
                     <label for="nombre">Nombre Completo</label>
                     <div class="input-clearable">
-                        <input type="text" id="nombre" class="form-control" placeholder="Ej. Cristian Rodriguez" required>
+                        <input type="text" id="nombre" class="form-control" placeholder="Ej. Pedro Rodríguez" required>
                         <button type="button" class="btn-clear" data-target="nombre" title="Limpiar"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
@@ -485,7 +488,7 @@
                     <label for="telefono">Número de Teléfono</label>
                     <div class="phone-input-group">
                         <div class="input-clearable" style="flex:1; display:flex;">
-                            <input type="tel" id="telefono" class="form-control" placeholder="Ej. 3735537179" style="border-top-right-radius:0; border-bottom-right-radius:0;">
+                            <input type="tel" id="telefono" class="form-control" placeholder="Ej. 5493735123456" style="border-top-right-radius:0; border-bottom-right-radius:0;">
                             <button type="button" class="btn-clear" data-target="telefono" title="Limpiar"><i class="fas fa-times"></i></button>
                         </div>
                         <button type="button" id="btn-contactos" class="btn-contacts" title="Elegir desde la agenda">
@@ -521,8 +524,7 @@
                 <button type="button" class="btn-clear" data-target="filtro-nombre" title="Limpiar"><i class="fas fa-times"></i></button>
             </div>
 
-            <div style="overflow-x: auto;">
-                <table>
+            <table>
                     <thead>
                         <tr>
                             <th>Alumno</th>
@@ -535,7 +537,6 @@
                     </thead>
                     <tbody id="tabla-alumnos"></tbody>
                 </table>
-            </div>
         </div>
 
     </div>
