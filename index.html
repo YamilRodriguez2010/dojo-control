@@ -559,6 +559,29 @@
         </div>
     </div>
 
+    <div id="modal-editar" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-modal-editar">&times;</span>
+            <h2 style="margin-bottom: 18px; color: var(--primary); font-size: 18px;"><i class="fas fa-user-pen" style="margin-right:8px;"></i>Editar Alumno</h2>
+            <input type="hidden" id="editar-id">
+            <div class="form-group">
+                <label for="editar-nombre">Nombre Completo</label>
+                <div class="input-clearable">
+                    <input type="text" id="editar-nombre" class="form-control" placeholder="Nombre completo">
+                    <button type="button" class="btn-clear" data-target="editar-nombre" title="Limpiar"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="editar-telefono">Número de Teléfono</label>
+                <div class="input-clearable">
+                    <input type="tel" id="editar-telefono" class="form-control" placeholder="Ej. 5493735123456">
+                    <button type="button" class="btn-clear" data-target="editar-telefono" title="Limpiar"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <button id="btn-guardar-edicion" class="btn" style="margin-top:5px;"><i class="fas fa-floppy-disk"></i> Guardar Cambios</button>
+        </div>
+    </div>
+
     <div id="modal-config" class="modal">
         <div class="modal-content">
             <span class="close-modal" id="close-modal-config">&times;</span>
@@ -1030,6 +1053,9 @@
                         <button class="btn-sm btn-icon-only btn-info" onclick="verInfoAlumno('${alumno.id}')" title="Ver Detalles del Alumno">
                             <i class="fas fa-info-circle"></i>
                         </button>
+                        <button class="btn-sm btn-icon-only" style="background-color: #6b46c1; color: white;" onclick="editarAlumno('${alumno.id}')" title="Editar Alumno">
+                            <i class="fas fa-user-pen"></i>
+                        </button>
                         <button class="btn-sm btn-icon-only ${pagoRealizado ? 'btn-secondary' : 'btn-success'}" onclick="cambiarEstadoPago('${alumno.id}')" title="${pagoRealizado ? 'Anular Pago' : 'Registrar Pago'}">
                             ${pagoRealizado ? '<i class="fas fa-undo"></i>' : '<i class="fas fa-money-bill-wave"></i>'}
                         </button>
@@ -1041,6 +1067,48 @@
                 tabla.appendChild(tr);
             });
         }
+
+        // EDITAR ALUMNO
+        const modalEditar = document.getElementById('modal-editar');
+
+        window.editarAlumno = function(id) {
+            const alumno = alumnos.find(a => a.id === id);
+            if (!alumno) return;
+            document.getElementById('editar-id').value = id;
+            document.getElementById('editar-nombre').value = alumno.nombre;
+            document.getElementById('editar-telefono').value = alumno.telefono || '';
+            ['editar-nombre', 'editar-telefono'].forEach(i => actualizarBtnClear(document.getElementById(i)));
+            modalEditar.style.display = 'flex';
+        };
+
+        document.getElementById('close-modal-editar').addEventListener('click', () => { modalEditar.style.display = 'none'; });
+        window.addEventListener('click', (e) => { if (e.target === modalEditar) modalEditar.style.display = 'none'; });
+
+        document.getElementById('btn-guardar-edicion').addEventListener('click', () => {
+            const passwordIngresada = prompt("Ingrese la contraseña de autorización para editar:");
+            if (passwordIngresada === null) return;
+            if (passwordIngresada !== PASSWORD_REQUERIDA) { alert("Contraseña incorrecta. Acción denegada."); return; }
+
+            const id = document.getElementById('editar-id').value;
+            const nuevoNombre = document.getElementById('editar-nombre').value.trim();
+            const nuevoTelefono = document.getElementById('editar-telefono').value.trim();
+
+            if (!nuevoNombre) { alert("El nombre no puede estar vacío."); return; }
+
+            const alumno = alumnos.find(a => a.id === id);
+            if (!alumno) return;
+
+            set(ref(db, 'alumnos/' + id), {
+                nombre: nuevoNombre,
+                telefono: nuevoTelefono,
+                cuota: alumno.cuota,
+                pagos: alumno.pagos || {}
+            })
+            .then(() => {
+                modalEditar.style.display = 'none';
+            })
+            .catch(error => alert("Error al guardar: " + error.message));
+        });
 
         cargarTemaInicial();
         inicializarSelector();
