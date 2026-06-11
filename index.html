@@ -4,162 +4,90 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dojo Control - Gestión de Cuotas en la Nube</title>
-    
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1a1a1a">
     <meta name="application-name" content="DojoControl">
-
     <link rel="icon" type="image/png" sizes="192x192" href="logo.png">
     <link rel="icon" type="image/png" sizes="32x32" href="logo.png">
     <link rel="apple-touch-icon" href="logo.png">
     <link rel="shortcut icon" href="logo.png" type="image/x-icon">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <style>
-        /* VARIABLES POR DEFECTO: MODO CLARO */
         :root {
-            --bg-color: #f4f6f9;
-            --card-bg: #ffffff;
-            --text-main: #2d3748;
-            --text-muted: #718096;
-            --primary: #d32f2f;
-            --primary-hover: #b71c1c;
-            --success: #2e7d32;
-            --warning: #f57c00;
-            --info: #3182ce;
-            --border-color: #e2e8f0;
-            --header-bg: #1a1a1a;
-            --header-text: #ffffff;
-            --table-th-bg: #f8fafc;
-            --table-row-bg: #ffffff;
-            --input-disabled-bg: #edf2f7;
-            --whatsapp-color: #25D366;
-            --whatsapp-hover: #128C7E;
+            --bg-color: #f4f6f9; --card-bg: #ffffff; --text-main: #2d3748; --text-muted: #718096;
+            --primary: #d32f2f; --primary-hover: #b71c1c; --success: #2e7d32; --warning: #f57c00;
+            --info: #3182ce; --border-color: #e2e8f0; --header-bg: #1a1a1a; --header-text: #ffffff;
+            --table-th-bg: #f8fafc; --table-row-bg: #ffffff; --input-disabled-bg: #edf2f7;
+            --whatsapp-color: #25D366; --whatsapp-hover: #128C7E;
         }
-
-        /* VARIABLES PARA MODO OSCURO */
         [data-theme="dark"] {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --text-main: #e2e8f0;
-            --text-muted: #a0aec0;
-            --border-color: #2d3748;
-            --table-th-bg: #2d3748;
-            --table-row-bg: #1e1e1e;
-            --input-disabled-bg: #2d3748;
+            --bg-color: #121212; --card-bg: #1e1e1e; --text-main: #e2e8f0; --text-muted: #a0aec0;
+            --border-color: #2d3748; --table-th-bg: #2d3748; --table-row-bg: #1e1e1e; --input-disabled-bg: #2d3748;
         }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-tap-highlight-color: transparent; transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
         body { background-color: var(--bg-color); color: var(--text-main); padding: 15px; }
-
-        /* HEADER */
-        header {
-            background-color: var(--header-bg); color: var(--header-text); padding: 15px;
-            border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between;
-            align-items: center; border-bottom: 4px solid var(--primary);
-        }
+        header { background-color: var(--header-bg); color: var(--header-text); padding: 15px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--primary); }
         .header-title-container { display: flex; align-items: center; gap: 12px; }
         .dojo-logo { width: 45px; height: 45px; object-fit: contain; border-radius: 50%; background-color: white; padding: 2px; }
         header h1 { font-size: 18px; letter-spacing: 0.5px; margin-bottom: 2px; }
         .header-subtitle { font-size: 11px; color: #a0aec0; font-weight: normal; }
         .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
         header span { font-size: 12px; opacity: 0.8; }
-        
         .theme-toggle-btn { background: none; border: none; color: var(--header-text); font-size: 16px; cursor: pointer; padding: 5px; opacity: 0.9; }
         .theme-toggle-btn:hover { opacity: 1; transform: scale(1.1); }
         .config-btn { background: none; border: none; color: var(--header-text); font-size: 16px; cursor: pointer; padding: 5px; opacity: 0.9; }
         .config-btn:hover { opacity: 1; transform: scale(1.1); }
-
         .container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 2fr; gap: 15px; }
-
-        /* COMPONENTES */
         .period-selector { grid-column: 1 / -1; background: var(--card-bg); padding: 15px; border-radius: 8px; display: flex; justify-content: center; align-items: center; gap: 15px; border: 1px solid var(--border-color); }
         .period-selector label { font-size: 16px; font-weight: bold; }
         .period-selector input[type="month"] { padding: 10px; font-size: 16px; border: 2px solid var(--primary); border-radius: 6px; font-weight: bold; color: var(--text-main); background-color: var(--card-bg); outline: none; }
-
-        .alert-banner {
-            grid-column: 1 / -1; background-color: #fff5f5; border-left: 5px solid #e53e3e; color: #c53030;
-            padding: 15px; border-radius: 8px; margin-bottom: 5px; display: none; font-size: 14px;
-        }
+        .alert-banner { grid-column: 1 / -1; background-color: #fff5f5; border-left: 5px solid #e53e3e; color: #c53030; padding: 15px; border-radius: 8px; margin-bottom: 5px; display: none; font-size: 14px; }
         [data-theme="dark"] .alert-banner { background-color: #2c1515; color: #feb2b2; border-left-color: #e53e3e; }
         .alert-banner strong { font-size: 15px; display: block; margin-bottom: 5px; }
-
         .widgets { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 5px; }
         @media (min-width: 768px) { .widgets { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); } }
-        
         .card-widget { background: var(--card-bg); padding: 15px; border-radius: 8px; border-left: 5px solid var(--primary); text-align: center; border: 1px solid var(--border-color); border-left-width: 5px; }
         .card-widget h3 { font-size: 12px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
         .card-widget p { font-size: 24px; font-weight: bold; }
-
         .card { background: var(--card-bg); padding: 15px; border-radius: 8px; height: fit-content; border: 1px solid var(--border-color); }
         .card-header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid var(--border-color); }
         .card h2 { font-size: 16px; text-align: center; margin-bottom: 15px; }
-
-        /* FORMULARIO */
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; }
         .form-control { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 15px; background-color: var(--card-bg); color: var(--text-main); }
         .form-control:disabled { background-color: var(--input-disabled-bg); color: var(--text-muted); cursor: not-allowed; }
-
-        /* FILTRO DE BÚSQUEDA */
         .filtro-busqueda { margin-bottom: 12px; position: relative; }
         .filtro-busqueda .form-control { padding-left: 38px; }
         .filtro-busqueda .icono-busqueda { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; pointer-events: none; }
-
-        /* INPUTS CON BOTÓN LIMPIAR */
         .input-clearable { position: relative; }
         .input-clearable .form-control { padding-right: 34px; }
-        .btn-clear {
-            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-            background: none; border: none; cursor: pointer; padding: 2px 4px;
-            color: var(--text-muted); font-size: 13px; line-height: 1;
-            opacity: 0; pointer-events: none; transition: opacity 0.15s;
-        }
+        .btn-clear { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 2px 4px; color: var(--text-muted); font-size: 13px; line-height: 1; opacity: 0; pointer-events: none; transition: opacity 0.15s; }
         .btn-clear.visible { opacity: 0.5; pointer-events: auto; }
         .btn-clear.visible:hover { opacity: 1; color: var(--primary); }
-
         .phone-input-group { display: flex; width: 100%; align-items: stretch; }
         .phone-input-group .form-control { flex: 1; border-top-right-radius: 0; border-bottom-right-radius: 0; }
         .phone-input-group .btn-contacts { background-color: #4a5568; color: white; border: 1px solid var(--border-color); border-left: none; border-top-right-radius: 6px; border-bottom-right-radius: 6px; padding: 0 16px; cursor: pointer; font-size: 16px; }
         .phone-input-group .btn-contacts:hover { background-color: #2d3748; }
-
         .input-group-editable { display: flex; gap: 5px; align-items: center; }
         .btn-inline-sm { width: auto !important; padding: 12px 14px !important; font-size: 15px !important; white-space: nowrap; flex-shrink: 0; }
-
         .table-date-input { padding: 6px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 13px; color: var(--text-main); background-color: var(--card-bg); outline: none; max-width: 135px; }
         .table-date-input:focus { border-color: var(--primary); }
-
-        /* BOTONES */
         .btn { background-color: var(--primary); color: white; border: none; padding: 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 15px; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .btn:hover { background-color: var(--primary-hover); }
         .btn-sm { padding: 10px 14px; font-size: 14px; width: auto; display: inline-flex; justify-content: center; align-items: center; border-radius: 6px; border: none; cursor: pointer; }
         .btn-icon-only { width: 38px; height: 38px; padding: 0; font-size: 16px; }
-
         .btn-success { background-color: var(--success); color: white; }
         .btn-success:hover { background-color: #1b5e20; }
         .btn-secondary { background-color: #4a5568; color: white; }
         .btn-secondary:hover { background-color: #2d3748; }
         .btn-info { background-color: var(--info); color: white; }
-        
         .btn-whatsapp { background-color: var(--whatsapp-color); color: white; text-decoration: none; font-weight: bold; font-size: 12px; padding: 5px 10px; border-radius: 4px; display: inline-flex; align-items: center; gap: 5px; margin-left: 10px; }
-
-        /* TABLA PRINCIPAL */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { text-align: center; padding: 12px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
         th { background-color: var(--table-th-bg); color: var(--text-muted); }
         td:first-child { text-align: left; }
-
         .badge { padding: 5px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; text-transform: uppercase; display: inline-block; }
         .badge-paid { background-color: #e8f5e9; color: var(--success); }
         .badge-debt { background-color: #ffe0b2; color: var(--warning); }
@@ -167,240 +95,61 @@
         [data-theme="dark"] .badge-paid { background-color: #1b3822; color: #81c784; }
         [data-theme="dark"] .badge-debt { background-color: #3b2a1a; color: #ffb74d; }
         [data-theme="dark"] .badge-moroso { background-color: #2c1515; color: #feb2b2; }
-
         .print-only { display: none; }
         .print-header { display: none; }
         .print-mes-container { display: none; }
-
-        /* MODAL DE CONFIGURACIÓN */
-        .modal-config-overlay {
-            display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; backdrop-filter: blur(3px);
-        }
-        .modal-config-content {
-            background-color: var(--card-bg); padding: 24px; border-radius: 8px; width: 90%; max-width: 400px;
-            border: 1px solid var(--border-color); position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-        }
-        .modal-config-content h3 { font-size: 16px; margin-bottom: 18px; color: var(--primary); display: flex; align-items: center; gap: 8px; }
-        .modal-config-actions { display: flex; gap: 10px; margin-top: 18px; }
-        .modal-config-actions .btn { flex: 1; padding: 12px; }
-
-        /* FILTRO DE PANTALLA: OCULTA COLUMNAS DE LA PANTALLA EN PC Y MÓVIL */
-        @media screen {
-            .col-telefono, .col-oculta-principal {
-                display: none !important;
-            }
-        }
-
-        /* MODAL DE INFORMACIÓN */
-        .modal {
-            display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.6); align-items: center; justify-content: center; backdrop-filter: blur(3px);
-        }
-        .modal-content {
-            background-color: var(--card-bg); padding: 24px; border-radius: 8px; width: 90%; max-width: 420px;
-            border: 1px solid var(--border-color); position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-        }
+        @media screen { .col-telefono, .col-oculta-principal, .col-observacion-print { display: none !important; } }
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; backdrop-filter: blur(3px); }
+        .modal-content { background-color: var(--card-bg); padding: 24px; border-radius: 8px; width: 90%; max-width: 420px; border: 1px solid var(--border-color); position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
         .close-modal { position: absolute; top: 12px; right: 18px; color: var(--text-muted); font-size: 24px; cursor: pointer; }
         .close-modal:hover { color: var(--primary); }
         .modal-body p { margin: 14px 0; font-size: 15px; border-bottom: 1px dashed var(--border-color); padding-bottom: 8px; display: flex; align-items: center; flex-wrap: wrap; }
         .modal-body p:last-child { border-bottom: none; }
-
-        /* DISEÑO PARA CELULARES EN PANTALLA */
         @media screen and (max-width: 768px) {
             .container { grid-template-columns: 1fr; }
-
             table { width: 100%; border-collapse: collapse; }
             thead tr { display: none; }
             tbody { display: block; }
-
-            /* Cada alumno: una sola fila horizontal sin scroll */
-            tbody tr {
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                gap: 4px;
-                background: var(--table-row-bg);
-                border: 1px solid var(--border-color);
-                border-radius: 8px;
-                margin-bottom: 8px;
-                padding: 6px 8px;
-                min-height: 44px;
-                overflow: hidden;
-                width: 100%;
-                box-sizing: border-box;
-            }
-
-            /* Ocultar columnas innecesarias en móvil */
-            tbody tr td.col-telefono,
-            tbody tr td.col-oculta-principal { display: none !important; }
-
-            /* Nombre: flex:1 con ellipsis para no desbordar */
-            tbody tr td:first-child {
-                display: block;
-                flex: 1 1 0;
-                min-width: 0;
-                font-size: 12px;
-                font-weight: 600;
-                color: var(--text-main);
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                padding: 0;
-                border: none;
-                text-align: left;
-            }
-
-            /* Celda de fecha / badge: tamaño fijo, no crece */
-            tbody tr td[data-label="Fecha de Pago"] {
-                display: flex !important;
-                align-items: center;
-                justify-content: center;
-                flex: 0 0 100px;
-                padding: 0;
-                border: none;
-                text-align: center;
-            }
-
-            /* Input de fecha bien compacto */
-            .table-date-input {
-                width: 100px;
-                max-width: 100px;
-                font-size: 10px;
-                padding: 4px 4px;
-            }
-
-            /* Ocultar span print-only en pantalla */
+            tbody tr { display: flex; flex-direction: row; align-items: center; gap: 4px; background: var(--table-row-bg); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 8px; padding: 6px 8px; min-height: 44px; overflow: hidden; width: 100%; box-sizing: border-box; }
+            tbody tr td.col-telefono, tbody tr td.col-oculta-principal, tbody tr td.col-observacion-print { display: none !important; }
+            tbody tr td:first-child { display: block; flex: 1 1 0; min-width: 0; font-size: 12px; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0; border: none; text-align: left; }
+            tbody tr td[data-label="Fecha de Pago"] { display: flex !important; align-items: center; justify-content: center; flex: 0 0 100px; padding: 0; border: none; text-align: center; }
+            .table-date-input { width: 100px; max-width: 100px; font-size: 10px; padding: 4px; }
             .print-only { display: none !important; }
-
-            /* Badge Pagó compacto */
-            tbody tr td[data-label="Fecha de Pago"] .badge-paid {
-                font-size: 10px;
-                padding: 3px 7px;
-                white-space: nowrap;
-                border-radius: 10px;
-            }
-
-            /* Columna acciones: tamaño fijo, no crece */
-            tbody tr td.acciones-header {
-                display: flex !important;
-                flex-direction: row;
-                align-items: center;
-                gap: 3px;
-                flex: 0 0 auto;
-                padding: 0;
-                border: none;
-            }
-
-            /* Botones bien compactos */
-            .btn-sm.btn-icon-only {
-                width: 27px;
-                height: 27px;
-                font-size: 11px;
-                padding: 0;
-                flex-shrink: 0;
-            }
+            tbody tr td[data-label="Fecha de Pago"] .badge-paid { font-size: 10px; padding: 3px 7px; white-space: nowrap; border-radius: 10px; }
+            tbody tr td.acciones-header { display: flex !important; flex-direction: row; align-items: center; gap: 3px; flex: 0 0 auto; padding: 0; border: none; }
+            .btn-sm.btn-icon-only { width: 27px; height: 27px; font-size: 11px; padding: 0; flex-shrink: 0; }
         }
-
-        /* --- CONFIGURACIÓN EXCLUSIVA PARA IMPRESIÓN MEJORADA --- */
         @media print {
             body { background-color: #ffffff !important; color: #000000 !important; padding: 0 !important; margin: 0 !important; }
-            
-            /* Ocultar elementos de la interfaz interactiva. Quitamos .widgets de aquí para que se imprima */
-            header, .card:has(#form-alumno), .btn-sm, .acciones-header, td.acciones-header, th.acciones-header, .alert-banner, .period-selector, .card-header-actions, .filtro-busqueda { 
-                display: none !important; 
-            }
-            
-            /* Ajustar contenedor principal */
+            header, .card:has(#form-alumno), .btn-sm, .acciones-header, td.acciones-header, th.acciones-header, .alert-banner, .period-selector, .card-header-actions, .filtro-busqueda { display: none !important; }
             .container { display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
-            .card { padding: 0 !important; border: none !important; background: transparent !important; box-shadow: none !important; margin-bottom: 20px !important;}
-            
-            /* --- ENCABEZADO CENTRADO CON LOGO A LA IZQUIERDA --- */
-            .print-header { display: block !important; position: relative; text-align: center; margin-bottom: 10px; padding-bottom: 15px; border-bottom: 3px solid #000000; color: #000 !important;}
+            .card { padding: 0 !important; border: none !important; background: transparent !important; box-shadow: none !important; margin-bottom: 20px !important; }
+            .print-header { display: block !important; position: relative; text-align: center; margin-bottom: 10px; padding-bottom: 15px; border-bottom: 3px solid #000000; color: #000 !important; }
             .print-header img { position: absolute; left: 0; top: 10px; width: 80px; height: 80px; }
-            .print-header h1 { font-size: 22px; text-transform: uppercase; margin-bottom: 5px; margin-top: 0;}
-            .print-header p { font-size: 14px; margin: 3px 0;}
-            
-            /* --- MES DE GESTIÓN POR DEBAJO DE LA LÍNEA --- */
+            .print-header h1 { font-size: 22px; text-transform: uppercase; margin-bottom: 5px; margin-top: 0; }
+            .print-header p { font-size: 14px; margin: 3px 0; }
             .print-mes-container { display: block !important; text-align: center; margin-bottom: 20px; }
-            .mes-destacado { font-size: 16px; text-transform: uppercase; letter-spacing: 1px; color: #000 !important; margin: 0;}
-
-            /* --- WIDGETS / RESUMEN EN FORMATO IMPRESIÓN --- */
-            .widgets { 
-                display: flex !important; 
-                justify-content: space-between !important; 
-                margin-bottom: 25px !important; 
-                border: 2px solid #000 !important; 
-                border-radius: 0 !important; 
-                gap: 0 !important; 
-                padding: 0 !important;
-            }
-            .card-widget { 
-                background: transparent !important; 
-                border: none !important; 
-                border-right: 1px solid #000 !important; 
-                border-radius: 0 !important; 
-                padding: 10px !important; 
-                flex: 1 !important; 
-                text-align: center !important; 
-            }
+            .mes-destacado { font-size: 16px; text-transform: uppercase; letter-spacing: 1px; color: #000 !important; margin: 0; }
+            .widgets { display: flex !important; justify-content: space-between !important; margin-bottom: 25px !important; border: 2px solid #000 !important; border-radius: 0 !important; gap: 0 !important; padding: 0 !important; }
+            .card-widget { background: transparent !important; border: none !important; border-right: 1px solid #000 !important; border-radius: 0 !important; padding: 10px !important; flex: 1 !important; text-align: center !important; }
             .card-widget:last-child { border-right: none !important; }
-            .card-widget h3 { color: #000 !important; font-size: 12px !important; margin-bottom: 5px !important; font-weight: bold !important;}
-            .card-widget p { color: #000 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 !important;}
-
-            /* FORZAR LA VISIBILIDAD DE LAS COLUMNAS OCULTAS */
+            .card-widget h3 { color: #000 !important; font-size: 12px !important; margin-bottom: 5px !important; font-weight: bold !important; }
+            .card-widget p { color: #000 !important; font-size: 18px !important; font-weight: bold !important; margin: 0 !important; }
             .col-telefono, .col-oculta-principal { display: table-cell !important; }
-
-            /* --- TABLA CON LÍNEAS HORIZONTALES (Sin cuadrícula vertical) --- */
-            table { 
-                display: table !important; 
-                width: 100% !important; 
-                border-collapse: collapse !important; 
-                border: none !important; 
-                border-top: 2px solid #000 !important; 
-                border-bottom: 2px solid #000 !important; 
-            }
+            .col-estado-screen { display: none !important; }
+            .col-observacion-print { display: table-cell !important; }
+            table { display: table !important; width: 100% !important; border-collapse: collapse !important; border: none !important; border-top: 2px solid #000 !important; border-bottom: 2px solid #000 !important; }
             thead { display: table-header-group !important; position: static !important; }
             tbody { display: table-row-group !important; }
             tr { display: table-row !important; border: none !important; background: none !important; page-break-inside: avoid !important; margin: 0 !important; padding: 0 !important; }
-            
-            th { 
-                display: table-cell !important; 
-                background-color: #f0f0f0 !important; 
-                color: #000 !important; 
-                border: none !important; 
-                border-bottom: 2px solid #000 !important; 
-                padding: 10px !important; 
-                text-align: center !important; 
-                font-weight: bold !important;
-                text-transform: uppercase;
-                font-size: 12px !important;
-                -webkit-print-color-adjust: exact; 
-                print-color-adjust: exact;
-            }
-            
-            td { 
-                display: table-cell !important; 
-                border: none !important; 
-                border-bottom: 1px solid #000 !important; 
-                padding: 8px !important; 
-                text-align: center !important; 
-                font-size: 12px !important;
-                color: #000 !important;
-                position: static !important;
-            }
-
-            /* Quitar etiquetas pseudoelementos (celulares) en impresión */
+            th { display: table-cell !important; background-color: #f0f0f0 !important; color: #000 !important; border: none !important; border-bottom: 2px solid #000 !important; padding: 10px !important; text-align: center !important; font-weight: bold !important; text-transform: uppercase; font-size: 12px !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            td { display: table-cell !important; border: none !important; border-bottom: 1px solid #000 !important; padding: 8px !important; text-align: center !important; font-size: 12px !important; color: #000 !important; position: static !important; }
             td:before { content: none !important; }
-            
             td:first-child { text-align: left !important; font-weight: bold; border-bottom: 1px solid #000 !important; }
-            
-            /* Simplificar badges y fechas */
             .badge { border: 1px solid #000 !important; background: transparent !important; color: #000 !important; padding: 3px 8px !important; font-size: 11px !important; font-weight: bold !important; border-radius: 4px !important; }
             .table-date-input { display: none !important; }
             .print-only { display: inline !important; font-weight: bold; }
-
-            /* En impresión: ocultar badge "Pagó" y mostrar solo la fecha centrada */
             td[data-label="Fecha de Pago"] { text-align: center !important; }
             td[data-label="Fecha de Pago"] .badge { display: none !important; }
             td[data-label="Fecha de Pago"] .print-only { display: inline !important; }
@@ -419,14 +168,10 @@
         </div>
         <div class="header-right">
             <div style="display:flex; gap:4px;">
-                <button class="config-btn" id="btn-config" title="Configurar Sede y Sensei">
-                    <i class="fas fa-gear"></i>
-                </button>
-                <button class="theme-toggle-btn" id="theme-toggle" title="Cambiar Modo Claro/Oscuro">
-                    <i class="fas fa-moon" id="theme-icon"></i>
-                </button>
+                <button class="config-btn" id="btn-config" title="Configurar Sede y Sensei"><i class="fas fa-gear"></i></button>
+                <button class="theme-toggle-btn" id="theme-toggle" title="Cambiar Modo Claro/Oscuro"><i class="fas fa-moon" id="theme-icon"></i></button>
             </div>
-            <div><span>v3.4</span></div>
+            <div><span>v3.5</span></div>
         </div>
     </header>
 
@@ -438,40 +183,24 @@
             <p id="print-subtitulo">Sede Villa Ángela | Sensei Yamil Rodriguez</p>
         </div>
     </div>
-    
     <div class="print-mes-container">
         <p class="mes-destacado"><strong>Mes de Gestión: <span id="print-mes"></span></strong></p>
     </div>
 
     <div class="container">
-        
         <div class="period-selector">
             <label for="mes-selector">Gestión del Mes:</label>
             <input type="month" id="mes-selector">
         </div>
-        
         <div id="alerta-morosos" class="alert-banner">
-            <strong>⚠️ ALERTA DE VENCIMIENTO DEL MES ACTUAL</strong>
+            <strong>⚠️ Alumnos con cuota pendiente este mes</strong>
             <span id="texto-alerta"></span>
         </div>
-
         <div class="widgets">
-            <div class="card-widget" style="border-left-color: #3182ce;">
-                <h3>Total Alumnos</h3>
-                <p id="widget-alumnos">0</p>
-            </div>
-            <div class="card-widget" style="border-left-color: var(--success);">
-                <h3>Al Día (Este Mes)</h3>
-                <p id="widget-aldia">0</p>
-            </div>
-            <div class="card-widget" style="border-left-color: var(--warning);">
-                <h3>Morosos (Este Mes)</h3>
-                <p id="widget-morosos">0</p>
-            </div>
-            <div class="card-widget" style="border-left-color: #ecc94b;">
-                <h3>Caja Mensual</h3>
-                <p id="widget-caja">$0</p>
-            </div>
+            <div class="card-widget" style="border-left-color: #3182ce;"><h3>Total Alumnos</h3><p id="widget-alumnos">0</p></div>
+            <div class="card-widget" style="border-left-color: var(--success);"><h3>Al Día (Este Mes)</h3><p id="widget-aldia">0</p></div>
+            <div class="card-widget" style="border-left-color: var(--warning);"><h3>Morosos (Este Mes)</h3><p id="widget-morosos">0</p></div>
+            <div class="card-widget" style="border-left-color: #ecc94b;"><h3>Caja Mensual</h3><p id="widget-caja">$0</p></div>
         </div>
 
         <div class="card">
@@ -484,7 +213,6 @@
                         <button type="button" class="btn-clear" data-target="nombre" title="Limpiar"><i class="fas fa-times"></i></button>
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label for="telefono">Número de Teléfono</label>
                     <div class="phone-input-group">
@@ -492,12 +220,9 @@
                             <input type="tel" id="telefono" class="form-control" placeholder="Ej. 3735537179" style="border-top-right-radius:0; border-bottom-right-radius:0;">
                             <button type="button" class="btn-clear" data-target="telefono" title="Limpiar"><i class="fas fa-times"></i></button>
                         </div>
-                        <button type="button" id="btn-contactos" class="btn-contacts" title="Elegir desde la agenda">
-                            <i class="fas fa-address-book"></i>
-                        </button>
+                        <button type="button" id="btn-contactos" class="btn-contacts" title="Elegir desde la agenda"><i class="fas fa-address-book"></i></button>
                     </div>
                 </div>
-                
                 <div class="form-group">
                     <label for="cuota">Valor Cuota Mensual ($)</label>
                     <div class="input-group-editable">
@@ -513,54 +238,50 @@
         <div class="card">
             <div class="card-header-actions">
                 <h2 style="margin:0;">Listado de Alumnos</h2>
-                <button class="btn btn-sm btn-secondary" id="btn-imprimir" title="Imprimir Reporte">
-                    <i class="fas fa-print"></i>
-                </button>
+                <button class="btn btn-sm btn-secondary" id="btn-imprimir" title="Imprimir Reporte"><i class="fas fa-print"></i></button>
             </div>
-
-            <!-- FILTRO DE BÚSQUEDA POR NOMBRE -->
             <div class="filtro-busqueda input-clearable">
                 <i class="fas fa-search icono-busqueda"></i>
                 <input type="text" id="filtro-nombre" class="form-control" placeholder="Buscar alumno por nombre..." style="padding-right: 34px;">
                 <button type="button" class="btn-clear" data-target="filtro-nombre" title="Limpiar"><i class="fas fa-times"></i></button>
             </div>
-
             <table>
-                    <thead>
-                        <tr>
-                            <th>Alumno</th>
-                            <th class="col-telefono">Teléfono</th>
-                            <th>Fecha de Pago</th>
-                            <th class="col-oculta-principal">Cuota</th>
-                            <th class="col-oculta-principal">Estado</th>
-                            <th class="acciones-header">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-alumnos"></tbody>
-                </table>
+                <thead>
+                    <tr>
+                        <th>Alumno</th>
+                        <th class="col-telefono">Teléfono</th>
+                        <th>Fecha de Pago</th>
+                        <th class="col-oculta-principal">Cuota</th>
+                        <th class="col-oculta-principal col-estado-screen">Estado</th>
+                        <th class="col-observacion-print">Observación</th>
+                        <th class="acciones-header">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-alumnos"></tbody>
+            </table>
         </div>
-
     </div>
 
+    <!-- MODAL INFO -->
     <div id="modal-info" class="modal">
         <div class="modal-content">
             <span class="close-modal" id="close-modal">&times;</span>
             <h2 id="modal-nombre" style="margin-bottom: 15px; color: var(--primary); text-align: left; font-size: 18px;"></h2>
             <div class="modal-body">
                 <p>
-                    <strong><i class="fas fa-phone" style="width:20px; color: var(--text-muted);"></i> Teléfono:</strong> 
+                    <strong><i class="fas fa-phone" style="width:20px; color: var(--text-muted);"></i> Teléfono:</strong>
                     <span id="modal-telefono" style="margin-left: 4px;"></span>
-                    <a id="btn-whatsapp" href="#" target="_blank" class="btn-whatsapp" style="display:none;">
-                        <i class="fab fa-whatsapp"></i> Recordar Pago
-                    </a>
+                    <a id="btn-whatsapp" href="#" target="_blank" class="btn-whatsapp" style="display:none;"><i class="fab fa-whatsapp"></i> Recordar Pago</a>
                 </p>
                 <p><strong><i class="fas fa-money-bill-wave" style="width:20px; color: var(--text-muted);"></i> Arancel Cuota:</strong> <span id="modal-cuota" style="margin-left: 4px;"></span></p>
                 <p><strong><i class="fas fa-toggle-on" style="width:20px; color: var(--text-muted);"></i> Estado:</strong> <span id="modal-estado" style="margin-left: 4px;"></span></p>
                 <p id="modal-fecha-container"><strong><i class="fas fa-calendar-check" style="width:20px; color: var(--text-muted);"></i> Fecha de Pago:</strong> <span id="modal-fecha" style="margin-left: 4px;"></span></p>
+                <p id="modal-observacion-container" style="display:none;"><strong><i class="fas fa-tag" style="width:20px; color: var(--text-muted);"></i> Observación:</strong> <span id="modal-observacion" style="margin-left: 4px;"></span></p>
             </div>
         </div>
     </div>
 
+    <!-- MODAL EDITAR -->
     <div id="modal-editar" class="modal">
         <div class="modal-content">
             <span class="close-modal" id="close-modal-editar">&times;</span>
@@ -580,33 +301,35 @@
                     <button type="button" class="btn-clear" data-target="editar-telefono" title="Limpiar"><i class="fas fa-times"></i></button>
                 </div>
             </div>
+            <div class="form-group" id="editar-observacion-group" style="display:none;">
+                <label for="editar-observacion">Observación del Pago</label>
+                <select id="editar-observacion" class="form-control">
+                    <option value="">— Sin observación —</option>
+                    <option value="Rendido">Rendido</option>
+                    <option value="No rendido">No rendido</option>
+                    <option value="Alquiler">Alquiler</option>
+                </select>
+            </div>
             <button id="btn-guardar-edicion" class="btn" style="margin-top:5px;"><i class="fas fa-floppy-disk"></i> Guardar Cambios</button>
         </div>
     </div>
 
+    <!-- MODAL CONFIG -->
     <div id="modal-config" class="modal">
         <div class="modal-content">
             <span class="close-modal" id="close-modal-config">&times;</span>
             <h2 style="margin-bottom: 18px; color: var(--primary); font-size: 18px;"><i class="fas fa-gear" style="margin-right:8px;"></i>Configuración del Dojo</h2>
-
-            <!-- LOGO -->
             <div class="form-group" style="text-align:center;">
                 <label style="display:block; margin-bottom:8px;">Logo del Dojo</label>
                 <div style="display:flex; align-items:center; justify-content:center; gap:16px; flex-wrap:wrap;">
-                    <img id="config-logo-preview" src="logo.png" alt="Logo actual"
-                        style="width:70px; height:70px; border-radius:50%; object-fit:contain; border:2px solid var(--border-color); background:var(--input-disabled-bg);">
+                    <img id="config-logo-preview" src="logo.png" alt="Logo actual" style="width:70px; height:70px; border-radius:50%; object-fit:contain; border:2px solid var(--border-color); background:var(--input-disabled-bg);">
                     <div style="display:flex; flex-direction:column; gap:8px; align-items:flex-start;">
-                        <label for="config-logo-input" class="btn btn-secondary" style="width:auto; padding:10px 16px; cursor:pointer; font-size:13px; margin:0;">
-                            <i class="fas fa-image"></i> Elegir imagen
-                        </label>
+                        <label for="config-logo-input" class="btn btn-secondary" style="width:auto; padding:10px 16px; cursor:pointer; font-size:13px; margin:0;"><i class="fas fa-image"></i> Elegir imagen</label>
                         <input type="file" id="config-logo-input" accept="image/*" style="display:none;">
-                        <button type="button" id="btn-reset-logo" class="btn btn-secondary" style="width:auto; padding:10px 16px; font-size:13px; background:#718096;">
-                            <i class="fas fa-undo"></i> Restaurar original
-                        </button>
+                        <button type="button" id="btn-reset-logo" class="btn btn-secondary" style="width:auto; padding:10px 16px; font-size:13px; background:#718096;"><i class="fas fa-undo"></i> Restaurar original</button>
                     </div>
                 </div>
             </div>
-
             <div class="form-group">
                 <label for="config-nombre-dojo">Nombre del Dojo</label>
                 <div class="input-clearable">
@@ -650,15 +373,13 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        const PASSWORD_REQUERIDA = "sensei2026"; 
+        const PASSWORD_REQUERIDA = "sensei2026";
         let cuotaPredeterminada = 25000;
         let alumnos = [];
-
-        // VALORES POR DEFECTO DEL DOJO
         let nombreDojo = 'BUTOKU-KAI SHOTOKAN KARATE-DO';
         let nombreSede = 'Villa Ángela';
         let nombreSensei = 'Yamil Rodriguez';
-        let logoBase64 = null; // null = usar logo.png por defecto
+        let logoBase64 = null;
 
         function aplicarConfigDojo() {
             document.getElementById('header-nombre-dojo').innerText = nombreDojo;
@@ -666,10 +387,22 @@
             document.getElementById('header-subtitulo').innerText = subtitulo;
             document.getElementById('print-nombre-dojo').innerText = nombreDojo;
             document.getElementById('print-subtitulo').innerText = subtitulo;
-
-            // Actualizar logos si hay uno guardado
             const src = logoBase64 || 'logo.png';
             document.querySelectorAll('.dojo-logo, .print-header img').forEach(img => img.src = src);
+        }
+
+        // HELPERS PAGOS: compatibilidad con datos legacy (string) y nuevos (objeto)
+        function obtenerFechaPago(pago) {
+            if (!pago || pago === 'true' || pago === 'inicializacion') return null;
+            if (typeof pago === 'string') return pago;
+            return pago.fecha || null;
+        }
+        function obtenerObservacion(pago) {
+            if (!pago || typeof pago === 'string') return '';
+            return pago.observacion || '';
+        }
+        function esPagoValido(pago) {
+            return !!pago && pago !== 'true' && pago !== 'inicializacion';
         }
 
         const form = document.getElementById('form-alumno');
@@ -683,7 +416,6 @@
         const btnImprimir = document.getElementById('btn-imprimir');
         const btnContactos = document.getElementById('btn-contactos');
         const filtroNombre = document.getElementById('filtro-nombre');
-        
         const modalInfo = document.getElementById('modal-info');
         const closeModal = document.getElementById('close-modal');
         const btnWhatsapp = document.getElementById('btn-whatsapp');
@@ -692,14 +424,11 @@
         onValue(configRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                if (data.cuotaPredeterminada) {
-                    cuotaPredeterminada = data.cuotaPredeterminada;
-                    if (inputCuota.disabled) inputCuota.value = cuotaPredeterminada;
-                }
-                if (data.nombreDojo)   nombreDojo   = data.nombreDojo;
-                if (data.nombreSede)   nombreSede   = data.nombreSede;
+                if (data.cuotaPredeterminada) { cuotaPredeterminada = data.cuotaPredeterminada; if (inputCuota.disabled) inputCuota.value = cuotaPredeterminada; }
+                if (data.nombreDojo) nombreDojo = data.nombreDojo;
+                if (data.nombreSede) nombreSede = data.nombreSede;
                 if (data.nombreSensei) nombreSensei = data.nombreSensei;
-                if (data.logoBase64)   logoBase64   = data.logoBase64;
+                if (data.logoBase64) logoBase64 = data.logoBase64;
                 aplicarConfigDojo();
             }
         });
@@ -707,190 +436,121 @@
         btnContactos.addEventListener('click', async () => {
             if ('contacts' in navigator && 'ContactsManager' in window) {
                 try {
-                    const props = ['tel'];
-                    const opts = { multiple: false };
-                    const contacts = await navigator.contacts.select(props, opts);
-                    if (contacts.length > 0) {
-                        const contacto = contacts[0];
-                        if (contacto.tel && contacto.tel.length > 0) {
-                            const telInput = document.getElementById('telefono');
-                            telInput.value = contacto.tel[0].replace(/[\s-]/g, '');
-                            actualizarBtnClear(telInput);
-                        }
+                    const contacts = await navigator.contacts.select(['tel'], { multiple: false });
+                    if (contacts.length > 0 && contacts[0].tel?.length > 0) {
+                        const telInput = document.getElementById('telefono');
+                        telInput.value = contacts[0].tel[0].replace(/[\s-]/g, '');
+                        actualizarBtnClear(telInput);
                     }
-                } catch (err) {
-                    console.error("Error al acceder a los contactos: ", err);
-                }
+                } catch (err) { console.error(err); }
             } else {
-                alert("La selección automática de contactos no es compatible con este navegador o dispositivo.\n\nPor favor, escribe el número manualmente.");
+                alert("Tu dispositivo no admite selección automática de contactos.\nPor favor ingresá el número manualmente.");
             }
         });
 
-        // LÓGICA BOTONES LIMPIAR
         function actualizarBtnClear(input) {
             const btn = input.parentElement.querySelector('.btn-clear');
             if (!btn) return;
-            if (input.value.length > 0) {
-                btn.classList.add('visible');
-            } else {
-                btn.classList.remove('visible');
-            }
+            input.value.length > 0 ? btn.classList.add('visible') : btn.classList.remove('visible');
         }
 
         document.querySelectorAll('.btn-clear').forEach(btn => {
             const targetId = btn.dataset.target;
             const input = document.getElementById(targetId);
             if (!input) return;
-
             input.addEventListener('input', () => actualizarBtnClear(input));
-
             btn.addEventListener('click', () => {
-                input.value = '';
-                input.focus();
-                btn.classList.remove('visible');
+                input.value = ''; input.focus(); btn.classList.remove('visible');
                 if (targetId === 'filtro-nombre') renderalumnos();
             });
         });
 
         function conmutarTema() {
-            const temaActual = document.documentElement.getAttribute('data-theme');
-            let nuevoTema = (temaActual !== 'dark') ? 'dark' : 'light';
+            const nuevoTema = document.documentElement.getAttribute('data-theme') !== 'dark' ? 'dark' : 'light';
             document.documentElement.setAttribute('data-theme', nuevoTema);
             localStorage.setItem('dojo_theme', nuevoTema);
             actualizarIconoTema(nuevoTema);
         }
-
-        function actualizarIconoTema(tema) {
-            themeIcon.className = (tema === 'dark') ? 'fas fa-sun' : 'fas fa-moon';
-        }
-
+        function actualizarIconoTema(tema) { themeIcon.className = tema === 'dark' ? 'fas fa-sun' : 'fas fa-moon'; }
         function cargarTemaInicial() {
-            const temaGuardado = localStorage.getItem('dojo_theme') || 'light';
-            document.documentElement.setAttribute('data-theme', temaGuardado);
-            actualizarIconoTema(temaGuardado);
+            const t = localStorage.getItem('dojo_theme') || 'light';
+            document.documentElement.setAttribute('data-theme', t);
+            actualizarIconoTema(t);
         }
 
         function inicializarSelector() {
             const hoy = new Date();
-            const mesStr = hoy.getFullYear() + '-' + String(hoy.getMonth() + 1).padStart(2, '0');
-            mesSelector.value = mesStr;
-            mesSelector.addEventListener('change', () => {
-                renderalumnos();
-                calcularMetricas();
-                verificarAlertas();
-            });
+            mesSelector.value = hoy.getFullYear() + '-' + String(hoy.getMonth() + 1).padStart(2, '0');
+            mesSelector.addEventListener('change', () => { renderalumnos(); calcularMetricas(); verificarAlertas(); });
         }
-
-        function obtenerPeriodoSeleccionado() {
-            return mesSelector.value;
-        }
-
+        function obtenerPeriodoSeleccionado() { return mesSelector.value; }
         function formatearMesTexto(mesString) {
-            if(!mesString) return '';
+            if (!mesString) return '';
             const [anio, mes] = mesString.split('-');
-            const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
             return `${meses[parseInt(mes) - 1]} ${anio}`;
         }
 
         btnEditar.addEventListener('click', () => {
-            const passwordIngresada = prompt("Por favor, ingrese la contraseña de autorización para cambiar la cuota:");
-            if (passwordIngresada === null) return;
-
-            if (passwordIngresada === PASSWORD_REQUERIDA) {
-                inputCuota.disabled = false;
-                inputCuota.focus();
-                btnEditar.style.display = 'none'; 
-                btnGuardar.style.display = 'block'; 
-            } else {
-                alert("Contraseña incorrecta. Acción denegada.");
-            }
+            const pwd = prompt("Ingresá la contraseña del Sensei para modificar el valor de cuota:");
+            if (pwd === null) return;
+            if (pwd === PASSWORD_REQUERIDA) { inputCuota.disabled = false; inputCuota.focus(); btnEditar.style.display = 'none'; btnGuardar.style.display = 'block'; }
+            else alert("Contraseña incorrecta. Solo el Sensei puede modificar el valor de cuota.");
         });
 
         btnGuardar.addEventListener('click', () => {
             const valor = parseInt(inputCuota.value);
-            if (!valor || valor <= 0) {
-                alert("Por favor, ingrese un monto de cuota válido.");
-                return;
-            }
-            
+            if (!valor || valor <= 0) { alert("Ingresá un monto de cuota válido antes de guardar."); return; }
             set(ref(db, 'config'), { cuotaPredeterminada: valor })
                 .then(() => {
-                    cuotaPredeterminada = valor;
-                    inputCuota.disabled = true;
-                    btnGuardar.style.display = 'none'; 
-                    btnEditar.style.display = 'block'; 
-                    alert(`Éxito: La cuota base se guardó en la nube y quedó fijada en $${cuotaPredeterminada}.`);
+                    cuotaPredeterminada = valor; inputCuota.disabled = true;
+                    btnGuardar.style.display = 'none'; btnEditar.style.display = 'block';
+                    alert(`¡Listo! La cuota mensual quedó fijada en $${cuotaPredeterminada.toLocaleString('es-AR')} y se sincronizó en la nube.`);
                 })
-                .catch(error => alert("Error al guardar en la nube: " + error.message));
+                .catch(error => alert("No se pudo guardar en la nube: " + error.message));
         });
 
         const alumnosRef = ref(db, 'alumnos');
         onValue(alumnosRef, (snapshot) => {
             const data = snapshot.val();
-            if (data) {
-                alumnos = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-            } else {
-                alumnos = [];
-            }
-            renderalumnos();
-            calcularMetricas();
-            verificarAlertas();
+            alumnos = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+            renderalumnos(); calcularMetricas(); verificarAlertas();
         });
 
         form.addEventListener('submit', (e) => {
             e.preventDefault();
-            const cuotaIngresada = parseInt(inputCuota.value) || cuotaPredeterminada;
-            const nuevoId = Date.now().toString(); 
-            
-            const nuevoAlumno = {
+            const nuevoId = Date.now().toString();
+            set(ref(db, 'alumnos/' + nuevoId), {
                 nombre: document.getElementById('nombre').value.trim(),
                 telefono: document.getElementById('telefono').value.trim(),
-                cuota: cuotaIngresada,
-                pagos: { "inicializacion": "true" } 
-            };
-
-            set(ref(db, 'alumnos/' + nuevoId), nuevoAlumno)
-                .then(() => {
-                    form.reset();
-                    inputCuota.value = cuotaPredeterminada;
-                    inputCuota.disabled = true;
-                    btnGuardar.style.display = 'none';
-                    btnEditar.style.display = 'block';
-                })
-                .catch(error => alert("Error en la nube: " + error.message));
+                cuota: parseInt(inputCuota.value) || cuotaPredeterminada,
+                pagos: { "inicializacion": "true" }
+            })
+            .then(() => { form.reset(); inputCuota.value = cuotaPredeterminada; inputCuota.disabled = true; btnGuardar.style.display = 'none'; btnEditar.style.display = 'block'; })
+            .catch(error => alert("No se pudo registrar el alumno: " + error.message));
         });
 
         window.cambiarEstadoPago = function(id) {
-            const passwordIngresada = prompt("Por favor, ingrese la contraseña de autorización:");
-            if (passwordIngresada === null) return;
+            const pwd = prompt("Ingresá la contraseña del Sensei para registrar o anular el pago:");
+            if (pwd === null) return;
+            if (pwd !== PASSWORD_REQUERIDA) { alert("Contraseña incorrecta. Solo el Sensei puede registrar pagos."); return; }
 
-            if (passwordIngresada === PASSWORD_REQUERIDA) {
-                const periodo = obtenerPeriodoSeleccionado();
-                const alumno = alumnos.find(a => a.id === id);
-                
-                if (alumno) {
-                    if (!alumno.pagos) alumno.pagos = {};
-                    
-                    if (alumno.pagos[periodo]) {
-                        delete alumno.pagos[periodo];
-                    } else {
-                        const inputFecha = document.getElementById(`fecha-pago-${id}`);
-                        const fechaElegida = inputFecha ? inputFecha.value : new Date().toISOString().split('T')[0];
-                        alumno.pagos[periodo] = fechaElegida;
-                    }
+            const periodo = obtenerPeriodoSeleccionado();
+            const alumno = alumnos.find(a => a.id === id);
+            if (!alumno) return;
+            if (!alumno.pagos) alumno.pagos = {};
 
-                    set(ref(db, 'alumnos/' + id), {
-                        nombre: alumno.nombre,
-                        telefono: alumno.telefono,
-                        cuota: alumno.cuota,
-                        pagos: alumno.pagos
-                    })
-                    .then(() => { if(modalInfo.style.display === 'flex') modalInfo.style.display = 'none'; })
-                    .catch(error => alert("Error al procesar pago: " + error.message));
-                }
+            if (esPagoValido(alumno.pagos[periodo])) {
+                delete alumno.pagos[periodo];
             } else {
-                alert("Contraseña incorrecta. Acción denegada.");
+                const inputFecha = document.getElementById(`fecha-pago-${id}`);
+                const fechaElegida = inputFecha ? inputFecha.value : new Date().toISOString().split('T')[0];
+                alumno.pagos[periodo] = { fecha: fechaElegida, observacion: '' };
             }
+
+            set(ref(db, 'alumnos/' + id), { nombre: alumno.nombre, telefono: alumno.telefono, cuota: alumno.cuota, pagos: alumno.pagos })
+            .then(() => { if (modalInfo.style.display === 'flex') modalInfo.style.display = 'none'; })
+            .catch(error => alert("No se pudo procesar el pago: " + error.message));
         };
 
         window.verInfoAlumno = function(id) {
@@ -901,67 +561,67 @@
             document.getElementById('modal-nombre').innerText = alumno.nombre;
             document.getElementById('modal-telefono').innerText = alumno.telefono || 'Sin registrar';
             document.getElementById('modal-cuota').innerText = `$${alumno.cuota.toLocaleString('es-AR')}`;
-            
-            const pagoRealizado = alumno.pagos && alumno.pagos[periodo] ? true : false;
+
+            const pago = alumno.pagos && alumno.pagos[periodo];
+            const pagoValido = esPagoValido(pago);
             const badgeEstado = document.getElementById('modal-estado');
             const fechaContainer = document.getElementById('modal-fecha-container');
-            
-            if (pagoRealizado) {
-                badgeEstado.innerHTML = `<span class="badge badge-paid">Pagado</span>`;
-                const [anio, mes, dia] = alumno.pagos[periodo].split('-');
-                document.getElementById('modal-fecha').innerText = `${dia}/${mes}/${anio}`;
+            const obsContainer = document.getElementById('modal-observacion-container');
+
+            if (pagoValido) {
+                badgeEstado.innerHTML = `<span class="badge badge-paid">Al día</span>`;
+                const fechaStr = obtenerFechaPago(pago);
+                if (fechaStr) { const [a,m,d] = fechaStr.split('-'); document.getElementById('modal-fecha').innerText = `${d}/${m}/${a}`; }
                 fechaContainer.style.display = 'block';
                 btnWhatsapp.style.display = 'none';
+                document.getElementById('modal-observacion').innerText = obtenerObservacion(pago) || '—';
+                obsContainer.style.display = 'flex';
             } else {
-                badgeEstado.innerHTML = `<span class="badge badge-debt">Pendiente</span>`;
+                const hoy = new Date();
+                const esMesActual = periodo === hoy.getFullYear() + '-' + String(hoy.getMonth() + 1).padStart(2, '0');
+                const esMoroso = esMesActual && hoy.getDate() > 10;
+                badgeEstado.innerHTML = esMoroso ? `<span class="badge badge-moroso">Moroso</span>` : `<span class="badge badge-debt">Pendiente</span>`;
                 fechaContainer.style.display = 'none';
+                obsContainer.style.display = 'none';
 
-                if (alumno.telefono && alumno.telefono.trim() !== "") {
+                if (alumno.telefono?.trim()) {
                     const [anio, mes] = periodo.split('-');
-                    const telefonoLimpio = alumno.telefono.replace(/[^0-9]/g, ''); 
-                    const mensaje = `Hola *${alumno.nombre}*, te saludamos desde el *Dojo Butoku-Kai*. Te recordamos que se encuentra pendiente el pago de la cuota arancelaria correspondiente al mes *${mes}/${anio}* por un valor de *$${alumno.cuota.toLocaleString('es-AR')}*. Si ya realizaste el pago o tuviste algún inconveniente, por favor avísanos. ¡Muchas gracias! Oss.`;
-                    
-                    btnWhatsapp.href = `https://wa.me/${telefonoLimpio}?text=${encodeURIComponent(mensaje)}`;
+                    const tel = alumno.telefono.replace(/[^0-9]/g, '');
+                    const msg = `Hola *${alumno.nombre}*, te saludamos desde el *Dojo ${nombreDojo}*. Te recordamos que se encuentra pendiente el pago de la cuota arancelaria correspondiente al mes *${mes}/${anio}* por un valor de *$${alumno.cuota.toLocaleString('es-AR')}*. Si ya realizaste el pago o tuviste algún inconveniente, por favor avísanos. ¡Muchas gracias! Oss 🥋`;
+                    btnWhatsapp.href = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
                     btnWhatsapp.style.display = 'inline-flex';
-                } else {
-                    btnWhatsapp.style.display = 'none';
-                }
+                } else { btnWhatsapp.style.display = 'none'; }
             }
-
             modalInfo.style.display = 'flex';
         };
 
         closeModal.addEventListener('click', () => { modalInfo.style.display = 'none'; });
-        window.addEventListener('click', (e) => { if(e.target === modalInfo) modalInfo.style.display = 'none'; });
+        window.addEventListener('click', (e) => { if (e.target === modalInfo) modalInfo.style.display = 'none'; });
 
         window.eliminarAlumno = function(id) {
-            const passwordIngresada = prompt("Para dar de baja a un alumno se requiere autorización. Ingrese contraseña:");
-            if (passwordIngresada === null) return;
-
-            if (passwordIngresada === PASSWORD_REQUERIDA) {
-                if(confirm('¿Confirmas que deseas eliminar por completo a este alumno del dojo?')) {
-                    set(ref(db, 'alumnos/' + id), null)
-                        .then(() => { if(modalInfo.style.display === 'flex') modalInfo.style.display = 'none'; })
-                        .catch(error => alert("Error al eliminar: " + error.message));
-                }
-            } else {
-                alert("Contraseña incorrecta. No se pudo eliminar al alumno.");
+            const alumno = alumnos.find(a => a.id === id);
+            const nombre = alumno ? alumno.nombre : 'este alumno';
+            const pwd = prompt(`Para dar de baja a ${nombre} del dojo se requiere autorización.\nIngresá la contraseña del Sensei:`);
+            if (pwd === null) return;
+            if (pwd !== PASSWORD_REQUERIDA) { alert("Contraseña incorrecta. No se realizó ningún cambio."); return; }
+            if (confirm(`¿Confirmás que querés eliminar a ${nombre} del dojo?\nEsta acción no se puede deshacer.`)) {
+                set(ref(db, 'alumnos/' + id), null)
+                .then(() => { if (modalInfo.style.display === 'flex') modalInfo.style.display = 'none'; })
+                .catch(error => alert("No se pudo eliminar al alumno: " + error.message));
             }
         };
 
         function calcularMetricas() {
             const periodo = obtenerPeriodoSeleccionado();
             const totalAlumnos = alumnos.length;
-            const alumnosAlDia = alumnos.filter(a => a.pagos && a.pagos[periodo]);
-            const alDia = alumnosAlDia.length; 
+            const alumnosAlDia = alumnos.filter(a => esPagoValido(a.pagos && a.pagos[periodo]));
+            const alDia = alumnosAlDia.length;
             const morosos = totalAlumnos - alDia;
-            const totalCaja = alumnosAlDia.reduce((sum, alumno) => sum + (alumno.cuota || 0), 0);
-
+            const totalCaja = alumnosAlDia.reduce((sum, a) => sum + (a.cuota || 0), 0);
             document.getElementById('widget-alumnos').innerText = totalAlumnos;
             document.getElementById('widget-aldia').innerText = alDia;
             document.getElementById('widget-morosos').innerText = morosos;
             document.getElementById('widget-caja').innerText = `$${totalCaja.toLocaleString('es-AR')}`;
-            
             document.getElementById('print-mes').innerText = formatearMesTexto(periodo);
         }
 
@@ -971,11 +631,11 @@
             const hoy = new Date();
             const mesActualReal = hoy.getFullYear() + '-' + String(hoy.getMonth() + 1).padStart(2, '0');
             const diaActual = hoy.getDate();
-            const deudoresActuales = alumnos.filter(a => !a.pagos || !a.pagos[mesActualReal]);
-
-            if (diaActual > 10 && deudoresActuales.length > 0) {
-                const nombresDeudores = deudoresActuales.map(a => a.nombre).join(', ');
-                textoAlerta.innerText = `Hoy es día ${diaActual} y los siguientes alumnos registran cuotas pendientes este mes: ${nombresDeudores}.`;
+            const deudores = alumnos.filter(a => !esPagoValido(a.pagos && a.pagos[mesActualReal]));
+            if (diaActual > 10 && deudores.length > 0) {
+                const cantidad = deudores.length;
+                const nombres = deudores.map(a => a.nombre).join(', ');
+                textoAlerta.innerText = `Ya pasó el día 10 y ${cantidad === 1 ? 'el siguiente alumno tiene' : `los siguientes ${cantidad} alumnos tienen`} su cuota sin abonar: ${nombres}. Recordales que regularicen su situación. Oss 🥋`;
                 alertaDiv.style.display = 'block';
             } else {
                 alertaDiv.style.display = 'none';
@@ -988,23 +648,22 @@
             const hoyStr = new Date().toISOString().split('T')[0];
 
             if (alumnos.length === 0) {
-                tabla.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding: 20px;">No hay alumnos registrados en el dojo.</td></tr>`;
+                tabla.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding: 20px;">Todavía no hay alumnos registrados en el dojo.</td></tr>`;
                 return;
             }
 
-            // FILTRO POR NOMBRE + ORDEN: pagados primero, luego pendientes, cada grupo alfabético
             const filtro = filtroNombre?.value.toLowerCase().trim() || '';
             const alumnosOrdenados = [...alumnos]
                 .filter(a => a.nombre.toLowerCase().includes(filtro))
                 .sort((a, b) => {
-                    const aPago = a.pagos && a.pagos[periodo] ? 1 : 0;
-                    const bPago = b.pagos && b.pagos[periodo] ? 1 : 0;
-                    if (bPago !== aPago) return bPago - aPago; // pagados primero
-                    return a.nombre.localeCompare(b.nombre);   // luego alfabético
+                    const aP = esPagoValido(a.pagos && a.pagos[periodo]) ? 1 : 0;
+                    const bP = esPagoValido(b.pagos && b.pagos[periodo]) ? 1 : 0;
+                    if (bP !== aP) return bP - aP;
+                    return a.nombre.localeCompare(b.nombre);
                 });
 
             if (alumnosOrdenados.length === 0) {
-                tabla.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding: 20px;">No se encontraron alumnos con ese nombre.</td></tr>`;
+                tabla.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding: 20px;">No se encontró ningún alumno con ese nombre.</td></tr>`;
                 return;
             }
 
@@ -1015,34 +674,23 @@
 
             alumnosOrdenados.forEach(alumno => {
                 const tr = document.createElement('tr');
-                const pagoRealizado = alumno.pagos && alumno.pagos[periodo] ? true : false;
+                const pago = alumno.pagos && alumno.pagos[periodo];
+                const pagoRealizado = esPagoValido(pago);
 
-                // Determinar estado con tres niveles
                 let estadoClase, estadoTexto;
-                if (pagoRealizado) {
-                    estadoClase = 'badge-paid';
-                    estadoTexto = 'Al día';
-                } else if (esMesActual && diaHoy > 10) {
-                    estadoClase = 'badge-moroso';
-                    estadoTexto = 'Moroso';
-                } else {
-                    estadoClase = 'badge-debt';
-                    estadoTexto = 'Pendiente';
-                }
+                if (pagoRealizado) { estadoClase = 'badge-paid'; estadoTexto = 'Al día'; }
+                else if (esMesActual && diaHoy > 10) { estadoClase = 'badge-moroso'; estadoTexto = 'Moroso'; }
+                else { estadoClase = 'badge-debt'; estadoTexto = 'Pendiente'; }
 
-                // Celda de fecha: en pantalla muestra badge/input; en impresión muestra fecha o estado
+                const observacion = pagoRealizado ? obtenerObservacion(pago) : '';
+
                 let celdaFechaHtml = "";
                 if (pagoRealizado) {
-                    const [anio, mes, dia] = alumno.pagos[periodo].split('-');
-                    celdaFechaHtml = `
-                        <span class="badge badge-paid">Pagó</span>
-                        <span class="print-only">${dia}/${mes}/${anio}</span>
-                    `;
+                    const fechaStr = obtenerFechaPago(pago);
+                    const partes = fechaStr ? fechaStr.split('-') : ['','',''];
+                    celdaFechaHtml = `<span class="badge badge-paid">Pagó</span><span class="print-only">${partes[2]}/${partes[1]}/${partes[0]}</span>`;
                 } else {
-                    celdaFechaHtml = `
-                        <input type="date" id="fecha-pago-${alumno.id}" class="table-date-input" value="${hoyStr}">
-                        <span class="print-only">${estadoTexto}</span>
-                    `;
+                    celdaFechaHtml = `<input type="date" id="fecha-pago-${alumno.id}" class="table-date-input" value="${hoyStr}"><span class="print-only">${estadoTexto}</span>`;
                 }
 
                 tr.innerHTML = `
@@ -1050,20 +698,13 @@
                     <td class="col-telefono" data-label="Teléfono">${alumno.telefono || '-'}</td>
                     <td data-label="Fecha de Pago">${celdaFechaHtml}</td>
                     <td class="col-oculta-principal" data-label="Cuota">$${alumno.cuota.toLocaleString('es-AR')}</td>
-                    <td class="col-oculta-principal" data-label="Estado"><span class="badge ${estadoClase}">${estadoTexto}</span></td>
+                    <td class="col-oculta-principal col-estado-screen" data-label="Estado"><span class="badge ${estadoClase}">${estadoTexto}</span></td>
+                    <td class="col-observacion-print" data-label="Observación">${observacion || '—'}</td>
                     <td class="acciones-header" style="display: flex; gap: 6px; justify-content: center; align-items: center;">
-                        <button class="btn-sm btn-icon-only btn-info" onclick="verInfoAlumno('${alumno.id}')" title="Ver Detalles del Alumno">
-                            <i class="fas fa-info-circle"></i>
-                        </button>
-                        <button class="btn-sm btn-icon-only" style="background-color: #6b46c1; color: white;" onclick="editarAlumno('${alumno.id}')" title="Editar Alumno">
-                            <i class="fas fa-user-pen"></i>
-                        </button>
-                        <button class="btn-sm btn-icon-only ${pagoRealizado ? 'btn-secondary' : 'btn-success'}" onclick="cambiarEstadoPago('${alumno.id}')" title="${pagoRealizado ? 'Anular Pago' : 'Registrar Pago'}">
-                            ${pagoRealizado ? '<i class="fas fa-undo"></i>' : '<i class="fas fa-money-bill-wave"></i>'}
-                        </button>
-                        <button class="btn-sm btn-icon-only" style="background-color: #e53e3e; color: white;" onclick="eliminarAlumno('${alumno.id}')" title="Eliminar Alumno">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        <button class="btn-sm btn-icon-only btn-info" onclick="verInfoAlumno('${alumno.id}')" title="Ver Detalles del Alumno"><i class="fas fa-info-circle"></i></button>
+                        <button class="btn-sm btn-icon-only" style="background-color: #6b46c1; color: white;" onclick="editarAlumno('${alumno.id}')" title="Editar Alumno"><i class="fas fa-user-pen"></i></button>
+                        <button class="btn-sm btn-icon-only ${pagoRealizado ? 'btn-secondary' : 'btn-success'}" onclick="cambiarEstadoPago('${alumno.id}')" title="${pagoRealizado ? 'Anular Pago' : 'Registrar Pago'}">${pagoRealizado ? '<i class="fas fa-undo"></i>' : '<i class="fas fa-money-bill-wave"></i>'}</button>
+                        <button class="btn-sm btn-icon-only" style="background-color: #e53e3e; color: white;" onclick="eliminarAlumno('${alumno.id}')" title="Eliminar Alumno"><i class="fas fa-trash"></i></button>
                     </td>
                 `;
                 tabla.appendChild(tr);
@@ -1076,10 +717,23 @@
         window.editarAlumno = function(id) {
             const alumno = alumnos.find(a => a.id === id);
             if (!alumno) return;
+            const periodo = obtenerPeriodoSeleccionado();
+            const pago = alumno.pagos && alumno.pagos[periodo];
+            const pagoValido = esPagoValido(pago);
+
             document.getElementById('editar-id').value = id;
             document.getElementById('editar-nombre').value = alumno.nombre;
             document.getElementById('editar-telefono').value = alumno.telefono || '';
             ['editar-nombre', 'editar-telefono'].forEach(i => actualizarBtnClear(document.getElementById(i)));
+
+            const obsGroup = document.getElementById('editar-observacion-group');
+            if (pagoValido) {
+                obsGroup.style.display = 'block';
+                document.getElementById('editar-observacion').value = obtenerObservacion(pago);
+            } else {
+                obsGroup.style.display = 'none';
+                document.getElementById('editar-observacion').value = '';
+            }
             modalEditar.style.display = 'flex';
         };
 
@@ -1087,29 +741,30 @@
         window.addEventListener('click', (e) => { if (e.target === modalEditar) modalEditar.style.display = 'none'; });
 
         document.getElementById('btn-guardar-edicion').addEventListener('click', () => {
-            const passwordIngresada = prompt("Ingrese la contraseña de autorización para editar:");
-            if (passwordIngresada === null) return;
-            if (passwordIngresada !== PASSWORD_REQUERIDA) { alert("Contraseña incorrecta. Acción denegada."); return; }
+            const pwd = prompt("Ingresá la contraseña del Sensei para guardar los cambios:");
+            if (pwd === null) return;
+            if (pwd !== PASSWORD_REQUERIDA) { alert("Contraseña incorrecta. No se realizó ningún cambio."); return; }
 
             const id = document.getElementById('editar-id').value;
             const nuevoNombre = document.getElementById('editar-nombre').value.trim();
             const nuevoTelefono = document.getElementById('editar-telefono').value.trim();
+            const nuevaObservacion = document.getElementById('editar-observacion').value;
 
-            if (!nuevoNombre) { alert("El nombre no puede estar vacío."); return; }
+            if (!nuevoNombre) { alert("El nombre del alumno no puede estar vacío."); return; }
 
             const alumno = alumnos.find(a => a.id === id);
             if (!alumno) return;
 
-            set(ref(db, 'alumnos/' + id), {
-                nombre: nuevoNombre,
-                telefono: nuevoTelefono,
-                cuota: alumno.cuota,
-                pagos: alumno.pagos || {}
-            })
-            .then(() => {
-                modalEditar.style.display = 'none';
-            })
-            .catch(error => alert("Error al guardar: " + error.message));
+            const periodo = obtenerPeriodoSeleccionado();
+            const pagosActualizados = { ...(alumno.pagos || {}) };
+            if (esPagoValido(pagosActualizados[periodo])) {
+                const fechaActual = obtenerFechaPago(pagosActualizados[periodo]);
+                pagosActualizados[periodo] = { fecha: fechaActual, observacion: nuevaObservacion };
+            }
+
+            set(ref(db, 'alumnos/' + id), { nombre: nuevoNombre, telefono: nuevoTelefono, cuota: alumno.cuota, pagos: pagosActualizados })
+            .then(() => { modalEditar.style.display = 'none'; })
+            .catch(error => alert("No se pudo guardar los cambios: " + error.message));
         });
 
         cargarTemaInicial();
@@ -1117,86 +772,57 @@
         themeToggle.addEventListener('click', conmutarTema);
         btnImprimir.addEventListener('click', () => { window.print(); });
 
-        // MODAL CONFIGURACIÓN DOJO
+        // MODAL CONFIG DOJO
         const modalConfig = document.getElementById('modal-config');
-        let logoBase64Pendiente = null; // logo seleccionado pero aún no guardado
+        let logoBase64Pendiente = null;
 
         document.getElementById('btn-config').addEventListener('click', () => {
             document.getElementById('config-nombre-dojo').value = nombreDojo;
             document.getElementById('config-sede').value = nombreSede;
             document.getElementById('config-sensei').value = nombreSensei;
-            // Mostrar logo actual en preview
             document.getElementById('config-logo-preview').src = logoBase64 || 'logo.png';
             logoBase64Pendiente = null;
-            ['config-nombre-dojo','config-sede','config-sensei'].forEach(id => {
-                actualizarBtnClear(document.getElementById(id));
-            });
+            ['config-nombre-dojo','config-sede','config-sensei'].forEach(id => actualizarBtnClear(document.getElementById(id)));
             modalConfig.style.display = 'flex';
         });
         document.getElementById('close-modal-config').addEventListener('click', () => { modalConfig.style.display = 'none'; });
         window.addEventListener('click', (e) => { if (e.target === modalConfig) modalConfig.style.display = 'none'; });
 
-        // SELECCIÓN DE IMAGEN
         document.getElementById('config-logo-input').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            if (file.size > 300 * 1024) {
-                alert("La imagen es demasiado grande. Por favor usá una imagen de menos de 300KB.");
-                e.target.value = '';
-                return;
-            }
+            if (file.size > 300 * 1024) { alert("La imagen es demasiado grande. Usá una imagen de menos de 300KB."); e.target.value = ''; return; }
             const reader = new FileReader();
-            reader.onload = (ev) => {
-                logoBase64Pendiente = ev.target.result;
-                document.getElementById('config-logo-preview').src = logoBase64Pendiente;
-            };
+            reader.onload = (ev) => { logoBase64Pendiente = ev.target.result; document.getElementById('config-logo-preview').src = logoBase64Pendiente; };
             reader.readAsDataURL(file);
         });
 
-        // RESTAURAR LOGO ORIGINAL
         document.getElementById('btn-reset-logo').addEventListener('click', () => {
-            logoBase64Pendiente = '';  // string vacío = borrar de Firebase
+            logoBase64Pendiente = '';
             document.getElementById('config-logo-preview').src = 'logo.png';
             document.getElementById('config-logo-input').value = '';
         });
 
         document.getElementById('btn-guardar-config').addEventListener('click', () => {
-            const passwordIngresada = prompt("Ingrese la contraseña de autorización para guardar los cambios:");
-            if (passwordIngresada === null) return;
-            if (passwordIngresada !== PASSWORD_REQUERIDA) { alert("Contraseña incorrecta. Acción denegada."); return; }
-
+            const pwd = prompt("Ingresá la contraseña del Sensei para guardar la configuración:");
+            if (pwd === null) return;
+            if (pwd !== PASSWORD_REQUERIDA) { alert("Contraseña incorrecta. No se realizó ningún cambio."); return; }
             const nuevoNombreDojo = document.getElementById('config-nombre-dojo').value.trim();
-            const nuevaSede       = document.getElementById('config-sede').value.trim();
-            const nuevoSensei     = document.getElementById('config-sensei').value.trim();
-
-            if (!nuevoNombreDojo || !nuevaSede || !nuevoSensei) { alert("Por favor completá todos los campos."); return; }
-
-            // Determinar qué logo guardar
+            const nuevaSede = document.getElementById('config-sede').value.trim();
+            const nuevoSensei = document.getElementById('config-sensei').value.trim();
+            if (!nuevoNombreDojo || !nuevaSede || !nuevoSensei) { alert("Completá todos los campos antes de guardar."); return; }
             const logoAGuardar = logoBase64Pendiente !== null ? logoBase64Pendiente : (logoBase64 || '');
-
-            set(ref(db, 'config'), {
-                cuotaPredeterminada,
-                nombreDojo: nuevoNombreDojo,
-                nombreSede: nuevaSede,
-                nombreSensei: nuevoSensei,
-                logoBase64: logoAGuardar
-            })
+            set(ref(db, 'config'), { cuotaPredeterminada, nombreDojo: nuevoNombreDojo, nombreSede: nuevaSede, nombreSensei: nuevoSensei, logoBase64: logoAGuardar })
             .then(() => {
-                nombreDojo   = nuevoNombreDojo;
-                nombreSede   = nuevaSede;
-                nombreSensei = nuevoSensei;
-                logoBase64   = logoAGuardar || null;
-                logoBase64Pendiente = null;
-                aplicarConfigDojo();
-                modalConfig.style.display = 'none';
-                alert("Configuración guardada correctamente en la nube.");
+                nombreDojo = nuevoNombreDojo; nombreSede = nuevaSede; nombreSensei = nuevoSensei;
+                logoBase64 = logoAGuardar || null; logoBase64Pendiente = null;
+                aplicarConfigDojo(); modalConfig.style.display = 'none';
+                alert("¡Configuración guardada! Los cambios se aplicaron en todos los dispositivos.");
             })
-            .catch(error => alert("Error al guardar: " + error.message));
+            .catch(error => alert("No se pudo guardar la configuración: " + error.message));
         });
 
-        // LISTENER DEL FILTRO DE BÚSQUEDA
         filtroNombre.addEventListener('input', renderalumnos);
-
     </script>
 </body>
 </html>
