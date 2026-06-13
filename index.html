@@ -239,13 +239,66 @@
             td[data-label="Fecha de Pago"] .print-only{display:inline!important;}
             .dc-modal-overlay{display:none!important;}
         }
-        /* Padrón: cuando está activo, ocultar toda la app y mostrar solo el padrón */
-        body.imprimiendo-padron > *:not(#padron-overlay){display:none!important;}
-        #padron-overlay{display:none;position:fixed;inset:0;background:#fff;z-index:9999;overflow:auto;}
-        body.imprimiendo-padron #padron-overlay{display:block;}
+        /* ── MODAL PADRÓN ── */
+        #padron-modal{
+            display:none;position:fixed;inset:0;z-index:8000;
+            background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);
+            animation:dcFadeIn 0.15s ease;overflow-y:auto;
+            padding:16px 12px;
+        }
+        #padron-modal.visible{display:block;}
+        #padron-modal-box{
+            background:var(--card-bg);color:var(--text-main);
+            border-radius:12px;max-width:860px;margin:0 auto;
+            box-shadow:0 20px 60px rgba(0,0,0,0.4);
+            overflow:hidden;animation:dcSlideUp 0.2s ease;
+        }
+        #padron-modal-header{
+            background:var(--header-bg);color:var(--header-text);
+            padding:14px 18px;display:flex;align-items:center;gap:10px;
+            border-bottom:3px solid var(--primary);position:sticky;top:0;z-index:1;
+        }
+        #padron-modal-header img{width:28px;height:28px;border-radius:50%;object-fit:contain;background:white;padding:1px;flex-shrink:0;}
+        #padron-modal-header .pm-titulo{font-size:13px;font-weight:700;letter-spacing:0.3px;flex:1;}
+        #padron-modal-header .pm-version{font-size:10px;opacity:0.5;}
+        #padron-modal-body{padding:20px;}
+        /* Cabecera interna del padrón */
+        .pm-cabecera{display:flex;align-items:center;gap:16px;padding-bottom:14px;border-bottom:3px solid var(--primary);margin-bottom:6px;flex-wrap:wrap;}
+        .pm-cabecera img{width:60px;height:60px;object-fit:contain;border-radius:50%;flex-shrink:0;background:var(--input-disabled-bg);padding:2px;}
+        .pm-cabecera-centro{flex:1;text-align:center;min-width:160px;}
+        .pm-cabecera-centro .pm-dojo{font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;}
+        .pm-cabecera-centro .pm-sub{font-size:12px;color:var(--text-muted);}
+        .pm-subtitulo{text-align:center;margin:12px 0 14px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);}
+        /* Tabla del padrón */
+        #padron-modal table{width:100%;border-collapse:collapse;font-size:12px;}
+        #padron-modal thead th{background:var(--header-bg);color:var(--header-text);padding:9px 7px;text-align:center;text-transform:uppercase;font-size:10px;letter-spacing:0.4px;}
+        #padron-modal thead th:first-child{text-align:left;}
+        #padron-modal tbody td{padding:8px 7px;border-bottom:1px solid var(--border-color);color:var(--text-main);}
+        #padron-modal tbody tr:nth-child(even) td{background:var(--table-th-bg);}
+        #padron-modal tfoot td{padding:8px 7px;font-size:10px;color:var(--text-muted);text-align:right;border-top:2px solid var(--border-color);}
+        /* Barra de acciones */
+        .pm-acciones{
+            display:flex;gap:10px;justify-content:flex-end;align-items:center;
+            padding:14px 20px;border-top:1px solid var(--border-color);
+            background:var(--card-bg);position:sticky;bottom:0;
+        }
+        /* Al imprimir desde el modal: ocultar TODO excepto el contenido del padrón */
         @media print{
-            body.imprimiendo-padron > *:not(#padron-overlay){display:none!important;}
-            body.imprimiendo-padron #padron-overlay{display:block!important;position:static!important;overflow:visible!important;}
+            #padron-modal *{color:#000!important;background:transparent!important;}
+            #padron-modal-header,#padron-modal-header *{display:none!important;}
+            .pm-acciones{display:none!important;}
+            #padron-modal{
+                display:block!important;position:static!important;
+                background:none!important;backdrop-filter:none!important;
+                padding:0!important;animation:none!important;
+            }
+            #padron-modal-box{box-shadow:none!important;border-radius:0!important;}
+            #padron-modal-body{padding:12px!important;}
+            body > *:not(#padron-modal){display:none!important;}
+            .pm-cabecera{border-bottom:3px solid #d32f2f!important;}
+            #padron-modal thead th{background:#1a1a1a!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+            #padron-modal tbody tr:nth-child(even) td{background:#f8f8f8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+            @page{margin:1.2cm;size:A4 portrait;}
         }
     </style>
 </head>
@@ -574,6 +627,28 @@
             <button type="button" id="btn-agregar-graduacion" class="btn btn-success" style="width:auto;padding:10px 14px;flex-shrink:0;"><i class="fas fa-plus"></i></button>
         </div>
         <div id="lista-graduaciones" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;"></div>
+    </div>
+</div>
+
+<!-- MODAL PADRÓN DE ALUMNOS -->
+<div id="padron-modal" role="dialog" aria-modal="true" aria-label="Padrón de Alumnos">
+    <div id="padron-modal-box">
+        <div id="padron-modal-header">
+            <img src="logo.png" alt="Logo" id="padron-modal-logo">
+            <span class="pm-titulo">Padrón Oficial de Alumnos</span>
+            <span class="pm-version">v3.7</span>
+        </div>
+        <div id="padron-modal-body">
+            <!-- contenido generado dinámicamente -->
+        </div>
+        <div class="pm-acciones">
+            <button id="pm-btn-volver" class="btn btn-sm btn-secondary" type="button">
+                <i class="fas fa-arrow-left"></i> Volver
+            </button>
+            <button id="pm-btn-imprimir" class="btn btn-sm" type="button">
+                <i class="fas fa-print"></i> Imprimir
+            </button>
+        </div>
     </div>
 </div>
 
@@ -1363,101 +1438,96 @@ document.getElementById('btn-toggle-alerta').addEventListener('click', () => {
 });
 
 // ── PADRÓN DE ALUMNOS ─────────────────────────────────────────────────────
-function imprimirPadron() {
+const padronModal    = document.getElementById('padron-modal');
+const padronBody     = document.getElementById('padron-modal-body');
+const padronLogo     = document.getElementById('padron-modal-logo');
+const pmBtnVolver    = document.getElementById('pm-btn-volver');
+const pmBtnImprimir  = document.getElementById('pm-btn-imprimir');
+
+function abrirPadron() {
     const ordenados = [...alumnos].sort((a, b) => a.nombre.localeCompare(b.nombre));
-    const logoSrc = logoBase64 || 'logo.png';
-    const sub = `Sede ${nombreSede} | Sensei ${nombreSensei}`;
-    const fechaHoy = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' });
+    const logoSrc   = logoBase64 || 'logo.png';
+    const sub       = `Sede ${nombreSede} | Sensei ${nombreSensei}`;
+    const fechaHoy  = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' });
+
+    // Sincronizar logo del header del modal
+    padronLogo.src = logoSrc;
 
     const filas = ordenados.map((a, i) => {
-        const edad = calcularEdad(a.fechaNacimiento);
+        const edad    = calcularEdad(a.fechaNacimiento);
         const edadStr = edad !== null ? `${edad} años` : '—';
-        const fnac = formatearFechaNac(a.fechaNacimiento);
-        const tel = a.telefono || '—';
-        const dni = a.dni || '—';
-        const grad = a.graduacion || '—';
-        const fondo = i % 2 === 0 ? '#ffffff' : '#f8f8f8';
         return `<tr>
-            <td style="padding:7px 6px;border-bottom:1px solid #ddd;font-weight:700;text-align:left;background:${fondo};">${i+1}. ${a.nombre}</td>
-            <td style="padding:7px 6px;border-bottom:1px solid #ddd;text-align:center;background:${fondo};">${dni}</td>
-            <td style="padding:7px 6px;border-bottom:1px solid #ddd;text-align:center;background:${fondo};">${fnac}</td>
-            <td style="padding:7px 6px;border-bottom:1px solid #ddd;text-align:center;background:${fondo};">${edadStr}</td>
-            <td style="padding:7px 6px;border-bottom:1px solid #ddd;text-align:center;background:${fondo};">${tel}</td>
-            <td style="padding:7px 6px;border-bottom:1px solid #ddd;text-align:center;background:${fondo};">${grad}</td>
+            <td style="font-weight:700;text-align:left;">${i + 1}. ${a.nombre}</td>
+            <td>${a.dni || '—'}</td>
+            <td>${formatearFechaNac(a.fechaNacimiento)}</td>
+            <td>${edadStr}</td>
+            <td>${a.telefono || '—'}</td>
+            <td>${a.graduacion || '—'}</td>
         </tr>`;
     }).join('');
 
-    // Eliminar overlay anterior si existe
-    const anterior = document.getElementById('padron-overlay');
-    if (anterior) anterior.remove();
-
-    // Crear el div overlay con el contenido del padrón e inyectarlo en el DOM principal
-    const overlay = document.createElement('div');
-    overlay.id = 'padron-overlay';
-    overlay.innerHTML = `
-        <div style="padding:20px;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;color:#000;background:#fff;">
-            <div style="display:flex;align-items:center;gap:16px;padding-bottom:14px;border-bottom:3px solid #d32f2f;margin-bottom:6px;flex-wrap:wrap;">
-                <img src="${logoSrc}" alt="Logo" style="width:65px;height:65px;object-fit:contain;border-radius:50%;flex-shrink:0;">
-                <div style="flex:1;text-align:center;min-width:160px;">
-                    <div style="font-size:16px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">${nombreDojo}</div>
-                    <div style="font-size:12px;color:#555;">${sub}</div>
-                    <div style="margin-top:3px;font-size:11px;color:#888;">Generado el ${fechaHoy} &mdash; Total: ${ordenados.length} alumno${ordenados.length !== 1 ? 's' : ''}</div>
+    padronBody.innerHTML = `
+        <div class="pm-cabecera">
+            <img src="${logoSrc}" alt="Logo">
+            <div class="pm-cabecera-centro">
+                <div class="pm-dojo">${nombreDojo}</div>
+                <div class="pm-sub">${sub}</div>
+                <div class="pm-sub" style="margin-top:3px;font-size:11px;">
+                    Generado el ${fechaHoy} &mdash; Total: ${ordenados.length} alumno${ordenados.length !== 1 ? 's' : ''}
                 </div>
             </div>
-            <div style="text-align:center;margin:12px 0 16px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#333;">Padrón Oficial de Alumnos</div>
-            <table style="width:100%;border-collapse:collapse;font-size:11px;">
-                <thead>
-                    <tr>
-                        <th style="background:#1a1a1a;color:#fff;padding:8px 6px;text-align:left;text-transform:uppercase;font-size:10px;letter-spacing:0.4px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">Nombre</th>
-                        <th style="background:#1a1a1a;color:#fff;padding:8px 6px;text-align:center;text-transform:uppercase;font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">DNI</th>
-                        <th style="background:#1a1a1a;color:#fff;padding:8px 6px;text-align:center;text-transform:uppercase;font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">Fecha Nac.</th>
-                        <th style="background:#1a1a1a;color:#fff;padding:8px 6px;text-align:center;text-transform:uppercase;font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">Edad</th>
-                        <th style="background:#1a1a1a;color:#fff;padding:8px 6px;text-align:center;text-transform:uppercase;font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">Teléfono</th>
-                        <th style="background:#1a1a1a;color:#fff;padding:8px 6px;text-align:center;text-transform:uppercase;font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">Graduación</th>
-                    </tr>
-                </thead>
-                <tbody>${filas}</tbody>
-                <tfoot>
-                    <tr><td colspan="6" style="padding:8px 6px;font-size:10px;color:#666;text-align:right;border-top:2px solid #000;">Dojo Control &mdash; Reporte confidencial de uso interno</td></tr>
-                </tfoot>
-            </table>
-        </div>`;
-    document.body.appendChild(overlay);
+        </div>
+        <div class="pm-subtitulo">Padrón Oficial de Alumnos</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>DNI</th>
+                    <th>Fecha Nac.</th>
+                    <th>Edad</th>
+                    <th>Teléfono</th>
+                    <th>Graduación</th>
+                </tr>
+            </thead>
+            <tbody>${filas}</tbody>
+            <tfoot>
+                <tr><td colspan="6">Dojo Control &mdash; Reporte confidencial de uso interno</td></tr>
+            </tfoot>
+        </table>`;
 
-    // Activar modo impresión: oculta toda la app, muestra solo el overlay
-    document.body.classList.add('imprimiendo-padron');
-
-    // Pequeña pausa para que el DOM se pinte antes de abrir el gestor
-    setTimeout(() => {
-        window.print();
-
-        // Limpiar después de imprimir o cancelar
-        const limpiar = () => {
-            document.body.classList.remove('imprimiendo-padron');
-            overlay.remove();
-            window.removeEventListener('focus', limpiarFoco);
-        };
-        const limpiarFoco = () => limpiar();
-
-        // onafterprint: Chrome, Firefox, Edge desktop
-        window.onafterprint = () => {
-            window.onafterprint = null;
-            limpiar();
-        };
-
-        // Fallback para móvil (Safari iOS, Chrome Android): el foco vuelve cuando se cierra el gestor
-        setTimeout(() => {
-            window.addEventListener('focus', limpiarFoco, { once: true });
-        }, 500);
-
-        // Fallback de seguridad absoluta: limpiar tras 3 minutos
-        setTimeout(() => {
-            if (document.getElementById('padron-overlay')) limpiar();
-        }, 180000);
-    }, 100);
+    padronModal.classList.add('visible');
+    padronModal.scrollTop = 0;
+    document.body.style.overflow = 'hidden'; // evitar scroll de fondo
 }
 
-document.getElementById('btn-imprimir-padron').addEventListener('click', imprimirPadron);
+function cerrarPadron() {
+    padronModal.classList.remove('visible');
+    document.body.style.overflow = '';
+}
+
+function imprimirDesdePadron() {
+    // Al imprimir, el @media print oculta todo salvo el modal
+    window.print();
+
+    const limpiar = () => {
+        window.onafterprint = null;
+        window.removeEventListener('focus', limpiarFoco);
+    };
+    const limpiarFoco = () => limpiar();
+
+    window.onafterprint = () => limpiar();
+    // Fallback móvil: foco vuelve al cerrar el gestor
+    setTimeout(() => window.addEventListener('focus', limpiarFoco, { once: true }), 500);
+}
+
+pmBtnVolver.addEventListener('click', cerrarPadron);
+pmBtnImprimir.addEventListener('click', imprimirDesdePadron);
+// Cerrar tocando el fondo oscuro
+padronModal.addEventListener('click', e => { if (e.target === padronModal) cerrarPadron(); });
+// Cerrar con Escape
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && padronModal.classList.contains('visible')) cerrarPadron(); });
+
+document.getElementById('btn-imprimir-padron').addEventListener('click', abrirPadron);
 
 // ── INIT ──────────────────────────────────────────────────────────────────
 cargarTemaInicial();
