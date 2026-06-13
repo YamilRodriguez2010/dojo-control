@@ -239,6 +239,11 @@
             td[data-label="Fecha de Pago"] .print-only{display:inline!important;}
             .dc-modal-overlay{display:none!important;}
         }
+        /* Al imprimir el padrón vía iframe: ocultar toda la app y mostrar solo el iframe */
+        @media print{
+            body > *:not(#padron-iframe){display:none!important;visibility:hidden!important;}
+            #padron-iframe{display:block!important;visibility:visible!important;position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;opacity:1!important;border:none!important;z-index:9999!important;}
+        }
     </style>
 </head>
 <body>
@@ -1379,28 +1384,30 @@ function imprimirPadron() {
         </tr>`;
     }).join('');
 
-    const html = `<!DOCTYPE html>
+    const contenidoPadron = `<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Padrón de Alumnos — ${nombreDojo}</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Padrón — ${nombreDojo}</title>
 <style>
     *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;}
-    /* Ocultar todo en pantalla: solo se ve al imprimir */
-    body{visibility:hidden;background:#fff;color:#000;padding:24px;}
-    .cabecera{display:flex;align-items:center;gap:20px;padding-bottom:16px;border-bottom:3px solid #d32f2f;margin-bottom:6px;}
-    .cabecera img{width:75px;height:75px;object-fit:contain;border-radius:50%;flex-shrink:0;}
-    .cabecera-centro{flex:1;text-align:center;}
-    .cabecera-centro h1{font-size:20px;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
-    .cabecera-centro p{font-size:13px;color:#555;}
-    .subtitulo{text-align:center;margin:14px 0 20px;font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#333;}
-    table{width:100%;border-collapse:collapse;font-size:12px;}
-    thead th{background:#1a1a1a;color:#fff;padding:10px;text-align:center;text-transform:uppercase;font-size:11px;letter-spacing:0.5px;}
+    body{background:#fff;color:#000;padding:20px;}
+    .cabecera{display:flex;align-items:center;gap:16px;padding-bottom:14px;border-bottom:3px solid #d32f2f;margin-bottom:6px;flex-wrap:wrap;}
+    .cabecera img{width:65px;height:65px;object-fit:contain;border-radius:50%;flex-shrink:0;}
+    .cabecera-centro{flex:1;text-align:center;min-width:180px;}
+    .cabecera-centro h1{font-size:16px;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+    .cabecera-centro p{font-size:12px;color:#555;}
+    .subtitulo{text-align:center;margin:12px 0 16px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#333;}
+    table{width:100%;border-collapse:collapse;font-size:11px;}
+    thead th{background:#1a1a1a;color:#fff;padding:8px 6px;text-align:center;text-transform:uppercase;font-size:10px;letter-spacing:0.4px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
     thead th:first-child{text-align:left;}
-    tfoot td{padding:10px;font-size:11px;color:#666;text-align:right;border-top:2px solid #000;}
+    tbody td{padding:7px 6px;border-bottom:1px solid #ddd;}
+    tfoot td{padding:8px 6px;font-size:10px;color:#666;text-align:right;border-top:2px solid #000;}
     @media print{
-        body{visibility:visible;padding:12px;}
-        @page{margin:1.5cm;}
+        body{padding:0;}
+        @page{margin:1.2cm;size:A4 portrait;}
+        thead th{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
     }
 </style>
 </head>
@@ -1410,7 +1417,7 @@ function imprimirPadron() {
     <div class="cabecera-centro">
         <h1>${nombreDojo}</h1>
         <p>${sub}</p>
-        <p style="margin-top:4px;color:#888;font-size:12px;">Padrón generado el ${fechaHoy} — Total: ${ordenados.length} alumno${ordenados.length !== 1 ? 's' : ''}</p>
+        <p style="margin-top:3px;color:#888;font-size:11px;">Generado el ${fechaHoy} &mdash; Total: ${ordenados.length} alumno${ordenados.length !== 1 ? 's' : ''}</p>
     </div>
 </div>
 <div class="subtitulo">Padrón Oficial de Alumnos</div>
@@ -1426,36 +1433,60 @@ function imprimirPadron() {
         </tr>
     </thead>
     <tbody>${filas}</tbody>
-    <tfoot>
-        <tr><td colspan="6">Dojo Control — Reporte confidencial de uso interno</td></tr>
-    </tfoot>
+    <tfoot><tr><td colspan="6">Dojo Control &mdash; Reporte confidencial de uso interno</td></tr></tfoot>
 </table>
-<script>
-    window.onload = () => {
-        // Abrir el gestor de impresión de inmediato
-        window.print();
-        // Cerrar la ventana al terminar (imprimió o canceló)
-        // matchMedia es el método más compatible entre navegadores
-        if (window.matchMedia) {
-            const mq = window.matchMedia('print');
-            const handler = (e) => {
-                if (!e.matches) {
-                    mq.removeEventListener('change', handler);
-                    window.close();
-                }
-            };
-            mq.addEventListener('change', handler);
-        }
-        // Fallback para navegadores que no disparan matchMedia tras print()
-        window.onafterprint = () => window.close();
-    };
-<\/script>
 </body>
 </html>`;
 
-    const win = window.open('', '_blank', 'width=900,height=650');
-    win.document.write(html);
-    win.document.close();
+    // Eliminar iframe anterior si existe
+    const anterior = document.getElementById('padron-iframe');
+    if (anterior) anterior.remove();
+
+    // Crear iframe completamente oculto e invisible
+    const iframe = document.createElement('iframe');
+    iframe.id = 'padron-iframe';
+    iframe.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;pointer-events:none;border:none;z-index:-1;';
+    iframe.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(iframe);
+
+    // Escribir el contenido en el iframe
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    doc.open();
+    doc.write(contenidoPadron);
+    doc.close();
+
+    // Esperar a que cargue el iframe y luego imprimir
+    iframe.onload = () => {
+        setTimeout(() => {
+            try {
+                iframe.contentWindow.focus();
+                iframe.contentWindow.print();
+            } catch(e) {
+                console.warn('Error al imprimir iframe, fallback a window.print()', e);
+                window.print();
+            }
+
+            // Limpiar el iframe al terminar (imprimió o canceló)
+            const limpiar = () => {
+                iframe.remove();
+                window.removeEventListener('focus', limpiar);
+                if (iframe.contentWindow) {
+                    iframe.contentWindow.onafterprint = null;
+                }
+            };
+
+            // onafterprint dentro del iframe (Chrome, Firefox, Edge)
+            try {
+                iframe.contentWindow.onafterprint = limpiar;
+            } catch(e) {}
+
+            // Fallback: cuando el foco vuelve a la ventana principal (móvil / Safari)
+            window.addEventListener('focus', limpiar, { once: true });
+
+            // Fallback de seguridad: limpiar tras 2 minutos por si acaso
+            setTimeout(() => { if (document.getElementById('padron-iframe')) iframe.remove(); }, 120000);
+        }, 300);
+    };
 }
 
 document.getElementById('btn-imprimir-padron').addEventListener('click', imprimirPadron);
