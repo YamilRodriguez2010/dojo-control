@@ -118,6 +118,60 @@
         .print-header{display:none;}
         .print-mes-container{display:none;}
         @media screen{.col-telefono,.col-oculta-principal,.col-observacion-print{display:none!important;}}
+
+        /* ── MODALES PERSONALIZADOS (reemplazo de prompt/alert/confirm) ── */
+        .dc-modal-overlay{
+            display:none;position:fixed;z-index:9000;left:0;top:0;width:100%;height:100%;
+            background:rgba(0,0,0,0.65);align-items:center;justify-content:center;
+            backdrop-filter:blur(4px);animation:dcFadeIn 0.15s ease;
+        }
+        .dc-modal-overlay.visible{display:flex;}
+        @keyframes dcFadeIn{from{opacity:0}to{opacity:1}}
+        .dc-modal-box{
+            background:var(--card-bg);border-radius:12px;width:92%;max-width:380px;
+            box-shadow:0 20px 60px rgba(0,0,0,0.4);overflow:hidden;
+            animation:dcSlideUp 0.2s ease;
+        }
+        @keyframes dcSlideUp{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+        .dc-modal-header{
+            background:var(--header-bg);color:var(--header-text);
+            padding:14px 18px;display:flex;align-items:center;gap:10px;
+            border-bottom:3px solid var(--primary);
+        }
+        .dc-modal-header img{width:28px;height:28px;border-radius:50%;object-fit:contain;background:white;padding:1px;flex-shrink:0;}
+        .dc-modal-header span{font-size:13px;font-weight:700;letter-spacing:0.3px;opacity:0.95;}
+        .dc-modal-header .dc-modal-title-version{font-size:10px;opacity:0.5;margin-left:auto;flex-shrink:0;}
+        .dc-modal-body{padding:20px 18px;}
+        .dc-modal-message{font-size:15px;line-height:1.5;color:var(--text-main);margin-bottom:18px;}
+        .dc-modal-input{
+            width:100%;padding:12px;border:1.5px solid var(--border-color);border-radius:8px;
+            font-size:15px;background:var(--card-bg);color:var(--text-main);margin-bottom:16px;
+            outline:none;transition:border-color 0.15s;
+        }
+        .dc-modal-input:focus{border-color:var(--primary);}
+        .dc-modal-input.error{border-color:#e53e3e;animation:dcShake 0.3s ease;}
+        @keyframes dcShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+        .dc-modal-actions{display:flex;gap:8px;justify-content:flex-end;}
+        .dc-btn-modal{
+            padding:10px 20px;border:none;border-radius:8px;font-size:14px;font-weight:700;
+            cursor:pointer;transition:opacity 0.15s,transform 0.1s;
+        }
+        .dc-btn-modal:active{transform:scale(0.97);}
+        .dc-btn-primary{background:var(--primary);color:white;}
+        .dc-btn-primary:hover{background:var(--primary-hover);}
+        .dc-btn-success{background:var(--success);color:white;}
+        .dc-btn-success:hover{background:#1b5e20;}
+        .dc-btn-neutral{background:var(--table-th-bg);color:var(--text-main);border:1px solid var(--border-color);}
+        .dc-btn-neutral:hover{background:var(--border-color);}
+        .dc-btn-danger{background:#e53e3e;color:white;}
+        .dc-btn-danger:hover{background:#c53030;}
+        .dc-modal-icon{font-size:32px;text-align:center;margin-bottom:10px;}
+        .dc-modal-icon.warn{color:#f57c00;}
+        .dc-modal-icon.ok{color:var(--success);}
+        .dc-modal-icon.err{color:#e53e3e;}
+        .dc-modal-icon.info{color:var(--info);}
+
+        /* resto de modales originales */
         .modal{display:none;position:fixed;z-index:2000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.6);align-items:center;justify-content:center;backdrop-filter:blur(3px);}
         .modal-content{background-color:var(--card-bg);padding:24px;border-radius:8px;width:90%;max-width:420px;border:1px solid var(--border-color);position:relative;box-shadow:0 10px 25px rgba(0,0,0,0.3);max-height:90vh;overflow-y:auto;}
         .close-modal{position:absolute;top:12px;right:18px;color:var(--text-muted);font-size:24px;cursor:pointer;}
@@ -125,6 +179,7 @@
         .modal-body p{margin:14px 0;font-size:15px;border-bottom:1px dashed var(--border-color);padding-bottom:8px;display:flex;align-items:center;flex-wrap:wrap;}
         .modal-body p:last-child{border-bottom:none;}
         .edad-badge{margin-left:6px;font-size:12px;color:var(--text-muted);font-weight:normal;}
+
         @media screen and (max-width:768px){
             .container{grid-template-columns:1fr;}
             table{width:100%;border-collapse:collapse;}
@@ -139,6 +194,7 @@
             tbody tr td[data-label="Fecha de Pago"] .badge-paid{font-size:10px;padding:3px 7px;white-space:nowrap;border-radius:10px;}
             tbody tr td.acciones-header{display:flex!important;flex-direction:row;align-items:center;gap:3px;flex:0 0 auto;padding:0;border:none;}
             .btn-sm.btn-icon-only{width:27px;height:27px;font-size:11px;padding:0;flex-shrink:0;}
+            .dc-modal-box{max-width:96%;}
         }
         @media print{
             body{background-color:#ffffff!important;color:#000000!important;padding:0!important;margin:0!important;}
@@ -173,10 +229,70 @@
             td[data-label="Fecha de Pago"]{text-align:center!important;}
             td[data-label="Fecha de Pago"] .badge{display:none!important;}
             td[data-label="Fecha de Pago"] .print-only{display:inline!important;}
+            .dc-modal-overlay{display:none!important;}
         }
     </style>
 </head>
 <body>
+
+<!-- ── MODALES PERSONALIZADOS DOJO CONTROL ─────────────────────────── -->
+
+<!-- Modal Alerta (reemplaza alert) -->
+<div class="dc-modal-overlay" id="dc-alert-overlay">
+    <div class="dc-modal-box">
+        <div class="dc-modal-header">
+            <img src="logo.png" alt="Logo" id="dc-alert-logo">
+            <span>Dojo Control</span>
+            <span class="dc-modal-title-version">v3.7</span>
+        </div>
+        <div class="dc-modal-body">
+            <div class="dc-modal-icon" id="dc-alert-icon">ℹ️</div>
+            <div class="dc-modal-message" id="dc-alert-message"></div>
+            <div class="dc-modal-actions">
+                <button class="dc-btn-modal dc-btn-primary" id="dc-alert-ok">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Prompt (reemplaza prompt) -->
+<div class="dc-modal-overlay" id="dc-prompt-overlay">
+    <div class="dc-modal-box">
+        <div class="dc-modal-header">
+            <img src="logo.png" alt="Logo" id="dc-prompt-logo">
+            <span>Dojo Control</span>
+            <span class="dc-modal-title-version">v3.7</span>
+        </div>
+        <div class="dc-modal-body">
+            <div class="dc-modal-icon warn"><i class="fas fa-lock"></i></div>
+            <div class="dc-modal-message" id="dc-prompt-message"></div>
+            <input type="password" class="dc-modal-input" id="dc-prompt-input" placeholder="Contraseña del Sensei" autocomplete="current-password">
+            <div class="dc-modal-actions">
+                <button class="dc-btn-modal dc-btn-neutral" id="dc-prompt-cancel">Cancelar</button>
+                <button class="dc-btn-modal dc-btn-primary" id="dc-prompt-ok"><i class="fas fa-unlock" style="margin-right:6px;"></i>Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Confirm (reemplaza confirm) -->
+<div class="dc-modal-overlay" id="dc-confirm-overlay">
+    <div class="dc-modal-box">
+        <div class="dc-modal-header">
+            <img src="logo.png" alt="Logo" id="dc-confirm-logo">
+            <span>Dojo Control</span>
+            <span class="dc-modal-title-version">v3.7</span>
+        </div>
+        <div class="dc-modal-body">
+            <div class="dc-modal-icon warn"><i class="fas fa-triangle-exclamation"></i></div>
+            <div class="dc-modal-message" id="dc-confirm-message"></div>
+            <div class="dc-modal-actions">
+                <button class="dc-btn-modal dc-btn-neutral" id="dc-confirm-cancel">Cancelar</button>
+                <button class="dc-btn-modal dc-btn-danger" id="dc-confirm-ok"><i class="fas fa-trash" style="margin-right:6px;"></i>Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <header>
     <div class="header-title-container">
@@ -191,7 +307,7 @@
             <button class="config-btn" id="btn-config" title="Configuración"><i class="fas fa-gear"></i></button>
             <button class="theme-toggle-btn" id="theme-toggle" title="Cambiar tema"><i class="fas fa-moon" id="theme-icon"></i></button>
         </div>
-        <div><span>v3.6</span></div>
+        <div><span>v3.7</span></div>
     </div>
 </header>
 
@@ -474,6 +590,133 @@ let nombreSede = 'Villa Ángela';
 let nombreSensei = 'Yamil Rodriguez';
 let logoBase64 = null;
 
+// ══════════════════════════════════════════════════════════════════════════
+// SISTEMA DE DIÁLOGOS PERSONALIZADOS (reemplaza alert / prompt / confirm)
+// ══════════════════════════════════════════════════════════════════════════
+
+function dcSyncLogoModals() {
+    const src = logoBase64 || 'logo.png';
+    ['dc-alert-logo','dc-prompt-logo','dc-confirm-logo'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.src = src;
+    });
+}
+
+/**
+ * dcAlert(mensaje, tipo)
+ * tipo: 'info' | 'ok' | 'warn' | 'err'
+ * Devuelve Promise<void>
+ */
+function dcAlert(mensaje, tipo = 'info') {
+    return new Promise(resolve => {
+        dcSyncLogoModals();
+        const overlay = document.getElementById('dc-alert-overlay');
+        const msgEl = document.getElementById('dc-alert-message');
+        const iconEl = document.getElementById('dc-alert-icon');
+        const okBtn = document.getElementById('dc-alert-ok');
+
+        msgEl.innerHTML = mensaje;
+
+        const iconos = {
+            info: '<i class="fas fa-circle-info" style="color:var(--info);font-size:28px;"></i>',
+            ok:   '<i class="fas fa-circle-check" style="color:var(--success);font-size:28px;"></i>',
+            warn: '<i class="fas fa-triangle-exclamation" style="color:#f57c00;font-size:28px;"></i>',
+            err:  '<i class="fas fa-circle-xmark" style="color:#e53e3e;font-size:28px;"></i>'
+        };
+        iconEl.innerHTML = iconos[tipo] || iconos.info;
+
+        overlay.classList.add('visible');
+
+        function cerrar() {
+            overlay.classList.remove('visible');
+            okBtn.removeEventListener('click', cerrar);
+            resolve();
+        }
+        okBtn.addEventListener('click', cerrar);
+        // También cerrar con Escape
+        function escHandler(e) { if (e.key === 'Escape') { cerrar(); document.removeEventListener('keydown', escHandler); } }
+        document.addEventListener('keydown', escHandler);
+        setTimeout(() => okBtn.focus(), 80);
+    });
+}
+
+/**
+ * dcPrompt(mensaje)
+ * Devuelve Promise<string|null> — null si canceló
+ */
+function dcPrompt(mensaje) {
+    return new Promise(resolve => {
+        dcSyncLogoModals();
+        const overlay  = document.getElementById('dc-prompt-overlay');
+        const msgEl    = document.getElementById('dc-prompt-message');
+        const input    = document.getElementById('dc-prompt-input');
+        const okBtn    = document.getElementById('dc-prompt-ok');
+        const cancelBtn= document.getElementById('dc-prompt-cancel');
+
+        msgEl.textContent = mensaje;
+        input.value = '';
+        input.classList.remove('error');
+        overlay.classList.add('visible');
+
+        function cerrar(valor) {
+            overlay.classList.remove('visible');
+            okBtn.removeEventListener('click', handleOk);
+            cancelBtn.removeEventListener('click', handleCancel);
+            input.removeEventListener('keydown', handleKey);
+            document.removeEventListener('keydown', escHandler);
+            resolve(valor);
+        }
+        function handleOk() {
+            const v = input.value;
+            if (!v) { input.classList.add('error'); setTimeout(()=>input.classList.remove('error'),600); input.focus(); return; }
+            cerrar(v);
+        }
+        function handleCancel() { cerrar(null); }
+        function handleKey(e) { if (e.key === 'Enter') handleOk(); }
+        function escHandler(e) { if (e.key === 'Escape') cerrar(null); }
+
+        okBtn.addEventListener('click', handleOk);
+        cancelBtn.addEventListener('click', handleCancel);
+        input.addEventListener('keydown', handleKey);
+        document.addEventListener('keydown', escHandler);
+        setTimeout(() => input.focus(), 80);
+    });
+}
+
+/**
+ * dcConfirm(mensaje, textoBotonOk)
+ * Devuelve Promise<boolean>
+ */
+function dcConfirm(mensaje, textoBotonOk = 'Confirmar') {
+    return new Promise(resolve => {
+        dcSyncLogoModals();
+        const overlay  = document.getElementById('dc-confirm-overlay');
+        const msgEl    = document.getElementById('dc-confirm-message');
+        const okBtn    = document.getElementById('dc-confirm-ok');
+        const cancelBtn= document.getElementById('dc-confirm-cancel');
+
+        msgEl.innerHTML = mensaje;
+        okBtn.innerHTML = `<i class="fas fa-trash" style="margin-right:6px;"></i>${textoBotonOk}`;
+        overlay.classList.add('visible');
+
+        function cerrar(valor) {
+            overlay.classList.remove('visible');
+            okBtn.removeEventListener('click', handleOk);
+            cancelBtn.removeEventListener('click', handleCancel);
+            document.removeEventListener('keydown', escHandler);
+            resolve(valor);
+        }
+        function handleOk() { cerrar(true); }
+        function handleCancel() { cerrar(false); }
+        function escHandler(e) { if (e.key === 'Escape') cerrar(false); }
+
+        okBtn.addEventListener('click', handleOk);
+        cancelBtn.addEventListener('click', handleCancel);
+        document.addEventListener('keydown', escHandler);
+        setTimeout(() => cancelBtn.focus(), 80);
+    });
+}
+
 // ── HELPERS GENERALES ─────────────────────────────────────────────────────
 function aplicarConfigDojo() {
     document.getElementById('header-nombre-dojo').innerText = nombreDojo;
@@ -483,6 +726,7 @@ function aplicarConfigDojo() {
     document.getElementById('print-subtitulo').innerText = sub;
     const src = logoBase64 || 'logo.png';
     document.querySelectorAll('.dojo-logo, .print-header img').forEach(img => img.src = src);
+    dcSyncLogoModals();
 }
 
 function alumnoBase(a) {
@@ -574,12 +818,15 @@ function renderListaGraduaciones() {
     });
 }
 
-window.eliminarGraduacion = function(idx) {
+window.eliminarGraduacion = async function(idx) {
     graduaciones.splice(idx, 1);
     const obj = {};
     graduaciones.forEach((g, i) => obj[i] = g);
-    set(ref(db, 'graduaciones'), Object.keys(obj).length > 0 ? obj : null)
-        .catch(e => alert('Error al eliminar: ' + e.message));
+    try {
+        await set(ref(db, 'graduaciones'), Object.keys(obj).length > 0 ? obj : null);
+    } catch(e) {
+        await dcAlert('Error al eliminar la graduación: ' + e.message, 'err');
+    }
 };
 
 // ── REFERENCIAS DOM ───────────────────────────────────────────────────────
@@ -675,17 +922,14 @@ function inicializarSelector() {
 function obtenerPeriodoSeleccionado() { return mesSelector.value; }
 
 // ── CUOTA UNITARIA (POPOVER) ──────────────────────────────────────────────
-// Abrir/cerrar popover
 document.getElementById('btn-cuota-toggle').addEventListener('click', (e) => {
     e.stopPropagation();
     document.getElementById('cuota-popover').classList.toggle('visible');
 });
-// Cerrar al hacer clic fuera
 document.addEventListener('click', (e) => {
     const popover = document.getElementById('cuota-popover');
     if (!popover.contains(e.target) && e.target.id !== 'btn-cuota-toggle') {
         popover.classList.remove('visible');
-        // Si estaba editando y cierra sin guardar, volver a bloquear
         if (!inputCuota.disabled) {
             inputCuota.value = cuotaPredeterminada;
             inputCuota.disabled = true;
@@ -695,53 +939,65 @@ document.addEventListener('click', (e) => {
     }
 });
 
-btnEditar.addEventListener('click', () => {
-    const pwd = prompt("Ingresá la contraseña del Sensei para modificar el valor de cuota:");
+btnEditar.addEventListener('click', async () => {
+    const pwd = await dcPrompt('Ingresá la contraseña del Sensei para modificar el valor de cuota:');
     if (!pwd) return;
     if (pwd === PASSWORD_REQUERIDA) {
         inputCuota.disabled = false; inputCuota.focus();
         btnEditar.style.display = 'none'; btnGuardar.style.display = 'inline-flex';
-    } else alert("Contraseña incorrecta.");
+    } else {
+        await dcAlert('Contraseña incorrecta. No se realizaron cambios.', 'err');
+    }
 });
-btnGuardar.addEventListener('click', () => {
+
+btnGuardar.addEventListener('click', async () => {
     const valor = parseInt(inputCuota.value);
-    if (!valor || valor <= 0) { alert("Ingresá un monto válido."); return; }
-    const cfg = ultimoConfig ? { ...ultimoConfig, cuotaPredeterminada: valor } : { cuotaPredeterminada: valor, nombreDojo, nombreSede, nombreSensei, logoBase64: logoBase64||'' };
-    set(ref(db, 'config'), cfg)
-        .then(() => {
-            cuotaPredeterminada = valor; inputCuota.disabled = true;
-            btnGuardar.style.display = 'none'; btnEditar.style.display = 'inline-flex';
-            document.getElementById('cuota-popover').classList.remove('visible');
-            alert(`¡Listo! Cuota fijada en $${valor.toLocaleString('es-AR')}.`);
-        })
-        .catch(e => alert("Error: " + e.message));
+    if (!valor || valor <= 0) { await dcAlert('Ingresá un monto válido mayor a cero.', 'warn'); return; }
+    const cfg = ultimoConfig
+        ? { ...ultimoConfig, cuotaPredeterminada: valor }
+        : { cuotaPredeterminada: valor, nombreDojo, nombreSede, nombreSensei, logoBase64: logoBase64||'' };
+    try {
+        await set(ref(db, 'config'), cfg);
+        cuotaPredeterminada = valor;
+        inputCuota.disabled = true;
+        btnGuardar.style.display = 'none';
+        btnEditar.style.display = 'inline-flex';
+        document.getElementById('cuota-popover').classList.remove('visible');
+        await dcAlert(`¡Cuota actualizada! El nuevo valor mensual es <strong>$${valor.toLocaleString('es-AR')}</strong>.`, 'ok');
+    } catch(e) {
+        await dcAlert('Error al guardar: ' + e.message, 'err');
+    }
 });
 
 // ── REGISTRAR ALUMNO ──────────────────────────────────────────────────────
-form.addEventListener('submit', (e) => {
+form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const nuevoId = Date.now().toString();
-    set(ref(db, 'alumnos/' + nuevoId), {
-        nombre: document.getElementById('nombre').value.trim(),
-        telefono: document.getElementById('telefono').value.trim(),
-        dni: document.getElementById('dni').value.trim(),
-        fechaNacimiento: document.getElementById('fechaNacimiento').value || '',
-        graduacion: document.getElementById('graduacion').value || '',
-        cuota: cuotaPredeterminada,
-        pagos: { "inicializacion": "true" }
-    })
-    .then(() => {
+    try {
+        await set(ref(db, 'alumnos/' + nuevoId), {
+            nombre: document.getElementById('nombre').value.trim(),
+            telefono: document.getElementById('telefono').value.trim(),
+            dni: document.getElementById('dni').value.trim(),
+            fechaNacimiento: document.getElementById('fechaNacimiento').value || '',
+            graduacion: document.getElementById('graduacion').value || '',
+            cuota: cuotaPredeterminada,
+            pagos: { "inicializacion": "true" }
+        });
         form.reset();
         document.getElementById('edad-calculada').innerText = '— años';
-    })
-    .catch(e => alert("Error al registrar: " + e.message));
+    } catch(e) {
+        await dcAlert('Error al registrar el alumno: ' + e.message, 'err');
+    }
 });
 
 // ── CAMBIAR ESTADO PAGO ───────────────────────────────────────────────────
-window.cambiarEstadoPago = function(id) {
-    const pwd = prompt("Ingresá la contraseña del Sensei para registrar o anular el pago:");
+window.cambiarEstadoPago = async function(id) {
+    const pwd = await dcPrompt('Ingresá la contraseña del Sensei para registrar o anular el pago:');
     if (!pwd) return;
-    if (pwd !== PASSWORD_REQUERIDA) { alert("Contraseña incorrecta."); return; }
+    if (pwd !== PASSWORD_REQUERIDA) {
+        await dcAlert('Contraseña incorrecta. No se realizaron cambios.', 'err');
+        return;
+    }
     const periodo = obtenerPeriodoSeleccionado();
     const alumno = alumnos.find(a => a.id === id);
     if (!alumno) return;
@@ -753,9 +1009,12 @@ window.cambiarEstadoPago = function(id) {
         const fecha = inputFecha ? inputFecha.value : new Date().toISOString().split('T')[0];
         pagos[periodo] = { fecha, observacion: '' };
     }
-    set(ref(db, 'alumnos/' + id), { ...alumnoBase(alumno), pagos })
-        .then(() => { if (modalInfo.style.display === 'flex') modalInfo.style.display = 'none'; })
-        .catch(e => alert("Error: " + e.message));
+    try {
+        await set(ref(db, 'alumnos/' + id), { ...alumnoBase(alumno), pagos });
+        if (modalInfo.style.display === 'flex') modalInfo.style.display = 'none';
+    } catch(e) {
+        await dcAlert('Error al guardar el pago: ' + e.message, 'err');
+    }
 };
 
 // ── VER INFO ──────────────────────────────────────────────────────────────
@@ -787,7 +1046,9 @@ window.verInfoAlumno = function(id) {
         const hoy = new Date();
         const mesActual = hoy.getFullYear() + '-' + String(hoy.getMonth()+1).padStart(2,'0');
         const moroso = periodo === mesActual && hoy.getDate() > 10;
-        document.getElementById('modal-estado').innerHTML = moroso ? `<span class="badge badge-moroso">Moroso</span>` : `<span class="badge badge-debt">Pendiente</span>`;
+        document.getElementById('modal-estado').innerHTML = moroso
+            ? `<span class="badge badge-moroso">Moroso</span>`
+            : `<span class="badge badge-debt">Pendiente</span>`;
         fechaContainer.style.display = 'none';
         obsContainer.style.display = 'none';
         if (alumno.telefono?.trim()) {
@@ -804,16 +1065,27 @@ document.getElementById('close-modal').addEventListener('click', () => { modalIn
 window.addEventListener('click', e => { if (e.target === modalInfo) modalInfo.style.display = 'none'; });
 
 // ── ELIMINAR ALUMNO ───────────────────────────────────────────────────────
-window.eliminarAlumno = function(id) {
+window.eliminarAlumno = async function(id) {
     const alumno = alumnos.find(a => a.id === id);
     const nombre = alumno ? alumno.nombre : 'este alumno';
-    const pwd = prompt(`Para dar de baja a ${nombre} se requiere autorización.\nIngresá la contraseña del Sensei:`);
+
+    const pwd = await dcPrompt(`Para dar de baja a <strong>${nombre}</strong> se requiere autorización.\nIngresá la contraseña del Sensei:`);
     if (!pwd) return;
-    if (pwd !== PASSWORD_REQUERIDA) { alert("Contraseña incorrecta."); return; }
-    if (confirm(`¿Confirmás eliminar a ${nombre}? Esta acción no se puede deshacer.`)) {
-        set(ref(db, 'alumnos/' + id), null)
-            .then(() => { if (modalInfo.style.display === 'flex') modalInfo.style.display = 'none'; })
-            .catch(e => alert("Error: " + e.message));
+    if (pwd !== PASSWORD_REQUERIDA) {
+        await dcAlert('Contraseña incorrecta. No se realizaron cambios.', 'err');
+        return;
+    }
+    const confirmar = await dcConfirm(
+        `¿Confirmás que querés eliminar a <strong>${nombre}</strong> del registro?<br><br><small style="color:var(--text-muted);">Esta acción no se puede deshacer.</small>`,
+        'Sí, eliminar'
+    );
+    if (!confirmar) return;
+
+    try {
+        await set(ref(db, 'alumnos/' + id), null);
+        if (modalInfo.style.display === 'flex') modalInfo.style.display = 'none';
+    } catch(e) {
+        await dcAlert('Error al eliminar: ' + e.message, 'err');
     }
 };
 
@@ -924,13 +1196,16 @@ window.editarAlumno = function(id) {
 document.getElementById('close-modal-editar').addEventListener('click', () => { modalEditar.style.display = 'none'; });
 window.addEventListener('click', e => { if (e.target === modalEditar) modalEditar.style.display = 'none'; });
 
-document.getElementById('btn-guardar-edicion').addEventListener('click', () => {
-    const pwd = prompt("Ingresá la contraseña del Sensei para guardar los cambios:");
+document.getElementById('btn-guardar-edicion').addEventListener('click', async () => {
+    const pwd = await dcPrompt('Ingresá la contraseña del Sensei para guardar los cambios:');
     if (!pwd) return;
-    if (pwd !== PASSWORD_REQUERIDA) { alert("Contraseña incorrecta."); return; }
+    if (pwd !== PASSWORD_REQUERIDA) {
+        await dcAlert('Contraseña incorrecta. No se realizaron cambios.', 'err');
+        return;
+    }
     const id = document.getElementById('editar-id').value;
     const nuevoNombre = document.getElementById('editar-nombre').value.trim();
-    if (!nuevoNombre) { alert("El nombre no puede estar vacío."); return; }
+    if (!nuevoNombre) { await dcAlert('El nombre del alumno no puede estar vacío.', 'warn'); return; }
     const alumno = alumnos.find(a => a.id === id);
     if (!alumno) return;
     const periodo = obtenerPeriodoSeleccionado();
@@ -938,17 +1213,20 @@ document.getElementById('btn-guardar-edicion').addEventListener('click', () => {
     if (esPagoValido(pagos[periodo])) {
         pagos[periodo] = { fecha: obtenerFechaPago(pagos[periodo]), observacion: document.getElementById('editar-observacion').value };
     }
-    set(ref(db, 'alumnos/' + id), {
-        nombre: nuevoNombre,
-        telefono: document.getElementById('editar-telefono').value.trim(),
-        dni: document.getElementById('editar-dni').value.trim(),
-        fechaNacimiento: document.getElementById('editar-fechaNacimiento').value || '',
-        graduacion: document.getElementById('editar-graduacion').value || '',
-        cuota: alumno.cuota,
-        pagos
-    })
-    .then(() => { modalEditar.style.display = 'none'; })
-    .catch(e => alert("Error: " + e.message));
+    try {
+        await set(ref(db, 'alumnos/' + id), {
+            nombre: nuevoNombre,
+            telefono: document.getElementById('editar-telefono').value.trim(),
+            dni: document.getElementById('editar-dni').value.trim(),
+            fechaNacimiento: document.getElementById('editar-fechaNacimiento').value || '',
+            graduacion: document.getElementById('editar-graduacion').value || '',
+            cuota: alumno.cuota,
+            pagos
+        });
+        modalEditar.style.display = 'none';
+    } catch(e) {
+        await dcAlert('Error al guardar los cambios: ' + e.message, 'err');
+    }
 });
 
 // ── MODAL CONFIG ──────────────────────────────────────────────────────────
@@ -967,49 +1245,67 @@ document.getElementById('btn-config').addEventListener('click', () => {
 document.getElementById('close-modal-config').addEventListener('click', () => { modalConfig.style.display = 'none'; });
 window.addEventListener('click', e => { if (e.target === modalConfig) modalConfig.style.display = 'none'; });
 
-document.getElementById('config-logo-input').addEventListener('change', e => {
+document.getElementById('config-logo-input').addEventListener('change', async e => {
     const file = e.target.files[0];
     if (!file) return;
-    if (file.size > 300*1024) { alert("Imagen demasiado grande. Máximo 300KB."); e.target.value=''; return; }
+    if (file.size > 300*1024) {
+        await dcAlert('La imagen es demasiado grande. El tamaño máximo permitido es <strong>300 KB</strong>.', 'warn');
+        e.target.value='';
+        return;
+    }
     const reader = new FileReader();
     reader.onload = ev => { logoBase64Pendiente = ev.target.result; document.getElementById('config-logo-preview').src = logoBase64Pendiente; };
     reader.readAsDataURL(file);
 });
+
 document.getElementById('btn-reset-logo').addEventListener('click', () => {
     logoBase64Pendiente = '';
     document.getElementById('config-logo-preview').src = 'logo.png';
     document.getElementById('config-logo-input').value = '';
 });
 
-document.getElementById('btn-guardar-config').addEventListener('click', () => {
-    const pwd = prompt("Ingresá la contraseña del Sensei para guardar la configuración:");
+document.getElementById('btn-guardar-config').addEventListener('click', async () => {
+    const pwd = await dcPrompt('Ingresá la contraseña del Sensei para guardar la configuración:');
     if (!pwd) return;
-    if (pwd !== PASSWORD_REQUERIDA) { alert("Contraseña incorrecta."); return; }
-    const nd = document.getElementById('config-nombre-dojo').value.trim();
-    const ns = document.getElementById('config-sede').value.trim();
+    if (pwd !== PASSWORD_REQUERIDA) {
+        await dcAlert('Contraseña incorrecta. No se realizaron cambios.', 'err');
+        return;
+    }
+    const nd  = document.getElementById('config-nombre-dojo').value.trim();
+    const ns  = document.getElementById('config-sede').value.trim();
     const nse = document.getElementById('config-sensei').value.trim();
-    if (!nd || !ns || !nse) { alert("Completá todos los campos."); return; }
+    if (!nd || !ns || !nse) {
+        await dcAlert('Por favor completá todos los campos antes de guardar.', 'warn');
+        return;
+    }
     const logo = logoBase64Pendiente !== null ? logoBase64Pendiente : (logoBase64 || '');
-    const cfg = ultimoConfig ? { ...ultimoConfig, nombreDojo: nd, nombreSede: ns, nombreSensei: nse, logoBase64: logo } : { cuotaPredeterminada, nombreDojo: nd, nombreSede: ns, nombreSensei: nse, logoBase64: logo };
-    set(ref(db, 'config'), cfg)
-        .then(() => {
-            nombreDojo=nd; nombreSede=ns; nombreSensei=nse; logoBase64=logo||null; logoBase64Pendiente=null;
-            aplicarConfigDojo(); modalConfig.style.display='none';
-            alert("¡Configuración guardada!");
-        })
-        .catch(e => alert("Error: " + e.message));
+    const cfg = ultimoConfig
+        ? { ...ultimoConfig, nombreDojo: nd, nombreSede: ns, nombreSensei: nse, logoBase64: logo }
+        : { cuotaPredeterminada, nombreDojo: nd, nombreSede: ns, nombreSensei: nse, logoBase64: logo };
+    try {
+        await set(ref(db, 'config'), cfg);
+        nombreDojo=nd; nombreSede=ns; nombreSensei=nse; logoBase64=logo||null; logoBase64Pendiente=null;
+        aplicarConfigDojo();
+        modalConfig.style.display='none';
+        await dcAlert('¡Configuración guardada correctamente en la nube! Oss 🥋', 'ok');
+    } catch(e) {
+        await dcAlert('Error al guardar la configuración: ' + e.message, 'err');
+    }
 });
 
 // ── GRADUACIONES EN CONFIG ────────────────────────────────────────────────
-document.getElementById('btn-agregar-graduacion').addEventListener('click', () => {
+document.getElementById('btn-agregar-graduacion').addEventListener('click', async () => {
     const val = document.getElementById('nueva-graduacion').value.trim();
-    if (!val) { alert('Escribí el nombre de la graduación.'); return; }
-    if (graduaciones.includes(val)) { alert('Esa graduación ya existe.'); return; }
+    if (!val) { await dcAlert('Escribí el nombre de la graduación antes de agregar.', 'warn'); return; }
+    if (graduaciones.includes(val)) { await dcAlert('Esa graduación ya existe en la lista.', 'warn'); return; }
     const nuevas = [...graduaciones, val];
     const obj = {}; nuevas.forEach((g,i) => obj[i]=g);
-    set(ref(db, 'graduaciones'), obj)
-        .then(() => { document.getElementById('nueva-graduacion').value = ''; })
-        .catch(e => alert('Error: ' + e.message));
+    try {
+        await set(ref(db, 'graduaciones'), obj);
+        document.getElementById('nueva-graduacion').value = '';
+    } catch(e) {
+        await dcAlert('Error al agregar la graduación: ' + e.message, 'err');
+    }
 });
 
 // ── CONTACTOS ─────────────────────────────────────────────────────────────
@@ -1023,7 +1319,9 @@ btnContactos.addEventListener('click', async () => {
                 actualizarBtnClear(tel);
             }
         } catch(e) { console.error(e); }
-    } else { alert("Tu dispositivo no admite selección automática de contactos.\nIngresá el número manualmente."); }
+    } else {
+        await dcAlert('Tu dispositivo no admite selección automática desde la agenda.<br><br>Ingresá el número de teléfono de forma manual.', 'info');
+    }
 });
 
 // ── TOGGLE ALERTA MOROSOS ─────────────────────────────────────────────────
