@@ -37,10 +37,18 @@
         .theme-toggle-btn,.config-btn{background:none;border:none;color:var(--header-text);font-size:16px;cursor:pointer;padding:5px;opacity:0.9;}
         .theme-toggle-btn:hover,.config-btn:hover{opacity:1;transform:scale(1.1);}
         .container{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 2fr;gap:15px;}
-        .period-selector{grid-column:1/-1;background:var(--card-bg);padding:15px;border-radius:8px;display:flex;justify-content:center;align-items:center;gap:15px;border:1px solid var(--border-color);flex-wrap:wrap;}
-        .period-selector label{font-size:16px;font-weight:bold;}
-        .period-selector input[type="month"]{padding:10px;font-size:16px;border:2px solid var(--primary);border-radius:6px;font-weight:bold;color:var(--text-main);background-color:var(--card-bg);outline:none;}
-        .cuota-wrapper{position:relative;display:flex;align-items:center;}
+        .period-selector{grid-column:1/-1;background:var(--card-bg);padding:15px;border-radius:8px;display:flex;justify-content:center;align-items:center;gap:12px;border:1px solid var(--border-color);flex-wrap:nowrap;}
+        .period-selector label{font-size:16px;font-weight:bold;white-space:nowrap;flex-shrink:0;}
+        .label-gestion-corta{display:none;}
+        .period-selector input[type="month"]{padding:10px;font-size:16px;border:2px solid var(--primary);border-radius:6px;font-weight:bold;color:var(--text-main);background-color:var(--card-bg);outline:none;min-width:0;flex:1 1 auto;}
+        .cuota-wrapper{position:relative;display:flex;align-items:center;flex-shrink:0;}
+        @media screen and (max-width:500px){
+            .period-selector{gap:8px;padding:12px 10px;}
+            .period-selector input[type="month"]{font-size:14px;padding:8px 6px;}
+            .label-gestion-larga{display:none;}
+            .label-gestion-corta{display:inline;}
+            .btn-cuota-toggle{padding:8px 10px;font-size:13px;}
+        }
         .btn-cuota-toggle{background-color:#4a5568;color:white;border:none;border-radius:6px;padding:10px 14px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px;white-space:nowrap;}
         .btn-cuota-toggle:hover{background-color:#2d3748;}
         .cuota-popover{display:none;position:absolute;top:calc(100% + 10px);left:50%;transform:translateX(-50%);background:var(--card-bg);border:1px solid var(--border-color);border-radius:8px;padding:14px;box-shadow:0 8px 24px rgba(0,0,0,0.15);z-index:500;min-width:260px;}
@@ -325,7 +333,7 @@
 
 <div class="container">
     <div class="period-selector">
-        <label for="mes-selector">Gestión del Mes:</label>
+        <label for="mes-selector"><span class="label-gestion-larga">Gestión del Mes:</span><span class="label-gestion-corta">Gestión:</span></label>
         <input type="month" id="mes-selector">
         <div class="cuota-wrapper">
             <button class="btn-cuota-toggle" id="btn-cuota-toggle" type="button" title="Configurar cuota mensual">
@@ -1325,7 +1333,12 @@ btnContactos.addEventListener('click', async () => {
 });
 
 // ── TOGGLE ALERTA MOROSOS ─────────────────────────────────────────────────
-let alertaOculta = false;
+let alertaOculta = true; // oculto por defecto al abrir la app
+// Aplicar estado inicial oculto
+document.getElementById('alerta-body').classList.add('oculto');
+document.getElementById('icono-toggle-alerta').className = 'fas fa-eye-slash';
+document.getElementById('btn-toggle-alerta').title = 'Mostrar detalle';
+
 document.getElementById('btn-toggle-alerta').addEventListener('click', () => {
     alertaOculta = !alertaOculta;
     const body = document.getElementById('alerta-body');
@@ -1373,7 +1386,8 @@ function imprimirPadron() {
 <title>Padrón de Alumnos — ${nombreDojo}</title>
 <style>
     *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;}
-    body{background:#fff;color:#000;padding:24px;}
+    /* Ocultar todo en pantalla: solo se ve al imprimir */
+    body{visibility:hidden;background:#fff;color:#000;padding:24px;}
     .cabecera{display:flex;align-items:center;gap:20px;padding-bottom:16px;border-bottom:3px solid #d32f2f;margin-bottom:6px;}
     .cabecera img{width:75px;height:75px;object-fit:contain;border-radius:50%;flex-shrink:0;}
     .cabecera-centro{flex:1;text-align:center;}
@@ -1384,7 +1398,10 @@ function imprimirPadron() {
     thead th{background:#1a1a1a;color:#fff;padding:10px;text-align:center;text-transform:uppercase;font-size:11px;letter-spacing:0.5px;}
     thead th:first-child{text-align:left;}
     tfoot td{padding:10px;font-size:11px;color:#666;text-align:right;border-top:2px solid #000;}
-    @media print{body{padding:12px;}@page{margin:1.5cm;}}
+    @media print{
+        body{visibility:visible;padding:12px;}
+        @page{margin:1.5cm;}
+    }
 </style>
 </head>
 <body>
@@ -1413,7 +1430,26 @@ function imprimirPadron() {
         <tr><td colspan="6">Dojo Control — Reporte confidencial de uso interno</td></tr>
     </tfoot>
 </table>
-<script>window.onload=()=>window.print();<\/script>
+<script>
+    window.onload = () => {
+        // Abrir el gestor de impresión de inmediato
+        window.print();
+        // Cerrar la ventana al terminar (imprimió o canceló)
+        // matchMedia es el método más compatible entre navegadores
+        if (window.matchMedia) {
+            const mq = window.matchMedia('print');
+            const handler = (e) => {
+                if (!e.matches) {
+                    mq.removeEventListener('change', handler);
+                    window.close();
+                }
+            };
+            mq.addEventListener('change', handler);
+        }
+        // Fallback para navegadores que no disparan matchMedia tras print()
+        window.onafterprint = () => window.close();
+    };
+<\/script>
 </body>
 </html>`;
 
