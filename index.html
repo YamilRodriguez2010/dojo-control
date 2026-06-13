@@ -239,10 +239,13 @@
             td[data-label="Fecha de Pago"] .print-only{display:inline!important;}
             .dc-modal-overlay{display:none!important;}
         }
-        /* Al imprimir el padrón vía iframe: ocultar toda la app y mostrar solo el iframe */
+        /* Padrón: cuando está activo, ocultar toda la app y mostrar solo el padrón */
+        body.imprimiendo-padron > *:not(#padron-overlay){display:none!important;}
+        #padron-overlay{display:none;position:fixed;inset:0;background:#fff;z-index:9999;overflow:auto;}
+        body.imprimiendo-padron #padron-overlay{display:block;}
         @media print{
-            body > *:not(#padron-iframe){display:none!important;visibility:hidden!important;}
-            #padron-iframe{display:block!important;visibility:visible!important;position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;opacity:1!important;border:none!important;z-index:9999!important;}
+            body.imprimiendo-padron > *:not(#padron-overlay){display:none!important;}
+            body.imprimiendo-padron #padron-overlay{display:block!important;position:static!important;overflow:visible!important;}
         }
     </style>
 </head>
@@ -1374,119 +1377,84 @@ function imprimirPadron() {
         const dni = a.dni || '—';
         const grad = a.graduacion || '—';
         const fondo = i % 2 === 0 ? '#ffffff' : '#f8f8f8';
-        return `<tr style="background:${fondo};page-break-inside:avoid;">
-            <td style="padding:8px 10px;border-bottom:1px solid #ddd;font-weight:700;text-align:left;">${i+1}. ${a.nombre}</td>
-            <td style="padding:8px 10px;border-bottom:1px solid #ddd;text-align:center;">${dni}</td>
-            <td style="padding:8px 10px;border-bottom:1px solid #ddd;text-align:center;">${fnac}</td>
-            <td style="padding:8px 10px;border-bottom:1px solid #ddd;text-align:center;">${edadStr}</td>
-            <td style="padding:8px 10px;border-bottom:1px solid #ddd;text-align:center;">${tel}</td>
-            <td style="padding:8px 10px;border-bottom:1px solid #ddd;text-align:center;">${grad}</td>
+        return `<tr>
+            <td style="padding:7px 6px;border-bottom:1px solid #ddd;font-weight:700;text-align:left;background:${fondo};">${i+1}. ${a.nombre}</td>
+            <td style="padding:7px 6px;border-bottom:1px solid #ddd;text-align:center;background:${fondo};">${dni}</td>
+            <td style="padding:7px 6px;border-bottom:1px solid #ddd;text-align:center;background:${fondo};">${fnac}</td>
+            <td style="padding:7px 6px;border-bottom:1px solid #ddd;text-align:center;background:${fondo};">${edadStr}</td>
+            <td style="padding:7px 6px;border-bottom:1px solid #ddd;text-align:center;background:${fondo};">${tel}</td>
+            <td style="padding:7px 6px;border-bottom:1px solid #ddd;text-align:center;background:${fondo};">${grad}</td>
         </tr>`;
     }).join('');
 
-    const contenidoPadron = `<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Padrón — ${nombreDojo}</title>
-<style>
-    *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;}
-    body{background:#fff;color:#000;padding:20px;}
-    .cabecera{display:flex;align-items:center;gap:16px;padding-bottom:14px;border-bottom:3px solid #d32f2f;margin-bottom:6px;flex-wrap:wrap;}
-    .cabecera img{width:65px;height:65px;object-fit:contain;border-radius:50%;flex-shrink:0;}
-    .cabecera-centro{flex:1;text-align:center;min-width:180px;}
-    .cabecera-centro h1{font-size:16px;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
-    .cabecera-centro p{font-size:12px;color:#555;}
-    .subtitulo{text-align:center;margin:12px 0 16px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#333;}
-    table{width:100%;border-collapse:collapse;font-size:11px;}
-    thead th{background:#1a1a1a;color:#fff;padding:8px 6px;text-align:center;text-transform:uppercase;font-size:10px;letter-spacing:0.4px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-    thead th:first-child{text-align:left;}
-    tbody td{padding:7px 6px;border-bottom:1px solid #ddd;}
-    tfoot td{padding:8px 6px;font-size:10px;color:#666;text-align:right;border-top:2px solid #000;}
-    @media print{
-        body{padding:0;}
-        @page{margin:1.2cm;size:A4 portrait;}
-        thead th{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-    }
-</style>
-</head>
-<body>
-<div class="cabecera">
-    <img src="${logoSrc}" alt="Logo">
-    <div class="cabecera-centro">
-        <h1>${nombreDojo}</h1>
-        <p>${sub}</p>
-        <p style="margin-top:3px;color:#888;font-size:11px;">Generado el ${fechaHoy} &mdash; Total: ${ordenados.length} alumno${ordenados.length !== 1 ? 's' : ''}</p>
-    </div>
-</div>
-<div class="subtitulo">Padrón Oficial de Alumnos</div>
-<table>
-    <thead>
-        <tr>
-            <th style="text-align:left;">Nombre</th>
-            <th>DNI</th>
-            <th>Fecha Nac.</th>
-            <th>Edad</th>
-            <th>Teléfono</th>
-            <th>Graduación</th>
-        </tr>
-    </thead>
-    <tbody>${filas}</tbody>
-    <tfoot><tr><td colspan="6">Dojo Control &mdash; Reporte confidencial de uso interno</td></tr></tfoot>
-</table>
-</body>
-</html>`;
-
-    // Eliminar iframe anterior si existe
-    const anterior = document.getElementById('padron-iframe');
+    // Eliminar overlay anterior si existe
+    const anterior = document.getElementById('padron-overlay');
     if (anterior) anterior.remove();
 
-    // Crear iframe completamente oculto e invisible
-    const iframe = document.createElement('iframe');
-    iframe.id = 'padron-iframe';
-    iframe.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;pointer-events:none;border:none;z-index:-1;';
-    iframe.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(iframe);
+    // Crear el div overlay con el contenido del padrón e inyectarlo en el DOM principal
+    const overlay = document.createElement('div');
+    overlay.id = 'padron-overlay';
+    overlay.innerHTML = `
+        <div style="padding:20px;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;color:#000;background:#fff;">
+            <div style="display:flex;align-items:center;gap:16px;padding-bottom:14px;border-bottom:3px solid #d32f2f;margin-bottom:6px;flex-wrap:wrap;">
+                <img src="${logoSrc}" alt="Logo" style="width:65px;height:65px;object-fit:contain;border-radius:50%;flex-shrink:0;">
+                <div style="flex:1;text-align:center;min-width:160px;">
+                    <div style="font-size:16px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">${nombreDojo}</div>
+                    <div style="font-size:12px;color:#555;">${sub}</div>
+                    <div style="margin-top:3px;font-size:11px;color:#888;">Generado el ${fechaHoy} &mdash; Total: ${ordenados.length} alumno${ordenados.length !== 1 ? 's' : ''}</div>
+                </div>
+            </div>
+            <div style="text-align:center;margin:12px 0 16px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#333;">Padrón Oficial de Alumnos</div>
+            <table style="width:100%;border-collapse:collapse;font-size:11px;">
+                <thead>
+                    <tr>
+                        <th style="background:#1a1a1a;color:#fff;padding:8px 6px;text-align:left;text-transform:uppercase;font-size:10px;letter-spacing:0.4px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">Nombre</th>
+                        <th style="background:#1a1a1a;color:#fff;padding:8px 6px;text-align:center;text-transform:uppercase;font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">DNI</th>
+                        <th style="background:#1a1a1a;color:#fff;padding:8px 6px;text-align:center;text-transform:uppercase;font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">Fecha Nac.</th>
+                        <th style="background:#1a1a1a;color:#fff;padding:8px 6px;text-align:center;text-transform:uppercase;font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">Edad</th>
+                        <th style="background:#1a1a1a;color:#fff;padding:8px 6px;text-align:center;text-transform:uppercase;font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">Teléfono</th>
+                        <th style="background:#1a1a1a;color:#fff;padding:8px 6px;text-align:center;text-transform:uppercase;font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">Graduación</th>
+                    </tr>
+                </thead>
+                <tbody>${filas}</tbody>
+                <tfoot>
+                    <tr><td colspan="6" style="padding:8px 6px;font-size:10px;color:#666;text-align:right;border-top:2px solid #000;">Dojo Control &mdash; Reporte confidencial de uso interno</td></tr>
+                </tfoot>
+            </table>
+        </div>`;
+    document.body.appendChild(overlay);
 
-    // Escribir el contenido en el iframe
-    const doc = iframe.contentDocument || iframe.contentWindow.document;
-    doc.open();
-    doc.write(contenidoPadron);
-    doc.close();
+    // Activar modo impresión: oculta toda la app, muestra solo el overlay
+    document.body.classList.add('imprimiendo-padron');
 
-    // Esperar a que cargue el iframe y luego imprimir
-    iframe.onload = () => {
+    // Pequeña pausa para que el DOM se pinte antes de abrir el gestor
+    setTimeout(() => {
+        window.print();
+
+        // Limpiar después de imprimir o cancelar
+        const limpiar = () => {
+            document.body.classList.remove('imprimiendo-padron');
+            overlay.remove();
+            window.removeEventListener('focus', limpiarFoco);
+        };
+        const limpiarFoco = () => limpiar();
+
+        // onafterprint: Chrome, Firefox, Edge desktop
+        window.onafterprint = () => {
+            window.onafterprint = null;
+            limpiar();
+        };
+
+        // Fallback para móvil (Safari iOS, Chrome Android): el foco vuelve cuando se cierra el gestor
         setTimeout(() => {
-            try {
-                iframe.contentWindow.focus();
-                iframe.contentWindow.print();
-            } catch(e) {
-                console.warn('Error al imprimir iframe, fallback a window.print()', e);
-                window.print();
-            }
+            window.addEventListener('focus', limpiarFoco, { once: true });
+        }, 500);
 
-            // Limpiar el iframe al terminar (imprimió o canceló)
-            const limpiar = () => {
-                iframe.remove();
-                window.removeEventListener('focus', limpiar);
-                if (iframe.contentWindow) {
-                    iframe.contentWindow.onafterprint = null;
-                }
-            };
-
-            // onafterprint dentro del iframe (Chrome, Firefox, Edge)
-            try {
-                iframe.contentWindow.onafterprint = limpiar;
-            } catch(e) {}
-
-            // Fallback: cuando el foco vuelve a la ventana principal (móvil / Safari)
-            window.addEventListener('focus', limpiar, { once: true });
-
-            // Fallback de seguridad: limpiar tras 2 minutos por si acaso
-            setTimeout(() => { if (document.getElementById('padron-iframe')) iframe.remove(); }, 120000);
-        }, 300);
-    };
+        // Fallback de seguridad absoluta: limpiar tras 3 minutos
+        setTimeout(() => {
+            if (document.getElementById('padron-overlay')) limpiar();
+        }, 180000);
+    }, 100);
 }
 
 document.getElementById('btn-imprimir-padron').addEventListener('click', imprimirPadron);
