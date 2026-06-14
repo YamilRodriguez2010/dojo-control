@@ -51,10 +51,23 @@
         }
         .btn-cuota-toggle{background-color:#4a5568;color:white;border:none;border-radius:6px;padding:10px 14px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px;white-space:nowrap;}
         .btn-cuota-toggle:hover{background-color:#2d3748;}
-        .cuota-popover{display:none;position:absolute;top:calc(100% + 10px);left:50%;transform:translateX(-50%);background:var(--card-bg);border:1px solid var(--border-color);border-radius:8px;padding:14px;box-shadow:0 8px 24px rgba(0,0,0,0.15);z-index:500;min-width:260px;}
-        .cuota-popover::before{content:'';position:absolute;top:-7px;left:50%;transform:translateX(-50%);width:13px;height:13px;background:var(--card-bg);border-left:1px solid var(--border-color);border-top:1px solid var(--border-color);transform:translateX(-50%) rotate(45deg);}
+        /* Backdrop del popover de cuota: cubre toda la pantalla para evitar overflow lateral */
+        .cuota-popover-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(3px);z-index:2400;animation:dcFadeIn 0.15s ease;}
+        .cuota-popover-backdrop.visible{display:block;}
+        /* Popover de cuota como ventana secundaria centrada (sin overflow horizontal) */
+        .cuota-popover{
+            display:none;position:fixed;top:50%;left:50%;
+            transform:translate(-50%,-50%);
+            background:var(--card-bg);border:1px solid var(--border-color);border-radius:10px;
+            padding:18px;box-shadow:0 16px 48px rgba(0,0,0,0.35);z-index:2500;
+            width:90%;max-width:300px;box-sizing:border-box;
+            animation:cuotaPopIn 0.18s ease;
+        }
+        @keyframes cuotaPopIn{from{opacity:0;transform:translate(-50%,-46%);}to{opacity:1;transform:translate(-50%,-50%);}}
         .cuota-popover.visible{display:block;}
-        .cuota-popover label{display:block;font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;}
+        .cuota-popover-close{position:absolute;top:10px;right:12px;cursor:pointer;color:var(--text-muted);font-size:16px;line-height:1;padding:4px;}
+        .cuota-popover-close:hover{color:var(--primary);}
+        .cuota-popover label{display:block;font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;padding-right:20px;}
         .cuota-popover .input-row{display:flex;gap:6px;align-items:center;}
         .cuota-popover input{flex:1;padding:10px;border:1px solid var(--border-color);border-radius:6px;font-size:15px;font-weight:600;color:var(--text-main);background:var(--card-bg);}
         .cuota-popover input:disabled{background:var(--input-disabled-bg);color:var(--text-muted);cursor:not-allowed;}
@@ -150,7 +163,7 @@
         .dc-modal-header span{font-size:13px;font-weight:700;letter-spacing:0.3px;opacity:0.95;}
         .dc-modal-header .dc-modal-title-version{font-size:10px;opacity:0.5;margin-left:auto;flex-shrink:0;}
         .dc-modal-body{padding:20px 18px;}
-        .dc-modal-message{font-size:15px;line-height:1.5;color:var(--text-main);margin-bottom:18px;}
+        .dc-modal-message{font-size:15px;line-height:1.5;color:var(--text-main);margin-bottom:18px;white-space:pre-line;}
         .dc-modal-input{
             width:100%;padding:12px;border:1.5px solid var(--border-color);border-radius:8px;
             font-size:15px;background:var(--card-bg);color:var(--text-main);margin-bottom:16px;
@@ -187,6 +200,32 @@
         .modal-body p{margin:14px 0;font-size:15px;border-bottom:1px dashed var(--border-color);padding-bottom:8px;display:flex;align-items:center;flex-wrap:wrap;}
         .modal-body p:last-child{border-bottom:none;}
         .edad-badge{margin-left:6px;font-size:12px;color:var(--text-muted);font-weight:normal;}
+
+        /* ── Editor de logo (estilo avatar) ── */
+        .logo-edit-wrapper{position:relative;display:inline-block;}
+        .logo-edit-preview{
+            width:88px;height:88px;border-radius:50%;object-fit:contain;
+            border:3px solid var(--border-color);background:var(--input-disabled-bg);
+            display:block;
+        }
+        .logo-edit-badge{
+            position:absolute;bottom:-2px;right:-2px;
+            width:32px;height:32px;border-radius:50%;
+            background:var(--primary);color:#fff;
+            display:flex;align-items:center;justify-content:center;
+            font-size:14px;cursor:pointer;
+            border:3px solid var(--card-bg);
+            box-shadow:0 2px 6px rgba(0,0,0,0.25);
+            transition:background 0.15s,transform 0.15s;
+        }
+        .logo-edit-badge:hover{background:var(--primary-hover);transform:scale(1.08);}
+        .logo-reset-link{
+            display:inline-flex;align-items:center;gap:6px;
+            margin-top:12px;background:none;border:none;cursor:pointer;
+            font-size:12px;font-weight:600;color:var(--text-muted);
+            padding:5px 10px;border-radius:6px;
+        }
+        .logo-reset-link:hover{color:var(--primary);background:var(--table-th-bg);}
 
         @media screen and (max-width:768px){
             .container{grid-template-columns:1fr;}
@@ -244,29 +283,20 @@
             display:none;position:fixed;inset:0;z-index:8000;
             background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);
             animation:dcFadeIn 0.15s ease;overflow-y:auto;
-            padding:0;          /* sin padding: el box ocupa pantalla completa en móvil */
+            padding:0;
         }
         #padron-modal.visible{display:block;}
         #padron-modal-box{
             background:var(--card-bg);color:var(--text-main);
             border-radius:0;max-width:860px;margin:0 auto;
             box-shadow:0 20px 60px rgba(0,0,0,0.4);
-            overflow:hidden;animation:dcSlideUp 0.2s ease;
+            animation:dcSlideUp 0.2s ease;
             min-height:100dvh;display:flex;flex-direction:column;
         }
         @media(min-width:600px){
             #padron-modal{padding:20px 16px;}
             #padron-modal-box{border-radius:12px;min-height:unset;}
         }
-        #padron-modal-header{
-            background:var(--header-bg);color:var(--header-text);
-            padding:12px 14px;display:flex;align-items:center;gap:10px;
-            border-bottom:3px solid var(--primary);
-            position:sticky;top:0;z-index:10;flex-shrink:0;
-        }
-        #padron-modal-header img{width:26px;height:26px;border-radius:50%;object-fit:contain;background:white;padding:1px;flex-shrink:0;}
-        #padron-modal-header .pm-titulo{font-size:13px;font-weight:700;letter-spacing:0.3px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-        #padron-modal-header .pm-version{font-size:10px;opacity:0.5;flex-shrink:0;}
         /* Área scrolleable del body */
         #padron-modal-body{padding:14px;flex:1;overflow-x:hidden;}
         @media(min-width:600px){#padron-modal-body{padding:20px;}}
@@ -286,22 +316,45 @@
         .pm-cabecera-centro .pm-sub{font-size:11px;color:var(--text-muted);line-height:1.4;}
         .pm-subtitulo{text-align:center;margin:10px 0 12px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);}
         /* Contenedor scrolleable horizontal para la tabla */
-        .pm-tabla-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -2px;}
-        /* Tabla del padrón */
-        #padron-modal table{width:100%;border-collapse:collapse;font-size:11px;min-width:480px;}
+        .pm-tabla-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+        /* Tabla del padrón: columnas definidas, solo líneas horizontales */
+        #padron-modal table{
+            width:100%;border-collapse:collapse;font-size:11px;
+            min-width:460px;table-layout:fixed;
+        }
+        /* Anchos de columna proporcionales */
+        #padron-modal col.col-nombre   {width:30%;}
+        #padron-modal col.col-dni      {width:14%;}
+        #padron-modal col.col-fnac     {width:16%;}
+        #padron-modal col.col-edad     {width:10%;}
+        #padron-modal col.col-tel      {width:16%;}
+        #padron-modal col.col-grad     {width:14%;}
+        /* Encabezados: fondo oscuro, texto blanco, separador inferior */
         #padron-modal thead th{
             background:var(--header-bg);color:var(--header-text);
-            padding:8px 6px;text-align:center;text-transform:uppercase;
+            padding:9px 6px;text-align:center;text-transform:uppercase;
             font-size:9px;letter-spacing:0.4px;white-space:nowrap;
+            border:none;border-bottom:2px solid var(--primary);
+            overflow:hidden;text-overflow:ellipsis;
         }
-        #padron-modal thead th:first-child{text-align:left;min-width:110px;}
+        #padron-modal thead th:first-child{text-align:left;padding-left:8px;}
+        /* Celdas: solo borde inferior, sin bordes laterales */
         #padron-modal tbody td{
-            padding:7px 6px;border-bottom:1px solid var(--border-color);
-            color:var(--text-main);text-align:center;white-space:nowrap;
+            padding:8px 6px;
+            border:none;
+            border-bottom:1px solid var(--border-color);
+            color:var(--text-main);text-align:center;
+            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
         }
-        #padron-modal tbody td:first-child{text-align:left;white-space:normal;word-break:break-word;}
+        #padron-modal tbody td:first-child{
+            text-align:left;padding-left:8px;
+            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+        }
         #padron-modal tbody tr:nth-child(even) td{background:var(--table-th-bg);}
-        #padron-modal tfoot td{padding:7px 6px;font-size:10px;color:var(--text-muted);text-align:right;border-top:2px solid var(--border-color);}
+        #padron-modal tfoot td{
+            padding:8px 6px;font-size:10px;color:var(--text-muted);
+            text-align:right;border:none;border-top:2px solid var(--border-color);
+        }
         /* Barra de acciones — sticky al fondo */
         .pm-acciones{
             display:flex;gap:10px;justify-content:flex-end;align-items:center;
@@ -310,34 +363,26 @@
         }
         @media(min-width:600px){.pm-acciones{padding:14px 20px;}}
         .pm-acciones .btn{width:auto;}
-        /* Al imprimir desde el modal */
+        /* Al imprimir el padrón: solo activo cuando JS pone la clase en el body */
         @media print{
-            #padron-modal *{color:#000!important;}
-            #padron-modal-header,#padron-modal-header *{display:none!important;}
-            .pm-acciones{display:none!important;}
-            .pm-tabla-wrapper{overflow:visible!important;}
-            #padron-modal{
+            body.imprimiendo-padron > *:not(#padron-modal){display:none!important;}
+            body.imprimiendo-padron #padron-modal{
                 display:block!important;position:static!important;
                 background:none!important;backdrop-filter:none!important;
                 padding:0!important;animation:none!important;overflow:visible!important;
             }
-            #padron-modal-box{
+            body.imprimiendo-padron #padron-modal-box{
                 box-shadow:none!important;border-radius:0!important;
                 min-height:unset!important;display:block!important;
             }
-            #padron-modal-body{padding:12px!important;overflow:visible!important;}
-            body > *:not(#padron-modal){display:none!important;}
-            .pm-cabecera{border-bottom:3px solid #d32f2f!important;}
-            #padron-modal table{min-width:unset!important;width:100%!important;}
-            #padron-modal thead th{
-                background:#1a1a1a!important;color:#fff!important;
-                -webkit-print-color-adjust:exact;print-color-adjust:exact;
-            }
-            #padron-modal tbody tr:nth-child(even) td{
-                background:#f8f8f8!important;
-                -webkit-print-color-adjust:exact;print-color-adjust:exact;
-            }
-            @page{margin:1.2cm;size:A4 portrait;}
+            body.imprimiendo-padron #padron-modal-body{padding:12px!important;overflow:visible!important;}
+            body.imprimiendo-padron .pm-acciones{display:none!important;}
+            body.imprimiendo-padron .pm-tabla-wrapper{overflow:visible!important;}
+            body.imprimiendo-padron .pm-cabecera{border-bottom:3px solid #d32f2f!important;}
+            body.imprimiendo-padron #padron-modal *{color:#000!important;}
+            body.imprimiendo-padron #padron-modal table{min-width:unset!important;width:100%!important;table-layout:auto!important;}
+            body.imprimiendo-padron #padron-modal thead th{background:#1a1a1a!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+            body.imprimiendo-padron #padron-modal tbody tr:nth-child(even) td{background:#f8f8f8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
         }
     </style>
 </head>
@@ -439,13 +484,18 @@
             <button class="btn-cuota-toggle" id="btn-cuota-toggle" type="button" title="Configurar cuota mensual">
                 <i class="fas fa-money-bill-wave"></i>
             </button>
+            <div class="cuota-popover-backdrop" id="cuota-popover-backdrop"></div>
             <div class="cuota-popover" id="cuota-popover">
-                <label>Valor Cuota Mensual ($)</label>
+                <span class="cuota-popover-close" id="cuota-popover-close" title="Cerrar"><i class="fas fa-times"></i></span>
+                <label>Cuota Mensual — <span id="cuota-popover-mes">—</span></label>
                 <div class="input-row">
                     <input type="number" id="cuota" value="25000" disabled>
                     <button type="button" class="btn-pop btn-pop-edit" id="btn-editar" title="Editar cuota"><i class="fas fa-lock-open"></i></button>
                     <button type="button" class="btn-pop btn-pop-save" id="btn-guardar" title="Guardar cuota"><i class="fas fa-floppy-disk"></i></button>
                 </div>
+                <p style="font-size:11px;color:var(--text-muted);margin-top:8px;line-height:1.4;">
+                    Este valor se aplica desde <strong id="cuota-popover-mes-2">este mes</strong> en adelante, hasta el próximo cambio que registres.
+                </p>
             </div>
         </div>
     </div>
@@ -508,6 +558,13 @@
                 <select id="graduacion" class="form-control">
                     <option value="">— Sin graduación —</option>
                 </select>
+            </div>
+            <div class="form-group">
+                <label for="descuento">Descuento Mensual ($)</label>
+                <div class="input-clearable">
+                    <input type="number" id="descuento" class="form-control" placeholder="0" min="0" step="100">
+                    <button type="button" class="btn-clear" data-target="descuento" title="Limpiar"><i class="fas fa-times"></i></button>
+                </div>
             </div>
             <button type="submit" class="btn"><i class="fas fa-user-plus"></i> Añadir Alumno</button>
         </form>
@@ -606,6 +663,13 @@
                 <option value="">— Sin graduación —</option>
             </select>
         </div>
+        <div class="form-group">
+            <label for="editar-descuento">Descuento Mensual ($)</label>
+            <div class="input-clearable">
+                <input type="number" id="editar-descuento" class="form-control" placeholder="0" min="0" step="100">
+                <button type="button" class="btn-clear" data-target="editar-descuento" title="Limpiar"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
         <div class="form-group" id="editar-observacion-group" style="display:none;">
             <label for="editar-observacion">Observación del Pago</label>
             <select id="editar-observacion" class="form-control">
@@ -626,15 +690,15 @@
         <h2 style="margin-bottom:18px;color:var(--primary);font-size:18px;"><i class="fas fa-gear" style="margin-right:8px;"></i>Configuración del Dojo</h2>
 
         <div class="form-group" style="text-align:center;">
-            <label style="display:block;margin-bottom:8px;">Logo del Dojo</label>
-            <div style="display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;">
-                <img id="config-logo-preview" src="logo.png" alt="Logo actual" style="width:70px;height:70px;border-radius:50%;object-fit:contain;border:2px solid var(--border-color);background:var(--input-disabled-bg);">
-                <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
-                    <label for="config-logo-input" class="btn btn-secondary" style="width:auto;padding:10px 16px;cursor:pointer;font-size:13px;margin:0;"><i class="fas fa-image"></i> Elegir imagen</label>
-                    <input type="file" id="config-logo-input" accept="image/*" style="display:none;">
-                    <button type="button" id="btn-reset-logo" class="btn btn-secondary" style="width:auto;padding:10px 16px;font-size:13px;background:#718096;"><i class="fas fa-undo"></i> Restaurar original</button>
-                </div>
+            <label style="display:block;margin-bottom:12px;">Logo del Dojo</label>
+            <div class="logo-edit-wrapper">
+                <img id="config-logo-preview" src="logo.png" alt="Logo actual" class="logo-edit-preview">
+                <label for="config-logo-input" class="logo-edit-badge" title="Cambiar logo"><i class="fas fa-camera"></i></label>
+                <input type="file" id="config-logo-input" accept="image/*" style="display:none;">
             </div>
+            <button type="button" id="btn-reset-logo" class="logo-reset-link" title="Restaurar logo original">
+                <i class="fas fa-undo"></i> Restaurar original
+            </button>
         </div>
         <div class="form-group">
             <label for="config-nombre-dojo">Nombre del Dojo</label>
@@ -672,11 +736,6 @@
 <!-- MODAL PADRÓN DE ALUMNOS -->
 <div id="padron-modal" role="dialog" aria-modal="true" aria-label="Padrón de Alumnos">
     <div id="padron-modal-box">
-        <div id="padron-modal-header">
-            <img src="logo.png" alt="Logo" id="padron-modal-logo">
-            <span class="pm-titulo">Padrón Oficial de Alumnos</span>
-            <span class="pm-version">v3.7</span>
-        </div>
         <div id="padron-modal-body">
             <!-- contenido generado dinámicamente -->
         </div>
@@ -714,6 +773,7 @@ const PASSWORD_REQUERIDA = "sensei2026";
 let cuotaPredeterminada = 25000;
 let alumnos = [];
 let graduaciones = [];
+let cuotasPorMes = {}; // historial de cuotas: { 'YYYY-MM': valor }
 let ultimoConfig = null;
 let nombreDojo = 'BUTOKU-KAI SHOTOKAN KARATE-DO';
 let nombreSede = 'Villa Ángela';
@@ -864,6 +924,7 @@ function alumnoBase(a) {
         nombre: a.nombre || '',
         telefono: a.telefono || '',
         cuota: a.cuota || cuotaPredeterminada,
+        descuento: a.descuento || 0,
         pagos: a.pagos || {},
         dni: a.dni || '',
         fechaNacimiento: a.fechaNacimiento || '',
@@ -981,13 +1042,14 @@ const configRef = ref(db, 'config');
 onValue(configRef, (snapshot) => {
     const data = snapshot.val();
     if (data) {
-        if (data.cuotaPredeterminada) { cuotaPredeterminada = data.cuotaPredeterminada; if (inputCuota.disabled) inputCuota.value = cuotaPredeterminada; }
+        if (data.cuotaPredeterminada) cuotaPredeterminada = data.cuotaPredeterminada;
         if (data.nombreDojo) nombreDojo = data.nombreDojo;
         if (data.nombreSede) nombreSede = data.nombreSede;
         if (data.nombreSensei) nombreSensei = data.nombreSensei;
         if (data.logoBase64) logoBase64 = data.logoBase64;
         aplicarConfigDojo();
         ultimoConfig = data;
+        actualizarPopoverCuota();
     }
 });
 
@@ -997,11 +1059,47 @@ onValue(ref(db, 'graduaciones'), (snapshot) => {
     actualizarSelectsGraduacion();
 });
 
+onValue(ref(db, 'cuotasMes'), (snapshot) => {
+    cuotasPorMes = snapshot.val() || {};
+    actualizarPopoverCuota();
+    renderalumnos(); calcularMetricas();
+});
+
 onValue(ref(db, 'alumnos'), (snapshot) => {
     const data = snapshot.val();
     alumnos = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
     renderalumnos(); calcularMetricas(); verificarAlertas();
 });
+
+// Cuota base vigente para un mes: busca el último valor definido en o antes de ese mes.
+// Si la cuota cambió hace 6 meses, todos los meses desde ese cambio usan ese valor
+// hasta que se registre un nuevo cambio. Si no hay ningún registro previo, usa la
+// cuota predeterminada de la configuración.
+function getCuotaMes(periodo) {
+    const claves = Object.keys(cuotasPorMes).filter(k => k <= periodo).sort();
+    if (claves.length > 0) return cuotasPorMes[claves[claves.length - 1]];
+    return cuotaPredeterminada;
+}
+
+// Cuota efectiva de un alumno para un período dado (cuota del mes − descuento personal)
+function getCuotaEfectiva(alumno, periodo) {
+    const base = getCuotaMes(periodo);
+    const descuento = Number(alumno.descuento) || 0;
+    return Math.max(0, base - descuento);
+}
+
+// Sincroniza el popover de cuota: muestra el mes seleccionado y, si no está
+// en edición, el valor vigente para ese mes.
+function actualizarPopoverCuota() {
+    if (!mesSelector.value) return;
+    const periodo = obtenerPeriodoSeleccionado();
+    const mesTexto = formatearMesTexto(periodo);
+    const elMes1 = document.getElementById('cuota-popover-mes');
+    const elMes2 = document.getElementById('cuota-popover-mes-2');
+    if (elMes1) elMes1.innerText = mesTexto;
+    if (elMes2) elMes2.innerText = mesTexto;
+    if (inputCuota.disabled) inputCuota.value = getCuotaMes(periodo);
+}
 
 // ── LIMPIAR CAMPOS ────────────────────────────────────────────────────────
 function actualizarBtnClear(input) {
@@ -1047,26 +1145,51 @@ function cargarTemaInicial() {
 function inicializarSelector() {
     const hoy = new Date();
     mesSelector.value = hoy.getFullYear() + '-' + String(hoy.getMonth()+1).padStart(2,'0');
-    mesSelector.addEventListener('change', () => { renderalumnos(); calcularMetricas(); verificarAlertas(); });
+    mesSelector.addEventListener('change', () => {
+        actualizarPopoverCuota();
+        renderalumnos(); calcularMetricas(); verificarAlertas();
+    });
+    actualizarPopoverCuota();
 }
 function obtenerPeriodoSeleccionado() { return mesSelector.value; }
 
-// ── CUOTA UNITARIA (POPOVER) ──────────────────────────────────────────────
+// ── CUOTA MENSUAL (POPOVER / VENTANA SECUNDARIA) ──────────────────────────
+const cuotaPopover = document.getElementById('cuota-popover');
+const cuotaBackdrop = document.getElementById('cuota-popover-backdrop');
+
+function abrirPopoverCuota() {
+    actualizarPopoverCuota();
+    cuotaPopover.classList.add('visible');
+    cuotaBackdrop.classList.add('visible');
+}
+
+function cerrarPopoverCuota() {
+    cuotaPopover.classList.remove('visible');
+    cuotaBackdrop.classList.remove('visible');
+    if (!inputCuota.disabled) {
+        inputCuota.disabled = true;
+        actualizarPopoverCuota();
+        btnEditar.style.display = 'inline-flex';
+        btnGuardar.style.display = 'none';
+    }
+}
+
 document.getElementById('btn-cuota-toggle').addEventListener('click', (e) => {
     e.stopPropagation();
-    document.getElementById('cuota-popover').classList.toggle('visible');
-});
-document.addEventListener('click', (e) => {
-    const popover = document.getElementById('cuota-popover');
-    if (!popover.contains(e.target) && e.target.id !== 'btn-cuota-toggle') {
-        popover.classList.remove('visible');
-        if (!inputCuota.disabled) {
-            inputCuota.value = cuotaPredeterminada;
-            inputCuota.disabled = true;
-            btnEditar.style.display = 'inline-flex';
-            btnGuardar.style.display = 'none';
-        }
+    if (cuotaPopover.classList.contains('visible')) {
+        cerrarPopoverCuota();
+    } else {
+        abrirPopoverCuota();
     }
+});
+// Cerrar tocando el fondo oscuro (no afecta a los modales de contraseña,
+// que no son descendientes del backdrop y por lo tanto no disparan este evento)
+cuotaBackdrop.addEventListener('click', cerrarPopoverCuota);
+// Cerrar con el botón "x"
+document.getElementById('cuota-popover-close').addEventListener('click', cerrarPopoverCuota);
+// Cerrar con la tecla Escape
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && cuotaPopover.classList.contains('visible')) cerrarPopoverCuota();
 });
 
 btnEditar.addEventListener('click', async () => {
@@ -1083,17 +1206,16 @@ btnEditar.addEventListener('click', async () => {
 btnGuardar.addEventListener('click', async () => {
     const valor = parseInt(inputCuota.value);
     if (!valor || valor <= 0) { await dcAlert('Ingresá un monto válido mayor a cero.', 'warn'); return; }
-    const cfg = ultimoConfig
-        ? { ...ultimoConfig, cuotaPredeterminada: valor }
-        : { cuotaPredeterminada: valor, nombreDojo, nombreSede, nombreSensei, logoBase64: logoBase64||'' };
+    const periodo = obtenerPeriodoSeleccionado();
     try {
-        await set(ref(db, 'config'), cfg);
-        cuotaPredeterminada = valor;
+        // Guardar la cuota vigente desde este mes en adelante (historial por mes)
+        await set(ref(db, `cuotasMes/${periodo}`), valor);
         inputCuota.disabled = true;
         btnGuardar.style.display = 'none';
         btnEditar.style.display = 'inline-flex';
-        document.getElementById('cuota-popover').classList.remove('visible');
-        await dcAlert(`¡Cuota actualizada! El nuevo valor mensual es <strong>$${valor.toLocaleString('es-AR')}</strong>.`, 'ok');
+        cuotaPopover.classList.remove('visible');
+        cuotaBackdrop.classList.remove('visible');
+        await dcAlert(`¡Listo! Desde <strong>${formatearMesTexto(periodo)}</strong> la cuota será de <strong>$${valor.toLocaleString('es-AR')}</strong>, hasta el próximo cambio que registres.`, 'ok');
     } catch(e) {
         await dcAlert('Error al guardar: ' + e.message, 'err');
     }
@@ -1110,11 +1232,13 @@ form.addEventListener('submit', async (e) => {
             dni: document.getElementById('dni').value.trim(),
             fechaNacimiento: document.getElementById('fechaNacimiento').value || '',
             graduacion: document.getElementById('graduacion').value || '',
+            descuento: parseInt(document.getElementById('descuento').value) || 0,
             cuota: cuotaPredeterminada,
             pagos: { "inicializacion": "true" }
         });
         form.reset();
         document.getElementById('edad-calculada').innerText = '— años';
+        actualizarBtnClear(document.getElementById('descuento'));
     } catch(e) {
         await dcAlert('Error al registrar el alumno: ' + e.message, 'err');
     }
@@ -1159,7 +1283,12 @@ window.verInfoAlumno = function(id) {
     const edad = calcularEdad(alumno.fechaNacimiento);
     document.getElementById('modal-edad').innerText = edad !== null ? `(${edad} años)` : '';
     document.getElementById('modal-graduacion').innerText = alumno.graduacion || '—';
-    document.getElementById('modal-cuota').innerText = `$${alumno.cuota.toLocaleString('es-AR')}`;
+    const cuotaBase = getCuotaMes(periodo);
+    const descuento = Number(alumno.descuento) || 0;
+    const cuotaFinal = Math.max(0, cuotaBase - descuento);
+    document.getElementById('modal-cuota').innerHTML = descuento > 0
+        ? `$${cuotaFinal.toLocaleString('es-AR')} <span style="font-size:12px;color:var(--text-muted);">(cuota $${cuotaBase.toLocaleString('es-AR')} − descuento $${descuento.toLocaleString('es-AR')})</span>`
+        : `$${cuotaFinal.toLocaleString('es-AR')}`;
     const pago = alumno.pagos && alumno.pagos[periodo];
     const pagoValido = esPagoValido(pago);
     const fechaContainer = document.getElementById('modal-fecha-container');
@@ -1184,7 +1313,7 @@ window.verInfoAlumno = function(id) {
         if (alumno.telefono?.trim()) {
             const [anio, mes] = periodo.split('-');
             const tel = alumno.telefono.replace(/[^0-9]/g,'');
-            const msg = `Hola *${alumno.nombre}*, te saludamos desde el *Dojo ${nombreDojo}*. Te recordamos que se encuentra pendiente el pago de la cuota del mes *${mes}/${anio}* por *$${alumno.cuota.toLocaleString('es-AR')}*. ¡Muchas gracias! Oss 🥋`;
+            const msg = `Hola *${alumno.nombre}*, te saludamos desde el *Dojo ${nombreDojo}*. Te recordamos que se encuentra pendiente el pago de la cuota del mes *${mes}/${anio}* por *$${cuotaFinal.toLocaleString('es-AR')}*. ¡Muchas gracias! Oss 🥋`;
             btnWhatsapp.href = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
             btnWhatsapp.style.display = 'inline-flex';
         } else { btnWhatsapp.style.display = 'none'; }
@@ -1199,7 +1328,7 @@ window.eliminarAlumno = async function(id) {
     const alumno = alumnos.find(a => a.id === id);
     const nombre = alumno ? alumno.nombre : 'este alumno';
 
-    const pwd = await dcPrompt(`Para dar de baja a <strong>${nombre}</strong> se requiere autorización.\nIngresá la contraseña del Sensei:`);
+    const pwd = await dcPrompt(`Para dar de baja a ${nombre} se requiere autorización.\nIngresá la contraseña del Sensei:`);
     if (!pwd) return;
     if (pwd !== PASSWORD_REQUERIDA) {
         await dcAlert('Contraseña incorrecta. No se realizaron cambios.', 'err');
@@ -1224,7 +1353,7 @@ function calcularMetricas() {
     const periodo = obtenerPeriodoSeleccionado();
     const total = alumnos.length;
     const alDia = alumnos.filter(a => esPagoValido(a.pagos && a.pagos[periodo]));
-    const caja = alDia.reduce((s,a) => s + (a.cuota||0), 0);
+    const caja = alDia.reduce((s, a) => s + getCuotaEfectiva(a, periodo), 0);
     document.getElementById('widget-alumnos').innerText = total;
     document.getElementById('widget-aldia').innerText = alDia.length;
     document.getElementById('widget-morosos').innerText = total - alDia.length;
@@ -1280,11 +1409,16 @@ function renderalumnos() {
         let celdaFecha = pagado
             ? (() => { const f = obtenerFechaPago(pago); const p = f ? f.split('-') : ['','','']; return `<span class="badge badge-paid">Pagó</span><span class="print-only">${p[2]}/${p[1]}/${p[0]}</span>`; })()
             : `<input type="date" id="fecha-pago-${alumno.id}" class="table-date-input" value="${hoyStr}"><span class="print-only">${estadoTexto}</span>`;
+        const cuotaFinal = getCuotaEfectiva(alumno, periodo);
+        const descMonto = Number(alumno.descuento) || 0;
+        const celdaCuota = descMonto > 0
+            ? `$${cuotaFinal.toLocaleString('es-AR')}<br><span style="font-size:10px;color:var(--text-muted);">(desc. $${descMonto.toLocaleString('es-AR')})</span>`
+            : `$${cuotaFinal.toLocaleString('es-AR')}`;
         tr.innerHTML = `
             <td>${alumno.nombre}</td>
             <td class="col-telefono" data-label="Teléfono">${alumno.telefono||'-'}</td>
             <td data-label="Fecha de Pago">${celdaFecha}</td>
-            <td class="col-oculta-principal" data-label="Cuota">$${alumno.cuota.toLocaleString('es-AR')}</td>
+            <td class="col-oculta-principal" data-label="Cuota">${celdaCuota}</td>
             <td class="col-oculta-principal col-estado-screen" data-label="Estado"><span class="badge ${estadoClase}">${estadoTexto}</span></td>
             <td class="col-observacion-print" data-label="Observación">${obs||'—'}</td>
             <td class="acciones-header" style="display:flex;gap:6px;justify-content:center;align-items:center;">
@@ -1309,9 +1443,10 @@ window.editarAlumno = function(id) {
     document.getElementById('editar-dni').value = alumno.dni || '';
     document.getElementById('editar-fechaNacimiento').value = alumno.fechaNacimiento || '';
     document.getElementById('editar-edad-calculada').innerText = calcularEdad(alumno.fechaNacimiento) !== null ? `${calcularEdad(alumno.fechaNacimiento)} años` : '— años';
+    document.getElementById('editar-descuento').value = alumno.descuento ? alumno.descuento : '';
     actualizarSelectsGraduacion();
     setTimeout(() => { document.getElementById('editar-graduacion').value = alumno.graduacion || ''; }, 50);
-    ['editar-nombre','editar-telefono','editar-dni'].forEach(i => actualizarBtnClear(document.getElementById(i)));
+    ['editar-nombre','editar-telefono','editar-dni','editar-descuento'].forEach(i => actualizarBtnClear(document.getElementById(i)));
     const obsGroup = document.getElementById('editar-observacion-group');
     if (esPagoValido(pago)) {
         obsGroup.style.display = 'block';
@@ -1350,6 +1485,7 @@ document.getElementById('btn-guardar-edicion').addEventListener('click', async (
             dni: document.getElementById('editar-dni').value.trim(),
             fechaNacimiento: document.getElementById('editar-fechaNacimiento').value || '',
             graduacion: document.getElementById('editar-graduacion').value || '',
+            descuento: parseInt(document.getElementById('editar-descuento').value) || 0,
             cuota: alumno.cuota,
             pagos
         });
@@ -1477,11 +1613,10 @@ document.getElementById('btn-toggle-alerta').addEventListener('click', () => {
 });
 
 // ── PADRÓN DE ALUMNOS ─────────────────────────────────────────────────────
-const padronModal    = document.getElementById('padron-modal');
-const padronBody     = document.getElementById('padron-modal-body');
-const padronLogo     = document.getElementById('padron-modal-logo');
-const pmBtnVolver    = document.getElementById('pm-btn-volver');
-const pmBtnImprimir  = document.getElementById('pm-btn-imprimir');
+const padronModal   = document.getElementById('padron-modal');
+const padronBody    = document.getElementById('padron-modal-body');
+const pmBtnVolver   = document.getElementById('pm-btn-volver');
+const pmBtnImprimir = document.getElementById('pm-btn-imprimir');
 
 function abrirPadron() {
     const ordenados = [...alumnos].sort((a, b) => a.nombre.localeCompare(b.nombre));
@@ -1489,14 +1624,11 @@ function abrirPadron() {
     const sub       = `Sede ${nombreSede} | Sensei ${nombreSensei}`;
     const fechaHoy  = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' });
 
-    // Sincronizar logo del header del modal
-    padronLogo.src = logoSrc;
-
     const filas = ordenados.map((a, i) => {
         const edad    = calcularEdad(a.fechaNacimiento);
         const edadStr = edad !== null ? `${edad} años` : '—';
         return `<tr>
-            <td style="font-weight:700;text-align:left;">${i + 1}. ${a.nombre}</td>
+            <td style="font-weight:700;">${i + 1}. ${a.nombre}</td>
             <td>${a.dni || '—'}</td>
             <td>${formatearFechaNac(a.fechaNacimiento)}</td>
             <td>${edadStr}</td>
@@ -1519,6 +1651,14 @@ function abrirPadron() {
         <div class="pm-subtitulo">Padrón Oficial de Alumnos</div>
         <div class="pm-tabla-wrapper">
             <table>
+                <colgroup>
+                    <col class="col-nombre">
+                    <col class="col-dni">
+                    <col class="col-fnac">
+                    <col class="col-edad">
+                    <col class="col-tel">
+                    <col class="col-grad">
+                </colgroup>
                 <thead>
                     <tr>
                         <th>Nombre</th>
@@ -1547,18 +1687,22 @@ function cerrarPadron() {
 }
 
 function imprimirDesdePadron() {
-    // Al imprimir, el @media print oculta todo salvo el modal
-    window.print();
+    // Marcar el body para que @media print sepa que es el padrón y no el reporte de cuotas
+    document.body.classList.add('imprimiendo-padron');
 
     const limpiar = () => {
+        document.body.classList.remove('imprimiendo-padron');
         window.onafterprint = null;
         window.removeEventListener('focus', limpiarFoco);
     };
     const limpiarFoco = () => limpiar();
 
     window.onafterprint = () => limpiar();
-    // Fallback móvil: foco vuelve al cerrar el gestor
+    // Fallback móvil: el foco vuelve cuando se cierra el gestor
     setTimeout(() => window.addEventListener('focus', limpiarFoco, { once: true }), 500);
+
+    // Pequeña pausa para que el DOM aplique la clase antes de abrir el gestor
+    setTimeout(() => window.print(), 50);
 }
 
 pmBtnVolver.addEventListener('click', cerrarPadron);
