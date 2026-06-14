@@ -315,7 +315,7 @@
         @media(min-width:480px){.pm-cabecera-centro .pm-dojo{font-size:14px;}}
         .pm-cabecera-centro .pm-sub{font-size:11px;color:var(--text-muted);line-height:1.4;}
         .pm-subtitulo{text-align:center;margin:10px 0 12px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);}
-        /* Contenedor scrolleable horizontal para la tabla */
+        /* Contenedor scrolleable horizontal para la tabla (solo en pantallas medianas/grandes) */
         .pm-tabla-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch;}
         /* Tabla del padrón: columnas definidas, solo líneas horizontales */
         #padron-modal table{
@@ -355,6 +355,41 @@
             padding:8px 6px;font-size:10px;color:var(--text-muted);
             text-align:right;border:none;border-top:2px solid var(--border-color);
         }
+        /* ── Vista en tarjetas para celulares (sin scroll horizontal) ── */
+        @media screen and (max-width:599px){
+            .pm-tabla-wrapper{overflow-x:visible;}
+            #padron-modal table{min-width:unset;table-layout:auto;font-size:13px;}
+            #padron-modal colgroup{display:none;}
+            #padron-modal thead{display:none;}
+            #padron-modal tbody,#padron-modal tr,#padron-modal td{display:block;width:auto!important;}
+            #padron-modal tbody tr{
+                border:1px solid var(--border-color);border-radius:10px;
+                margin-bottom:10px;padding:10px 12px;background:var(--card-bg)!important;
+            }
+            #padron-modal tbody td{
+                border:none;padding:0;text-align:right;
+                white-space:normal;overflow:visible;text-overflow:unset;
+            }
+            #padron-modal tbody td:first-child{
+                display:block;text-align:left;padding:0 0 8px 0;margin-bottom:6px;
+                border-bottom:2px solid var(--primary);
+                font-size:14px;font-weight:800;color:var(--primary);
+            }
+            #padron-modal tbody td:not(:first-child){
+                display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+                padding:5px 0;font-size:13px;
+            }
+            #padron-modal tbody td:not(:first-child):not(:last-child){
+                border-bottom:1px dashed var(--border-color);
+            }
+            #padron-modal tbody td:not(:first-child)::before{
+                content:attr(data-label);font-size:10px;font-weight:700;
+                text-transform:uppercase;letter-spacing:0.4px;color:var(--text-muted);
+                flex-shrink:0;
+            }
+            #padron-modal tfoot{display:block;}
+            #padron-modal tfoot td{display:block;text-align:center;border-top:1px solid var(--border-color);padding-top:8px;margin-top:4px;}
+        }
         /* Barra de acciones — sticky al fondo */
         .pm-acciones{
             display:flex;gap:10px;justify-content:flex-end;align-items:center;
@@ -363,26 +398,56 @@
         }
         @media(min-width:600px){.pm-acciones{padding:14px 20px;}}
         .pm-acciones .btn{width:auto;}
-        /* Al imprimir el padrón: solo activo cuando JS pone la clase en el body */
+
+        /* ── IMPRESIÓN DEL PADRÓN ──────────────────────────────────────────
+           Contenido totalmente independiente del modal interactivo: evita
+           que la vista de tarjetas (móvil) o el scroll horizontal del modal
+           interfieran con el resultado impreso, y evita que el contenido
+           se "duplique" por desbordes de ancho al paginar. ────────────── */
+        #padron-print-content{display:none;}
         @media print{
-            body.imprimiendo-padron > *:not(#padron-modal){display:none!important;}
-            body.imprimiendo-padron #padron-modal{
-                display:block!important;position:static!important;
-                background:none!important;backdrop-filter:none!important;
-                padding:0!important;animation:none!important;overflow:visible!important;
+            /* Ocultar TODO salvo el contenido de impresión del padrón */
+            body.imprimiendo-padron > *{display:none!important;}
+            body.imprimiendo-padron > #padron-print-content{display:block!important;}
+
+            #padron-print-content{
+                padding:10px;background:#fff;color:#000;
+                font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
             }
-            body.imprimiendo-padron #padron-modal-box{
-                box-shadow:none!important;border-radius:0!important;
-                min-height:unset!important;display:block!important;
+            #padron-print-content .pp-cabecera{
+                display:flex;align-items:center;gap:14px;
+                padding-bottom:12px;border-bottom:3px solid #d32f2f;margin-bottom:10px;
             }
-            body.imprimiendo-padron #padron-modal-body{padding:12px!important;overflow:visible!important;}
-            body.imprimiendo-padron .pm-acciones{display:none!important;}
-            body.imprimiendo-padron .pm-tabla-wrapper{overflow:visible!important;}
-            body.imprimiendo-padron .pm-cabecera{border-bottom:3px solid #d32f2f!important;}
-            body.imprimiendo-padron #padron-modal *{color:#000!important;}
-            body.imprimiendo-padron #padron-modal table{min-width:unset!important;width:100%!important;table-layout:auto!important;}
-            body.imprimiendo-padron #padron-modal thead th{background:#1a1a1a!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-            body.imprimiendo-padron #padron-modal tbody tr:nth-child(even) td{background:#f8f8f8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+            #padron-print-content .pp-cabecera img{width:60px;height:60px;object-fit:contain;border-radius:50%;flex-shrink:0;}
+            #padron-print-content .pp-cabecera-centro{flex:1;text-align:center;}
+            #padron-print-content .pp-dojo{font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;}
+            #padron-print-content .pp-sub{font-size:11px;color:#555;}
+            #padron-print-content .pp-subtitulo{text-align:center;margin:10px 0 12px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#333;}
+
+            /* Tabla simple: ancho fijo al 100% para que NUNCA desborde la página
+               y por lo tanto no se pagine horizontalmente repitiendo filas. */
+            #padron-print-content table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:11px;}
+            #padron-print-content col.col-nombre{width:30%;}
+            #padron-print-content col.col-dni{width:14%;}
+            #padron-print-content col.col-fnac{width:16%;}
+            #padron-print-content col.col-edad{width:10%;}
+            #padron-print-content col.col-tel{width:16%;}
+            #padron-print-content col.col-grad{width:14%;}
+            #padron-print-content thead th{
+                background:#1a1a1a!important;color:#fff!important;
+                padding:8px 5px;text-align:center;text-transform:uppercase;
+                font-size:9px;letter-spacing:0.4px;border:none;border-bottom:2px solid #d32f2f;
+                word-break:break-word;-webkit-print-color-adjust:exact;print-color-adjust:exact;
+            }
+            #padron-print-content thead th:first-child{text-align:left;padding-left:6px;}
+            #padron-print-content tbody td{
+                padding:6px 5px;border:none;border-bottom:1px solid #ccc;
+                text-align:center;font-size:10px;word-break:break-word;color:#000;
+            }
+            #padron-print-content tbody td:first-child{text-align:left;padding-left:6px;font-weight:700;}
+            #padron-print-content tbody tr:nth-child(even) td{background:#f5f5f5!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+            #padron-print-content tfoot td{padding:8px 5px;font-size:9px;color:#666;text-align:right;border-top:2px solid #000;}
+            @page{margin:1.2cm;size:A4 portrait;}
         }
     </style>
 </head>
@@ -748,6 +813,11 @@
             </button>
         </div>
     </div>
+</div>
+
+<!-- CONTENIDO DE IMPRESIÓN DEL PADRÓN (independiente del modal, solo visible al imprimir) -->
+<div id="padron-print-content">
+    <!-- contenido generado dinámicamente -->
 </div>
 
 <script type="module">
@@ -1629,14 +1699,37 @@ function abrirPadron() {
         const edadStr = edad !== null ? `${edad} años` : '—';
         return `<tr>
             <td style="font-weight:700;">${i + 1}. ${a.nombre}</td>
-            <td>${a.dni || '—'}</td>
-            <td>${formatearFechaNac(a.fechaNacimiento)}</td>
-            <td>${edadStr}</td>
-            <td>${a.telefono || '—'}</td>
-            <td>${a.graduacion || '—'}</td>
+            <td data-label="DNI">${a.dni || '—'}</td>
+            <td data-label="Fecha Nac.">${formatearFechaNac(a.fechaNacimiento)}</td>
+            <td data-label="Edad">${edadStr}</td>
+            <td data-label="Teléfono">${a.telefono || '—'}</td>
+            <td data-label="Graduación">${a.graduacion || '—'}</td>
         </tr>`;
     }).join('');
 
+    const colgroupHtml = `
+        <colgroup>
+            <col class="col-nombre">
+            <col class="col-dni">
+            <col class="col-fnac">
+            <col class="col-edad">
+            <col class="col-tel">
+            <col class="col-grad">
+        </colgroup>`;
+    const theadHtml = `
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>DNI</th>
+                <th>Fecha Nac.</th>
+                <th>Edad</th>
+                <th>Teléfono</th>
+                <th>Graduación</th>
+            </tr>
+        </thead>`;
+    const tfootHtml = `<tfoot><tr><td colspan="6">Dojo Control &mdash; Reporte confidencial de uso interno</td></tr></tfoot>`;
+
+    // ── Vista interactiva del modal (tabla en pantallas grandes, tarjetas en celular) ──
     padronBody.innerHTML = `
         <div class="pm-cabecera">
             <img src="${logoSrc}" alt="Logo">
@@ -1651,30 +1744,33 @@ function abrirPadron() {
         <div class="pm-subtitulo">Padrón Oficial de Alumnos</div>
         <div class="pm-tabla-wrapper">
             <table>
-                <colgroup>
-                    <col class="col-nombre">
-                    <col class="col-dni">
-                    <col class="col-fnac">
-                    <col class="col-edad">
-                    <col class="col-tel">
-                    <col class="col-grad">
-                </colgroup>
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>DNI</th>
-                        <th>Fecha Nac.</th>
-                        <th>Edad</th>
-                        <th>Teléfono</th>
-                        <th>Graduación</th>
-                    </tr>
-                </thead>
+                ${colgroupHtml}
+                ${theadHtml}
                 <tbody>${filas}</tbody>
-                <tfoot>
-                    <tr><td colspan="6">Dojo Control &mdash; Reporte confidencial de uso interno</td></tr>
-                </tfoot>
+                ${tfootHtml}
             </table>
         </div>`;
+
+    // ── Contenido independiente para impresión: tabla simple aislada del modal,
+    // evita que la vista de tarjetas/scroll del modal "duplique" filas al imprimir ──
+    document.getElementById('padron-print-content').innerHTML = `
+        <div class="pp-cabecera">
+            <img src="${logoSrc}" alt="Logo">
+            <div class="pp-cabecera-centro">
+                <div class="pp-dojo">${nombreDojo}</div>
+                <div class="pp-sub">${sub}</div>
+                <div class="pp-sub" style="margin-top:3px;">
+                    Generado el ${fechaHoy} &mdash; Total: ${ordenados.length} alumno${ordenados.length !== 1 ? 's' : ''}
+                </div>
+            </div>
+        </div>
+        <div class="pp-subtitulo">Padrón Oficial de Alumnos</div>
+        <table>
+            ${colgroupHtml}
+            ${theadHtml}
+            <tbody>${filas}</tbody>
+            ${tfootHtml}
+        </table>`;
 
     padronModal.classList.add('visible');
     padronModal.scrollTop = 0;
