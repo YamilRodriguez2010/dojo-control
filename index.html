@@ -620,9 +620,12 @@
             </div>
             <div class="form-group">
                 <label for="graduacion">Graduación</label>
-                <select id="graduacion" class="form-control">
-                    <option value="">— Sin graduación —</option>
-                </select>
+                <div class="input-group-editable">
+                    <select id="graduacion" class="form-control">
+                        <option value="">— Sin graduación —</option>
+                    </select>
+                    <button type="button" id="btn-gestionar-graduaciones" class="btn btn-secondary btn-inline-sm" title="Gestionar graduaciones"><i class="fas fa-medal"></i></button>
+                </div>
             </div>
             <div class="form-group">
                 <label for="descuento">Descuento Mensual ($)</label>
@@ -787,10 +790,15 @@
             </div>
         </div>
         <button id="btn-guardar-config" class="btn" style="margin-top:5px;"><i class="fas fa-floppy-disk"></i> Guardar en la Nube</button>
+    </div>
+</div>
 
-        <hr style="margin:20px 0;border:none;border-top:1px solid var(--border-color);">
-        <h3 style="font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;"><i class="fas fa-medal" style="color:var(--primary);"></i> Gestión de Graduaciones</h3>
-        <div style="display:flex;gap:8px;margin-bottom:10px;">
+<!-- MODAL GRADUACIONES -->
+<div id="modal-graduaciones" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" id="close-modal-graduaciones">&times;</span>
+        <h2 style="margin-bottom:18px;color:var(--primary);font-size:18px;"><i class="fas fa-medal" style="margin-right:8px;"></i>Gestión de Graduaciones</h2>
+        <div style="display:flex;gap:8px;margin-bottom:14px;">
             <input type="text" id="nueva-graduacion" class="form-control" placeholder="Ej. 9° Kyu - Blanco" style="flex:1;">
             <button type="button" id="btn-agregar-graduacion" class="btn btn-success" style="width:auto;padding:10px 14px;flex-shrink:0;"><i class="fas fa-plus"></i></button>
         </div>
@@ -1105,6 +1113,7 @@ const filtroNombre = document.getElementById('filtro-nombre');
 const modalInfo = document.getElementById('modal-info');
 const modalEditar = document.getElementById('modal-editar');
 const modalConfig = document.getElementById('modal-config');
+const modalGraduaciones = document.getElementById('modal-graduaciones');
 const btnWhatsapp = document.getElementById('btn-whatsapp');
 
 // ── FIREBASE LISTENERS ────────────────────────────────────────────────────
@@ -1127,6 +1136,7 @@ onValue(ref(db, 'graduaciones'), (snapshot) => {
     const data = snapshot.val();
     graduaciones = data ? Object.values(data) : [];
     actualizarSelectsGraduacion();
+    if (modalGraduaciones.style.display === 'flex') renderListaGraduaciones();
 });
 
 onValue(ref(db, 'cuotasMes'), (snapshot) => {
@@ -1575,11 +1585,18 @@ document.getElementById('btn-config').addEventListener('click', () => {
     document.getElementById('config-logo-preview').src = logoBase64 || 'logo.png';
     logoBase64Pendiente = null;
     ['config-nombre-dojo','config-sede','config-sensei'].forEach(id => actualizarBtnClear(document.getElementById(id)));
-    renderListaGraduaciones();
     modalConfig.style.display = 'flex';
 });
 document.getElementById('close-modal-config').addEventListener('click', () => { modalConfig.style.display = 'none'; });
 window.addEventListener('click', e => { if (e.target === modalConfig) modalConfig.style.display = 'none'; });
+
+// ── MODAL GRADUACIONES ────────────────────────────────────────────────────
+document.getElementById('btn-gestionar-graduaciones').addEventListener('click', () => {
+    renderListaGraduaciones();
+    modalGraduaciones.style.display = 'flex';
+});
+document.getElementById('close-modal-graduaciones').addEventListener('click', () => { modalGraduaciones.style.display = 'none'; });
+window.addEventListener('click', e => { if (e.target === modalGraduaciones) modalGraduaciones.style.display = 'none'; });
 
 document.getElementById('config-logo-input').addEventListener('change', async e => {
     const file = e.target.files[0];
