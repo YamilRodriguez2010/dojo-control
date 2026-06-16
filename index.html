@@ -229,6 +229,7 @@
             .container{grid-template-columns:1fr;}
             table{width:100%;border-collapse:collapse;}
             thead tr{display:none;}
+            #padron-modal thead tr{display:table-row;}
             tbody{display:block;}
             tbody tr{display:flex;flex-direction:row;align-items:center;gap:4px;background:var(--table-row-bg);border:1px solid var(--border-color);border-radius:8px;margin-bottom:8px;padding:6px 8px;min-height:44px;overflow:hidden;width:100%;box-sizing:border-box;}
             tbody tr td.col-telefono,tbody tr td.col-oculta-principal,tbody tr td.col-observacion-print{display:none!important;}
@@ -343,33 +344,37 @@
 
         /* ── TABLA DEL PADRÓN ── */
 
-        /* El wrapper provee el scroll horizontal.
-           El modal-body tiene overflow-x:hidden para no duplicar barras. */
+        /* Wrapper: provee scroll horizontal */
         .pm-tabla-wrapper{
             overflow-x:auto;
             -webkit-overflow-scrolling:touch;
-            margin:0 -14px;   /* sangrar hasta el borde del padding del body */
+            margin:0 -14px;
             padding:0 14px;
         }
         @media(min-width:600px){
             .pm-tabla-wrapper{margin:0 -20px;padding:0 20px;}
         }
 
-        /* Tabla: ancho natural según contenido, sin límite artificial.
-           table-layout:auto deja que cada columna tome lo que necesita. */
+        /* Tabla: columnas de ancho fijo e igual (150px cada una).
+           La suma 6×150=900px garantiza scroll en celular sin aplastar datos. */
         #padron-modal table{
             border-collapse:collapse;
-            table-layout:auto;
+            table-layout:fixed;
             font-size:13px;
-            width:100%;
-            min-width:640px; /* fuerza scroll antes de que las celdas se aprieten */
+            width:900px;
         }
+        #padron-modal col.col-nombre,
+        #padron-modal col.col-dni,
+        #padron-modal col.col-fnac,
+        #padron-modal col.col-edad,
+        #padron-modal col.col-tel  { width:150px; }
+        #padron-modal col.col-grad { width:150px; }
 
         /* Encabezados */
         #padron-modal thead th{
             background:var(--header-bg);
             color:var(--header-text);
-            padding:10px 16px;
+            padding:10px 14px;
             text-align:left;
             text-transform:uppercase;
             font-size:10px;
@@ -377,22 +382,26 @@
             border:none;
             border-bottom:2px solid var(--primary);
             white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
         }
 
-        /* Celdas: sin recuadros, solo línea inferior */
+        /* Celdas: solo línea inferior, sin recuadros */
         #padron-modal tbody td{
-            padding:9px 16px;
+            padding:9px 14px;
             border:none;
             border-bottom:1px solid var(--border-color);
             color:var(--text-main);
             text-align:left;
             white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
         }
         #padron-modal tbody td:first-child{font-weight:600;}
 
         /* Pie */
         #padron-modal tfoot td{
-            padding:8px 16px;
+            padding:8px 14px;
             font-size:10px;
             color:var(--text-muted);
             text-align:right;
@@ -1652,6 +1661,10 @@ function abrirPadron() {
     const fechaHoy  = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' });
     const total     = ordenados.length;
 
+    const colgroup = `<colgroup>
+        <col class="col-nombre"><col class="col-dni"><col class="col-fnac">
+        <col class="col-edad"><col class="col-tel"><col class="col-grad">
+    </colgroup>`;
     const thead = `<thead><tr>
         <th>Alumno</th>
         <th>DNI</th>
@@ -1691,7 +1704,7 @@ function abrirPadron() {
     padronBody.innerHTML = `
         ${cabecera}
         <div class="pm-tabla-wrapper">
-            <table>${thead}<tbody>${filas}</tbody>${tfoot}</table>
+            <table>${colgroup}${thead}<tbody>${filas}</tbody>${tfoot}</table>
         </div>`;
 
     // Contenido aislado solo para imprimir
@@ -1707,7 +1720,7 @@ function abrirPadron() {
             </div>
         </div>
         <div class="pp-subtitulo">Padrón Oficial de Alumnos</div>
-        <table>${thead}<tbody>${filas}</tbody>${tfoot}</table>`;
+        <table>${colgroup}${thead}<tbody>${filas}</tbody>${tfoot}</table>`;
 
     padronModal.classList.add('visible');
     padronModal.scrollTop = 0;
