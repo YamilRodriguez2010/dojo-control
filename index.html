@@ -322,7 +322,7 @@
             #padron-modal{padding:20px 16px;}
             #padron-modal-box{border-radius:12px;min-height:unset;}
         }
-        #padron-modal-body{padding:14px;flex:1;overflow-x:auto;}
+        #padron-modal-body{padding:14px;flex:1;overflow-x:hidden;}
         @media(min-width:600px){#padron-modal-body{padding:20px;}}
 
         /* Cabecera interna del padrón */
@@ -341,43 +341,63 @@
         .pm-cabecera-centro .pm-sub{font-size:11px;color:var(--text-muted);line-height:1.4;}
         .pm-subtitulo{text-align:center;margin:10px 0 12px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);}
 
-        /* ── TABLA DEL PADRÓN — columnas fijas, scroll horizontal en celular ── */
+        /* ── TABLA DEL PADRÓN ── */
+
+        /* El wrapper provee el scroll horizontal.
+           El modal-body tiene overflow-x:hidden para no duplicar barras. */
         .pm-tabla-wrapper{
             overflow-x:auto;
             -webkit-overflow-scrolling:touch;
+            margin:0 -14px;   /* sangrar hasta el borde del padding del body */
+            padding:0 14px;
         }
-        /* Anchos fijos en px: el navegador respeta estos con table-layout:fixed.
-           Graduación más angosta; el resto iguales y generosos. */
+        @media(min-width:600px){
+            .pm-tabla-wrapper{margin:0 -20px;padding:0 20px;}
+        }
+
+        /* Tabla: ancho natural según contenido, sin límite artificial.
+           table-layout:auto deja que cada columna tome lo que necesita. */
         #padron-modal table{
             border-collapse:collapse;
-            table-layout:fixed;
+            table-layout:auto;
             font-size:13px;
-            width:760px; /* suma de columnas: asegura scroll en celular */
+            width:100%;
+            min-width:640px; /* fuerza scroll antes de que las celdas se aprieten */
         }
-        #padron-modal col.col-nombre{ width:180px; }
-        #padron-modal col.col-dni   { width:110px; }
-        #padron-modal col.col-fnac  { width:110px; }
-        #padron-modal col.col-edad  { width:70px;  }
-        #padron-modal col.col-tel   { width:130px; }
-        #padron-modal col.col-grad  { width:160px; }
 
+        /* Encabezados */
         #padron-modal thead th{
-            background:var(--header-bg);color:var(--header-text);
-            padding:10px 12px;text-align:left;text-transform:uppercase;
-            font-size:10px;letter-spacing:0.4px;
-            border:none;border-bottom:2px solid var(--primary);
-            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+            background:var(--header-bg);
+            color:var(--header-text);
+            padding:10px 16px;
+            text-align:left;
+            text-transform:uppercase;
+            font-size:10px;
+            letter-spacing:0.5px;
+            border:none;
+            border-bottom:2px solid var(--primary);
+            white-space:nowrap;
         }
+
+        /* Celdas: sin recuadros, solo línea inferior */
         #padron-modal tbody td{
-            padding:9px 12px;border:none;
+            padding:9px 16px;
+            border:none;
             border-bottom:1px solid var(--border-color);
-            color:var(--text-main);text-align:left;
-            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+            color:var(--text-main);
+            text-align:left;
+            white-space:nowrap;
         }
         #padron-modal tbody td:first-child{font-weight:600;}
+
+        /* Pie */
         #padron-modal tfoot td{
-            padding:8px 12px;font-size:10px;color:var(--text-muted);
-            text-align:right;border:none;border-top:2px solid var(--border-color);
+            padding:8px 16px;
+            font-size:10px;
+            color:var(--text-muted);
+            text-align:right;
+            border:none;
+            border-top:2px solid var(--border-color);
         }
 
         /* Barra de acciones sticky */
@@ -1632,17 +1652,16 @@ function abrirPadron() {
     const fechaHoy  = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' });
     const total     = ordenados.length;
 
-    const colgroupHtml = `
-        <colgroup>
-            <col class="col-nombre"><col class="col-dni"><col class="col-fnac">
-            <col class="col-edad"><col class="col-tel"><col class="col-grad">
-        </colgroup>`;
-    const theadHtml = `
-        <thead><tr>
-            <th>Alumno</th><th>DNI</th><th>Fecha Nac.</th>
-            <th>Edad</th><th>Teléfono</th><th>Graduación</th>
-        </tr></thead>`;
-    const tfootHtml = `<tfoot><tr><td colspan="6">Dojo Control &mdash; Reporte confidencial de uso interno</td></tr></tfoot>`;
+    const thead = `<thead><tr>
+        <th>Alumno</th>
+        <th>DNI</th>
+        <th>Fecha Nac.</th>
+        <th>Edad</th>
+        <th>Teléfono</th>
+        <th>Graduación</th>
+    </tr></thead>`;
+
+    const tfoot = `<tfoot><tr><td colspan="6">Dojo Control — Reporte confidencial de uso interno</td></tr></tfoot>`;
 
     const filas = ordenados.map((a, i) => {
         const edad = calcularEdad(a.fechaNacimiento);
@@ -1650,33 +1669,32 @@ function abrirPadron() {
             <td>${i + 1}. ${a.nombre}</td>
             <td>${a.dni || '—'}</td>
             <td>${formatearFechaNac(a.fechaNacimiento)}</td>
-            <td>${edad !== null ? `${edad} años` : '—'}</td>
+            <td>${edad !== null ? edad + ' años' : '—'}</td>
             <td>${a.telefono || '—'}</td>
             <td>${a.graduacion || '—'}</td>
         </tr>`;
     }).join('');
 
-    padronBody.innerHTML = `
+    const cabecera = `
         <div class="pm-cabecera">
             <img src="${logoSrc}" alt="Logo">
             <div class="pm-cabecera-centro">
                 <div class="pm-dojo">${nombreDojo}</div>
                 <div class="pm-sub">${sub}</div>
                 <div class="pm-sub" style="margin-top:3px;font-size:11px;">
-                    Generado el ${fechaHoy} &mdash; Total: ${total} alumno${total !== 1 ? 's' : ''}
+                    Generado el ${fechaHoy} — Total: ${total} alumno${total !== 1 ? 's' : ''}
                 </div>
             </div>
         </div>
-        <div class="pm-subtitulo">Padrón Oficial de Alumnos</div>
+        <div class="pm-subtitulo">Padrón Oficial de Alumnos</div>`;
+
+    padronBody.innerHTML = `
+        ${cabecera}
         <div class="pm-tabla-wrapper">
-            <table>
-                ${colgroupHtml}${theadHtml}
-                <tbody>${filas}</tbody>
-                ${tfootHtml}
-            </table>
+            <table>${thead}<tbody>${filas}</tbody>${tfoot}</table>
         </div>`;
 
-    // Contenido solo para imprimir (copia limpia, sin CSS de pantalla)
+    // Contenido aislado solo para imprimir
     document.getElementById('padron-print-content').innerHTML = `
         <div class="pp-cabecera">
             <img src="${logoSrc}" alt="Logo">
@@ -1684,16 +1702,12 @@ function abrirPadron() {
                 <div class="pp-dojo">${nombreDojo}</div>
                 <div class="pp-sub">${sub}</div>
                 <div class="pp-sub" style="margin-top:3px;">
-                    Generado el ${fechaHoy} &mdash; Total: ${total} alumno${total !== 1 ? 's' : ''}
+                    Generado el ${fechaHoy} — Total: ${total} alumno${total !== 1 ? 's' : ''}
                 </div>
             </div>
         </div>
         <div class="pp-subtitulo">Padrón Oficial de Alumnos</div>
-        <table>
-            ${colgroupHtml}${theadHtml}
-            <tbody>${filas}</tbody>
-            ${tfootHtml}
-        </table>`;
+        <table>${thead}<tbody>${filas}</tbody>${tfoot}</table>`;
 
     padronModal.classList.add('visible');
     padronModal.scrollTop = 0;
