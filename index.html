@@ -348,53 +348,38 @@
         .pm-tabla-wrapper{
             overflow-x:auto;
             -webkit-overflow-scrolling:touch;
-            margin:0 -14px;
-            padding:0 14px;
-        }
-        @media(min-width:600px){
-            .pm-tabla-wrapper{margin:0 -20px;padding:0 20px;}
         }
 
-        /* Tabla: table-layout:auto para que cada columna tome el ancho
-           del contenido más largo. white-space:nowrap impide el quiebre
-           de texto, así el navegador mide el ancho real de cada celda.
-           El scroll horizontal del wrapper maneja el desborde. */
+        /* Tabla del padrón: simple, scroll horizontal en celular */
+        .pm-tabla-wrapper{
+            overflow-x:auto;
+            -webkit-overflow-scrolling:touch;
+        }
         #padron-modal table{
             border-collapse:collapse;
-            table-layout:auto;
             font-size:13px;
-            width:max-content;  /* la tabla crece lo que necesite */
-            min-width:100%;     /* pero nunca menos que el wrapper */
         }
-
-        /* Encabezados: fondo oscuro, sin quiebre, padding generoso */
         #padron-modal thead th{
             background:var(--header-bg);
             color:var(--header-text);
-            padding:10px 20px;
+            padding:10px 16px;
             text-align:left;
             text-transform:uppercase;
             font-size:10px;
             letter-spacing:0.5px;
             border:none;
             border-bottom:2px solid var(--primary);
-            white-space:nowrap;
         }
-
-        /* Celdas: solo línea inferior, sin quiebre de texto */
         #padron-modal tbody td{
-            padding:9px 20px;
+            padding:9px 16px;
             border:none;
             border-bottom:1px solid var(--border-color);
             color:var(--text-main);
             text-align:left;
-            white-space:nowrap;
         }
         #padron-modal tbody td:first-child{font-weight:600;}
-
-        /* Pie */
         #padron-modal tfoot td{
-            padding:8px 20px;
+            padding:8px 16px;
             font-size:10px;
             color:var(--text-muted);
             text-align:right;
