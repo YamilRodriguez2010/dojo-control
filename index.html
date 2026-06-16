@@ -341,111 +341,58 @@
         .pm-cabecera-centro .pm-sub{font-size:11px;color:var(--text-muted);line-height:1.4;}
         .pm-subtitulo{text-align:center;margin:10px 0 12px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);}
 
-        /* ── TABLA — pantallas medianas/grandes ── */
-        .pm-tabla-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+        /* ── TABLA DEL PADRÓN — una sola tabla responsiva sin scroll horizontal ── */
+        .pm-tabla-wrapper{width:100%;}
 
         #padron-modal table{
-            width:100%;border-collapse:collapse;font-size:11px;
-            min-width:460px;table-layout:fixed;
+            width:100%;border-collapse:collapse;
+            table-layout:fixed;font-size:12px;
         }
-        #padron-modal col.col-nombre   {width:30%;}
-        #padron-modal col.col-dni      {width:14%;}
-        #padron-modal col.col-fnac     {width:16%;}
-        #padron-modal col.col-edad     {width:10%;}
-        #padron-modal col.col-tel      {width:16%;}
-        #padron-modal col.col-grad     {width:14%;}
+        /* Anchos desktop */
+        #padron-modal col.col-nombre{width:28%;}
+        #padron-modal col.col-dni   {width:13%;}
+        #padron-modal col.col-fnac  {width:15%;}
+        #padron-modal col.col-edad  {width:9%;}
+        #padron-modal col.col-tel   {width:17%;}
+        #padron-modal col.col-grad  {width:18%;}
+
         #padron-modal thead th{
             background:var(--header-bg);color:var(--header-text);
-            padding:9px 6px;text-align:center;text-transform:uppercase;
-            font-size:9px;letter-spacing:0.4px;white-space:nowrap;
+            padding:9px 5px;text-align:center;text-transform:uppercase;
+            font-size:9px;letter-spacing:0.4px;
             border:none;border-bottom:2px solid var(--primary);
-            overflow:hidden;text-overflow:ellipsis;
+            overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
         }
         #padron-modal thead th:first-child{text-align:left;padding-left:8px;}
         #padron-modal tbody td{
-            padding:8px 6px;
-            border:none;
+            padding:8px 4px;border:none;
             border-bottom:1px solid var(--border-color);
             color:var(--text-main);text-align:center;
-            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+            overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
         }
-        #padron-modal tbody td:first-child{
-            text-align:left;padding-left:8px;
-            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-        }
+        #padron-modal tbody td:first-child{text-align:left;padding-left:8px;font-weight:600;}
         #padron-modal tbody tr:nth-child(even) td{background:var(--table-th-bg);}
         #padron-modal tfoot td{
-            padding:8px 6px;font-size:10px;color:var(--text-muted);
+            padding:8px 5px;font-size:10px;color:var(--text-muted);
             text-align:right;border:none;border-top:2px solid var(--border-color);
         }
 
-        /* ══════════════════════════════════════════════════
-           PADRÓN — VISTA LISTA PARA CELULAR (≤ 599px)
-           Se genera HTML de divs desde JS; esta sección
-           solo estiliza esos divs.
-           ══════════════════════════════════════════════════ */
-
-        /* Ocultar tabla / mostrar lista según pantalla */
-        .pm-vista-tabla{ display:block; }
-        .pm-vista-lista{ display:none; }
-
+        /* Celular: misma tabla, fuente más chica, padding reducido.
+           La columna Edad se oculta para ganar espacio en pantallas < 400px */
         @media screen and (max-width:599px){
-            .pm-vista-tabla{ display:none; }
-            .pm-vista-lista{ display:flex; flex-direction:column; gap:10px; }
+            #padron-modal table{font-size:10px;}
+            #padron-modal thead th{font-size:8px;padding:7px 3px;letter-spacing:0;}
+            #padron-modal tbody td{padding:7px 3px;}
+            #padron-modal tbody td:first-child{padding-left:5px;}
         }
-
-        /* Tarjeta por alumno */
-        .pm-card{
-            background:var(--card-bg);
-            border:1px solid var(--border-color);
-            border-radius:10px;
-            overflow:hidden;
-            box-shadow:0 1px 4px rgba(0,0,0,0.06);
-        }
-
-        /* Encabezado de tarjeta — número + nombre */
-        .pm-card-nombre{
-            background:var(--primary);
-            color:#fff;
-            font-size:14px;
-            font-weight:700;
-            padding:10px 14px;
-            line-height:1.3;
-        }
-
-        /* Fila de campo: etiqueta izquierda + valor derecha */
-        .pm-card-fila{
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            gap:12px;
-            padding:9px 14px;
-            border-top:1px solid var(--border-color);
-            font-size:13px;
-        }
-        .pm-card-label{
-            font-size:11px;
-            font-weight:700;
-            text-transform:uppercase;
-            letter-spacing:0.4px;
-            color:var(--text-muted);
-            flex-shrink:0;
-        }
-        .pm-card-valor{
-            color:var(--text-main);
-            font-weight:500;
-            text-align:right;
-            word-break:break-word;
-        }
-
-        /* Pie de lista */
-        .pm-lista-pie{
-            font-size:11px;
-            color:var(--text-muted);
-            text-align:center;
-            padding:8px 0 2px;
-            border-top:1px solid var(--border-color);
-            margin-top:4px;
+        @media screen and (max-width:399px){
+            #padron-modal col.col-edad{width:0;visibility:hidden;}
+            #padron-modal .col-edad{display:none;}
+            #padron-modal col.col-nombre{width:32%;}
+            #padron-modal col.col-dni   {width:15%;}
+            #padron-modal col.col-fnac  {width:18%;}
+            #padron-modal col.col-tel   {width:18%;}
+            #padron-modal col.col-grad  {width:17%;}
         }
 
         /* Barra de acciones sticky */
@@ -1700,7 +1647,6 @@ function abrirPadron() {
     const fechaHoy  = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' });
     const total     = ordenados.length;
 
-    // ── HTML compartido ────────────────────────────────────────────────────
     const colgroupHtml = `
         <colgroup>
             <col class="col-nombre"><col class="col-dni"><col class="col-fnac">
@@ -1708,47 +1654,24 @@ function abrirPadron() {
         </colgroup>`;
     const theadHtml = `
         <thead><tr>
-            <th>Nombre</th><th>DNI</th><th>Fecha Nac.</th>
-            <th>Edad</th><th>Teléfono</th><th>Graduación</th>
+            <th>Alumno</th><th>DNI</th><th>Fecha Nac.</th>
+            <th class="col-edad">Edad</th><th>Teléfono</th><th>Graduación</th>
         </tr></thead>`;
     const tfootHtml = `<tfoot><tr><td colspan="6">Dojo Control &mdash; Reporte confidencial de uso interno</td></tr></tfoot>`;
 
-    const campos = [
-        { label: 'DNI',         key: a => a.dni || '—' },
-        { label: 'Fecha Nac.',  key: a => formatearFechaNac(a.fechaNacimiento) },
-        { label: 'Edad',        key: a => { const e = calcularEdad(a.fechaNacimiento); return e !== null ? `${e} años` : '—'; } },
-        { label: 'Teléfono',    key: a => a.telefono || '—' },
-        { label: 'Graduación',  key: a => a.graduacion || '—' },
-    ];
-
-    // ── Vista tabla (desktop) ──────────────────────────────────────────────
-    const filasTabla = ordenados.map((a, i) => {
+    const filas = ordenados.map((a, i) => {
         const edad = calcularEdad(a.fechaNacimiento);
         return `<tr>
             <td>${i + 1}. ${a.nombre}</td>
-            <td data-label="DNI">${a.dni || '—'}</td>
-            <td data-label="Fecha Nac.">${formatearFechaNac(a.fechaNacimiento)}</td>
-            <td data-label="Edad">${edad !== null ? `${edad} años` : '—'}</td>
-            <td data-label="Teléfono">${a.telefono || '—'}</td>
-            <td data-label="Graduación">${a.graduacion || '—'}</td>
+            <td>${a.dni || '—'}</td>
+            <td>${formatearFechaNac(a.fechaNacimiento)}</td>
+            <td class="col-edad">${edad !== null ? `${edad} años` : '—'}</td>
+            <td>${a.telefono || '—'}</td>
+            <td>${a.graduacion || '—'}</td>
         </tr>`;
     }).join('');
 
-    // ── Vista lista (móvil) — divs puros, sin tabla ────────────────────────
-    const tarjetas = ordenados.map((a, i) => {
-        const filas = campos.map(c => `
-            <div class="pm-card-fila">
-                <span class="pm-card-label">${c.label}</span>
-                <span class="pm-card-valor">${c.key(a)}</span>
-            </div>`).join('');
-        return `
-        <div class="pm-card">
-            <div class="pm-card-nombre">${i + 1}. ${a.nombre}</div>
-            ${filas}
-        </div>`;
-    }).join('');
-
-    const cabecera = `
+    padronBody.innerHTML = `
         <div class="pm-cabecera">
             <img src="${logoSrc}" alt="Logo">
             <div class="pm-cabecera-centro">
@@ -1759,24 +1682,16 @@ function abrirPadron() {
                 </div>
             </div>
         </div>
-        <div class="pm-subtitulo">Padrón Oficial de Alumnos</div>`;
-
-    // ── Inyectar en el modal ───────────────────────────────────────────────
-    padronBody.innerHTML = `
-        ${cabecera}
-        <div class="pm-tabla-wrapper pm-vista-tabla">
+        <div class="pm-subtitulo">Padrón Oficial de Alumnos</div>
+        <div class="pm-tabla-wrapper">
             <table>
                 ${colgroupHtml}${theadHtml}
-                <tbody>${filasTabla}</tbody>
+                <tbody>${filas}</tbody>
                 ${tfootHtml}
             </table>
-        </div>
-        <div class="pm-vista-lista">
-            ${tarjetas}
-            <div class="pm-lista-pie">Dojo Control &mdash; Reporte confidencial de uso interno</div>
         </div>`;
 
-    // ── Contenido independiente para impresión (siempre tabla, sin lógica móvil) ──
+    // Contenido solo para imprimir (copia limpia, sin CSS de pantalla)
     document.getElementById('padron-print-content').innerHTML = `
         <div class="pp-cabecera">
             <img src="${logoSrc}" alt="Logo">
@@ -1791,7 +1706,7 @@ function abrirPadron() {
         <div class="pp-subtitulo">Padrón Oficial de Alumnos</div>
         <table>
             ${colgroupHtml}${theadHtml}
-            <tbody>${filasTabla}</tbody>
+            <tbody>${filas}</tbody>
             ${tfootHtml}
         </table>`;
 
