@@ -341,38 +341,42 @@
         .pm-cabecera-centro .pm-sub{font-size:11px;color:var(--text-muted);line-height:1.4;}
         .pm-subtitulo{text-align:center;margin:10px 0 12px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);}
 
-        /* ── TABLA DEL PADRÓN — scroll horizontal en celular ── */
+        /* ── TABLA DEL PADRÓN — columnas fijas, scroll horizontal en celular ── */
         .pm-tabla-wrapper{
             overflow-x:auto;
             -webkit-overflow-scrolling:touch;
         }
-
+        /* Anchos fijos en px: el navegador respeta estos con table-layout:fixed.
+           Graduación más angosta; el resto iguales y generosos. */
         #padron-modal table{
             border-collapse:collapse;
-            table-layout:auto;
+            table-layout:fixed;
             font-size:13px;
-            width:max-content;
-            min-width:100%;
+            width:760px; /* suma de columnas: asegura scroll en celular */
         }
+        #padron-modal col.col-nombre{ width:180px; }
+        #padron-modal col.col-dni   { width:110px; }
+        #padron-modal col.col-fnac  { width:110px; }
+        #padron-modal col.col-edad  { width:70px;  }
+        #padron-modal col.col-tel   { width:130px; }
+        #padron-modal col.col-grad  { width:160px; }
 
         #padron-modal thead th{
             background:var(--header-bg);color:var(--header-text);
-            padding:10px 14px;text-align:center;text-transform:uppercase;
+            padding:10px 12px;text-align:left;text-transform:uppercase;
             font-size:10px;letter-spacing:0.4px;
             border:none;border-bottom:2px solid var(--primary);
-            white-space:nowrap;
+            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
         }
-        #padron-modal thead th:first-child{text-align:left;}
         #padron-modal tbody td{
-            padding:9px 14px;border:none;
+            padding:9px 12px;border:none;
             border-bottom:1px solid var(--border-color);
-            color:var(--text-main);text-align:center;
-            white-space:nowrap;
+            color:var(--text-main);text-align:left;
+            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
         }
-        #padron-modal tbody td:first-child{text-align:left;font-weight:600;}
-        #padron-modal tbody tr:nth-child(even) td{background:var(--table-th-bg);}
+        #padron-modal tbody td:first-child{font-weight:600;}
         #padron-modal tfoot td{
-            padding:8px 14px;font-size:10px;color:var(--text-muted);
+            padding:8px 12px;font-size:10px;color:var(--text-muted);
             text-align:right;border:none;border-top:2px solid var(--border-color);
         }
 
@@ -1636,7 +1640,7 @@ function abrirPadron() {
     const theadHtml = `
         <thead><tr>
             <th>Alumno</th><th>DNI</th><th>Fecha Nac.</th>
-            <th class="col-edad">Edad</th><th>Teléfono</th><th>Graduación</th>
+            <th>Edad</th><th>Teléfono</th><th>Graduación</th>
         </tr></thead>`;
     const tfootHtml = `<tfoot><tr><td colspan="6">Dojo Control &mdash; Reporte confidencial de uso interno</td></tr></tfoot>`;
 
@@ -1646,7 +1650,7 @@ function abrirPadron() {
             <td>${i + 1}. ${a.nombre}</td>
             <td>${a.dni || '—'}</td>
             <td>${formatearFechaNac(a.fechaNacimiento)}</td>
-            <td class="col-edad">${edad !== null ? `${edad} años` : '—'}</td>
+            <td>${edad !== null ? `${edad} años` : '—'}</td>
             <td>${a.telefono || '—'}</td>
             <td>${a.graduacion || '—'}</td>
         </tr>`;
