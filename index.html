@@ -380,97 +380,72 @@
         }
 
         /* ══════════════════════════════════════════════════
-           PADRÓN — VISTA TARJETA PARA CELULAR (≤ 599px)
-           Mismo layout que el modal de info de alumno:
-           cada campo en su propia fila con etiqueta a la
-           izquierda y valor a la derecha.
+           PADRÓN — VISTA LISTA PARA CELULAR (≤ 599px)
+           Se genera HTML de divs desde JS; esta sección
+           solo estiliza esos divs.
            ══════════════════════════════════════════════════ */
+
+        /* Ocultar tabla / mostrar lista según pantalla */
+        .pm-vista-tabla{ display:block; }
+        .pm-vista-lista{ display:none; }
+
         @media screen and (max-width:599px){
-            /* Quitar scroll horizontal; cada alumno es una tarjeta */
-            .pm-tabla-wrapper{overflow-x:visible;}
+            .pm-vista-tabla{ display:none; }
+            .pm-vista-lista{ display:flex; flex-direction:column; gap:10px; }
+        }
 
-            /* Ocultar colgroup y thead; convertir todo a bloque */
-            #padron-modal colgroup{display:none;}
-            #padron-modal thead{display:none;}
-            #padron-modal table{min-width:unset;table-layout:auto;font-size:14px;display:block;}
-            #padron-modal tbody{display:flex;flex-direction:column;gap:10px;}
-            #padron-modal tfoot{display:block;}
+        /* Tarjeta por alumno */
+        .pm-card{
+            background:var(--card-bg);
+            border:1px solid var(--border-color);
+            border-radius:10px;
+            overflow:hidden;
+            box-shadow:0 1px 4px rgba(0,0,0,0.06);
+        }
 
-            /* Tarjeta por alumno */
-            #padron-modal tbody tr{
-                display:block;
-                background:var(--card-bg);
-                border:1px solid var(--border-color);
-                border-radius:10px;
-                overflow:hidden;
-                box-shadow:0 1px 4px rgba(0,0,0,0.06);
-            }
+        /* Encabezado de tarjeta — número + nombre */
+        .pm-card-nombre{
+            background:var(--primary);
+            color:#fff;
+            font-size:14px;
+            font-weight:700;
+            padding:10px 14px;
+            line-height:1.3;
+        }
 
-            /* Nombre del alumno — encabezado de tarjeta con acento rojo */
-            #padron-modal tbody td:first-child{
-                display:block;
-                background:var(--primary);
-                color:#fff;
-                font-size:14px;
-                font-weight:700;
-                padding:10px 14px;
-                text-align:left;
-                white-space:normal;
-                overflow:visible;
-                text-overflow:unset;
-                border:none;
-            }
+        /* Fila de campo: etiqueta izquierda + valor derecha */
+        .pm-card-fila{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:12px;
+            padding:9px 14px;
+            border-top:1px solid var(--border-color);
+            font-size:13px;
+        }
+        .pm-card-label{
+            font-size:11px;
+            font-weight:700;
+            text-transform:uppercase;
+            letter-spacing:0.4px;
+            color:var(--text-muted);
+            flex-shrink:0;
+        }
+        .pm-card-valor{
+            color:var(--text-main);
+            font-weight:500;
+            text-align:right;
+            word-break:break-word;
+        }
 
-            /* Filas de datos: etiqueta izquierda + valor derecha */
-            #padron-modal tbody td:not(:first-child){
-                display:flex;
-                justify-content:space-between;
-                align-items:center;
-                padding:9px 14px;
-                border:none;
-                border-bottom:1px solid var(--border-color);
-                font-size:13px;
-                white-space:normal;
-                overflow:visible;
-                text-overflow:unset;
-            }
-            #padron-modal tbody td:not(:first-child):last-child{
-                border-bottom:none;
-            }
-
-            /* Etiqueta (izquierda) generada desde data-label */
-            #padron-modal tbody td:not(:first-child)::before{
-                content:attr(data-label);
-                font-size:11px;
-                font-weight:700;
-                text-transform:uppercase;
-                letter-spacing:0.4px;
-                color:var(--text-muted);
-                flex-shrink:0;
-                margin-right:12px;
-            }
-
-            /* Valor (derecha) */
-            #padron-modal tbody td:not(:first-child){
-                text-align:right;
-                color:var(--text-main);
-                font-weight:500;
-            }
-
-            /* Filas pares — fondo suave para alternar */
-            #padron-modal tbody tr:nth-child(even) td{background:inherit;}
-            #padron-modal tbody tr:nth-child(even) td:first-child{background:var(--primary);}
-
-            /* Pie de tabla */
-            #padron-modal tfoot td{
-                display:block;
-                text-align:center;
-                padding:10px 14px;
-                font-size:11px;
-                color:var(--text-muted);
-                border:none;
-                border-top:1px solid var(--border-color);
-            }
+        /* Pie de lista */
+        .pm-lista-pie{
+            font-size:11px;
+            color:var(--text-muted);
+            text-align:center;
+            padding:8px 0 2px;
+            border-top:1px solid var(--border-color);
+            margin-top:4px;
         }
 
         /* Barra de acciones sticky */
@@ -1723,68 +1698,85 @@ function abrirPadron() {
     const logoSrc   = logoBase64 || 'logo.png';
     const sub       = `Sede ${nombreSede} | Sensei ${nombreSensei}`;
     const fechaHoy  = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' });
+    const total     = ordenados.length;
 
-    // Las celdas de datos llevan data-label para la vista tarjeta en móvil
-    const filas = ordenados.map((a, i) => {
-        const edad    = calcularEdad(a.fechaNacimiento);
-        const edadStr = edad !== null ? `${edad} años` : '—';
+    // ── HTML compartido ────────────────────────────────────────────────────
+    const colgroupHtml = `
+        <colgroup>
+            <col class="col-nombre"><col class="col-dni"><col class="col-fnac">
+            <col class="col-edad"><col class="col-tel"><col class="col-grad">
+        </colgroup>`;
+    const theadHtml = `
+        <thead><tr>
+            <th>Nombre</th><th>DNI</th><th>Fecha Nac.</th>
+            <th>Edad</th><th>Teléfono</th><th>Graduación</th>
+        </tr></thead>`;
+    const tfootHtml = `<tfoot><tr><td colspan="6">Dojo Control &mdash; Reporte confidencial de uso interno</td></tr></tfoot>`;
+
+    const campos = [
+        { label: 'DNI',         key: a => a.dni || '—' },
+        { label: 'Fecha Nac.',  key: a => formatearFechaNac(a.fechaNacimiento) },
+        { label: 'Edad',        key: a => { const e = calcularEdad(a.fechaNacimiento); return e !== null ? `${e} años` : '—'; } },
+        { label: 'Teléfono',    key: a => a.telefono || '—' },
+        { label: 'Graduación',  key: a => a.graduacion || '—' },
+    ];
+
+    // ── Vista tabla (desktop) ──────────────────────────────────────────────
+    const filasTabla = ordenados.map((a, i) => {
+        const edad = calcularEdad(a.fechaNacimiento);
         return `<tr>
             <td>${i + 1}. ${a.nombre}</td>
             <td data-label="DNI">${a.dni || '—'}</td>
             <td data-label="Fecha Nac.">${formatearFechaNac(a.fechaNacimiento)}</td>
-            <td data-label="Edad">${edadStr}</td>
+            <td data-label="Edad">${edad !== null ? `${edad} años` : '—'}</td>
             <td data-label="Teléfono">${a.telefono || '—'}</td>
             <td data-label="Graduación">${a.graduacion || '—'}</td>
         </tr>`;
     }).join('');
 
-    const colgroupHtml = `
-        <colgroup>
-            <col class="col-nombre">
-            <col class="col-dni">
-            <col class="col-fnac">
-            <col class="col-edad">
-            <col class="col-tel">
-            <col class="col-grad">
-        </colgroup>`;
-    const theadHtml = `
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>DNI</th>
-                <th>Fecha Nac.</th>
-                <th>Edad</th>
-                <th>Teléfono</th>
-                <th>Graduación</th>
-            </tr>
-        </thead>`;
-    const tfootHtml = `<tfoot><tr><td colspan="6">Dojo Control &mdash; Reporte confidencial de uso interno</td></tr></tfoot>`;
+    // ── Vista lista (móvil) — divs puros, sin tabla ────────────────────────
+    const tarjetas = ordenados.map((a, i) => {
+        const filas = campos.map(c => `
+            <div class="pm-card-fila">
+                <span class="pm-card-label">${c.label}</span>
+                <span class="pm-card-valor">${c.key(a)}</span>
+            </div>`).join('');
+        return `
+        <div class="pm-card">
+            <div class="pm-card-nombre">${i + 1}. ${a.nombre}</div>
+            ${filas}
+        </div>`;
+    }).join('');
 
-    // ── Vista interactiva del modal ──
-    padronBody.innerHTML = `
+    const cabecera = `
         <div class="pm-cabecera">
             <img src="${logoSrc}" alt="Logo">
             <div class="pm-cabecera-centro">
                 <div class="pm-dojo">${nombreDojo}</div>
                 <div class="pm-sub">${sub}</div>
                 <div class="pm-sub" style="margin-top:3px;font-size:11px;">
-                    Generado el ${fechaHoy} &mdash; Total: ${ordenados.length} alumno${ordenados.length !== 1 ? 's' : ''}
+                    Generado el ${fechaHoy} &mdash; Total: ${total} alumno${total !== 1 ? 's' : ''}
                 </div>
             </div>
         </div>
-        <div class="pm-subtitulo">Padrón Oficial de Alumnos</div>
-        <div class="pm-tabla-wrapper">
+        <div class="pm-subtitulo">Padrón Oficial de Alumnos</div>`;
+
+    // ── Inyectar en el modal ───────────────────────────────────────────────
+    padronBody.innerHTML = `
+        ${cabecera}
+        <div class="pm-tabla-wrapper pm-vista-tabla">
             <table>
-                ${colgroupHtml}
-                ${theadHtml}
-                <tbody>${filas}</tbody>
+                ${colgroupHtml}${theadHtml}
+                <tbody>${filasTabla}</tbody>
                 ${tfootHtml}
             </table>
+        </div>
+        <div class="pm-vista-lista">
+            ${tarjetas}
+            <div class="pm-lista-pie">Dojo Control &mdash; Reporte confidencial de uso interno</div>
         </div>`;
 
-    // ── Contenido independiente para impresión ──
-    // Esta copia existe SOLO para imprimir y nunca se muestra en pantalla.
-    // Evita que la vista de tarjetas o el scroll del modal interfieran.
+    // ── Contenido independiente para impresión (siempre tabla, sin lógica móvil) ──
     document.getElementById('padron-print-content').innerHTML = `
         <div class="pp-cabecera">
             <img src="${logoSrc}" alt="Logo">
@@ -1792,15 +1784,14 @@ function abrirPadron() {
                 <div class="pp-dojo">${nombreDojo}</div>
                 <div class="pp-sub">${sub}</div>
                 <div class="pp-sub" style="margin-top:3px;">
-                    Generado el ${fechaHoy} &mdash; Total: ${ordenados.length} alumno${ordenados.length !== 1 ? 's' : ''}
+                    Generado el ${fechaHoy} &mdash; Total: ${total} alumno${total !== 1 ? 's' : ''}
                 </div>
             </div>
         </div>
         <div class="pp-subtitulo">Padrón Oficial de Alumnos</div>
         <table>
-            ${colgroupHtml}
-            ${theadHtml}
-            <tbody>${filas}</tbody>
+            ${colgroupHtml}${theadHtml}
+            <tbody>${filasTabla}</tbody>
             ${tfootHtml}
         </table>`;
 
