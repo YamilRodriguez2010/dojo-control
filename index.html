@@ -322,7 +322,7 @@
             #padron-modal{padding:20px 16px;}
             #padron-modal-box{border-radius:12px;min-height:unset;}
         }
-        #padron-modal-body{padding:14px;flex:1;overflow-x:hidden;}
+        #padron-modal-body{padding:14px;flex:1;overflow-x:auto;}
         @media(min-width:600px){#padron-modal-body{padding:20px;}}
 
         /* Cabecera interna del padrón */
@@ -341,14 +341,14 @@
         .pm-cabecera-centro .pm-sub{font-size:11px;color:var(--text-muted);line-height:1.4;}
         .pm-subtitulo{text-align:center;margin:10px 0 12px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);}
 
-        /* ── TABLA DEL PADRÓN — una sola tabla responsiva sin scroll horizontal ── */
-        .pm-tabla-wrapper{width:100%;}
+        /* ── TABLA DEL PADRÓN — scroll horizontal en celular ── */
+        .pm-tabla-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch;}
 
         #padron-modal table{
             width:100%;border-collapse:collapse;
             table-layout:fixed;font-size:12px;
+            min-width:520px;
         }
-        /* Anchos desktop */
         #padron-modal col.col-nombre{width:28%;}
         #padron-modal col.col-dni   {width:13%;}
         #padron-modal col.col-fnac  {width:15%;}
@@ -365,7 +365,7 @@
         }
         #padron-modal thead th:first-child{text-align:left;padding-left:8px;}
         #padron-modal tbody td{
-            padding:8px 4px;border:none;
+            padding:8px 5px;border:none;
             border-bottom:1px solid var(--border-color);
             color:var(--text-main);text-align:center;
             overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
@@ -375,24 +375,6 @@
         #padron-modal tfoot td{
             padding:8px 5px;font-size:10px;color:var(--text-muted);
             text-align:right;border:none;border-top:2px solid var(--border-color);
-        }
-
-        /* Celular: misma tabla, fuente más chica, padding reducido.
-           La columna Edad se oculta para ganar espacio en pantallas < 400px */
-        @media screen and (max-width:599px){
-            #padron-modal table{font-size:10px;}
-            #padron-modal thead th{font-size:8px;padding:7px 3px;letter-spacing:0;}
-            #padron-modal tbody td{padding:7px 3px;}
-            #padron-modal tbody td:first-child{padding-left:5px;}
-        }
-        @media screen and (max-width:399px){
-            #padron-modal col.col-edad{width:0;visibility:hidden;}
-            #padron-modal .col-edad{display:none;}
-            #padron-modal col.col-nombre{width:32%;}
-            #padron-modal col.col-dni   {width:15%;}
-            #padron-modal col.col-fnac  {width:18%;}
-            #padron-modal col.col-tel   {width:18%;}
-            #padron-modal col.col-grad  {width:17%;}
         }
 
         /* Barra de acciones sticky */
