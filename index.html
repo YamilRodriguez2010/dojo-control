@@ -355,26 +355,23 @@
             .pm-tabla-wrapper{margin:0 -20px;padding:0 20px;}
         }
 
-        /* Tabla: columnas de ancho fijo e igual (150px cada una).
-           La suma 6×150=900px garantiza scroll en celular sin aplastar datos. */
+        /* Tabla: table-layout:auto para que cada columna tome el ancho
+           del contenido más largo. white-space:nowrap impide el quiebre
+           de texto, así el navegador mide el ancho real de cada celda.
+           El scroll horizontal del wrapper maneja el desborde. */
         #padron-modal table{
             border-collapse:collapse;
-            table-layout:fixed;
+            table-layout:auto;
             font-size:13px;
-            width:900px;
+            width:max-content;  /* la tabla crece lo que necesite */
+            min-width:100%;     /* pero nunca menos que el wrapper */
         }
-        #padron-modal col.col-nombre,
-        #padron-modal col.col-dni,
-        #padron-modal col.col-fnac,
-        #padron-modal col.col-edad,
-        #padron-modal col.col-tel  { width:150px; }
-        #padron-modal col.col-grad { width:150px; }
 
-        /* Encabezados */
+        /* Encabezados: fondo oscuro, sin quiebre, padding generoso */
         #padron-modal thead th{
             background:var(--header-bg);
             color:var(--header-text);
-            padding:10px 14px;
+            padding:10px 20px;
             text-align:left;
             text-transform:uppercase;
             font-size:10px;
@@ -382,26 +379,22 @@
             border:none;
             border-bottom:2px solid var(--primary);
             white-space:nowrap;
-            overflow:hidden;
-            text-overflow:ellipsis;
         }
 
-        /* Celdas: solo línea inferior, sin recuadros */
+        /* Celdas: solo línea inferior, sin quiebre de texto */
         #padron-modal tbody td{
-            padding:9px 14px;
+            padding:9px 20px;
             border:none;
             border-bottom:1px solid var(--border-color);
             color:var(--text-main);
             text-align:left;
             white-space:nowrap;
-            overflow:hidden;
-            text-overflow:ellipsis;
         }
         #padron-modal tbody td:first-child{font-weight:600;}
 
         /* Pie */
         #padron-modal tfoot td{
-            padding:8px 14px;
+            padding:8px 20px;
             font-size:10px;
             color:var(--text-muted);
             text-align:right;
