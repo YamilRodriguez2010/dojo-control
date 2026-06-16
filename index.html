@@ -442,27 +442,36 @@
             #padron-print-content .pp-sub{font-size:11px;color:#555;}
             #padron-print-content .pp-subtitulo{text-align:center;margin:10px 0 12px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#333;}
 
-            #padron-print-content table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:11px;}
-            #padron-print-content col.col-nombre{width:30%;}
-            #padron-print-content col.col-dni{width:14%;}
-            #padron-print-content col.col-fnac{width:16%;}
-            #padron-print-content col.col-edad{width:10%;}
-            #padron-print-content col.col-tel{width:16%;}
-            #padron-print-content col.col-grad{width:14%;}
+            /* Anular reglas globales de tbody/tr que rompen la tabla al imprimir */
+            #padron-print-content table        { display:table !important; width:100% !important; border-collapse:collapse !important; table-layout:fixed !important; font-size:11px !important; }
+            #padron-print-content col.col-nombre{ width:30%; }
+            #padron-print-content col.col-dni   { width:14%; }
+            #padron-print-content col.col-fnac  { width:16%; }
+            #padron-print-content col.col-edad  { width:10%; }
+            #padron-print-content col.col-tel   { width:16%; }
+            #padron-print-content col.col-grad  { width:14%; }
+            #padron-print-content thead         { display:table-header-group !important; }
+            #padron-print-content tbody         { display:table-row-group !important; }
+            #padron-print-content tfoot         { display:table-footer-group !important; }
+            #padron-print-content tr            { display:table-row !important; background:none !important; border:none !important; border-radius:0 !important; margin:0 !important; padding:0 !important; flex-direction:unset !important; min-height:unset !important; width:auto !important; }
+            #padron-print-content th,
+            #padron-print-content td            { display:table-cell !important; flex:unset !important; }
             #padron-print-content thead th{
-                background:#1a1a1a!important;color:#fff!important;
-                padding:8px 5px;text-align:center;text-transform:uppercase;
-                font-size:9px;letter-spacing:0.4px;border:none;border-bottom:2px solid #d32f2f;
-                word-break:break-word;-webkit-print-color-adjust:exact;print-color-adjust:exact;
+                background:#1a1a1a !important; color:#fff !important;
+                padding:8px 6px !important; text-align:left !important; text-transform:uppercase;
+                font-size:9px; letter-spacing:0.4px; border:none !important;
+                border-bottom:2px solid #d32f2f !important;
+                -webkit-print-color-adjust:exact; print-color-adjust:exact;
             }
-            #padron-print-content thead th:first-child{text-align:left;padding-left:6px;}
             #padron-print-content tbody td{
-                padding:6px 5px;border:none;border-bottom:1px solid #ccc;
-                text-align:center;font-size:10px;word-break:break-word;color:#000;
+                display:table-cell !important;
+                padding:7px 6px !important; border:none !important;
+                border-bottom:1px solid #ccc !important;
+                text-align:left !important; font-size:10px; color:#000 !important;
             }
-            #padron-print-content tbody td:first-child{text-align:left;padding-left:6px;font-weight:700;}
-            #padron-print-content tbody tr:nth-child(even) td{background:#f5f5f5!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-            #padron-print-content tfoot td{padding:8px 5px;font-size:9px;color:#666;text-align:right;border-top:2px solid #000;}
+            #padron-print-content tbody td:first-child{ font-weight:700; }
+            #padron-print-content tbody tr:nth-child(even) td{ background:#f5f5f5 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+            #padron-print-content tfoot td{ padding:8px 6px !important; font-size:9px; color:#666; text-align:right !important; border:none !important; border-top:2px solid #000 !important; }
             @page{margin:1.2cm;size:A4 portrait;}
         }
     </style>
@@ -1722,7 +1731,15 @@ function abrirPadron() {
             </div>
         </div>
         <div class="pp-subtitulo">Padrón Oficial de Alumnos</div>
-        <table>${colgroup}${thead}<tbody>${filas}</tbody>${tfoot}</table>`;
+        <table>
+            <colgroup>
+                <col class="col-nombre"><col class="col-dni"><col class="col-fnac">
+                <col class="col-edad"><col class="col-tel"><col class="col-grad">
+            </colgroup>
+            ${thead}
+            <tbody>${filas}</tbody>
+            ${tfoot}
+        </table>`;
 
     padronModal.classList.add('visible');
     padronModal.scrollTop = 0;
