@@ -51,10 +51,8 @@
         }
         .btn-cuota-toggle{background-color:#4a5568;color:white;border:none;border-radius:6px;padding:10px 14px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px;white-space:nowrap;}
         .btn-cuota-toggle:hover{background-color:#2d3748;}
-        /* Backdrop del popover de cuota: cubre toda la pantalla para evitar overflow lateral */
         .cuota-popover-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(3px);z-index:2400;animation:dcFadeIn 0.15s ease;}
         .cuota-popover-backdrop.visible{display:block;}
-        /* Popover de cuota como ventana secundaria centrada (sin overflow horizontal) */
         .cuota-popover{
             display:none;position:fixed;top:50%;left:50%;
             transform:translate(-50%,-50%);
@@ -140,7 +138,7 @@
         .print-mes-container{display:none;}
         @media screen{.col-telefono,.col-oculta-principal,.col-observacion-print{display:none!important;}}
 
-        /* ── MODALES PERSONALIZADOS (reemplazo de prompt/alert/confirm) ── */
+        /* ── MODALES PERSONALIZADOS ── */
         .dc-modal-overlay{
             display:none;position:fixed;z-index:9000;left:0;top:0;width:100%;height:100%;
             background:rgba(0,0,0,0.65);align-items:center;justify-content:center;
@@ -192,7 +190,7 @@
         .dc-modal-icon.err{color:#e53e3e;}
         .dc-modal-icon.info{color:var(--info);}
 
-        /* resto de modales originales */
+        /* modales originales */
         .modal{display:none;position:fixed;z-index:2000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.6);align-items:center;justify-content:center;backdrop-filter:blur(3px);}
         .modal-content{background-color:var(--card-bg);padding:24px;border-radius:8px;width:90%;max-width:420px;border:1px solid var(--border-color);position:relative;box-shadow:0 10px 25px rgba(0,0,0,0.3);max-height:90vh;overflow-y:auto;}
         .close-modal{position:absolute;top:12px;right:18px;color:var(--text-muted);font-size:24px;cursor:pointer;}
@@ -201,7 +199,7 @@
         .modal-body p:last-child{border-bottom:none;}
         .edad-badge{margin-left:6px;font-size:12px;color:var(--text-muted);font-weight:normal;}
 
-        /* ── Editor de logo (estilo avatar) ── */
+        /* ── Editor de logo ── */
         .logo-edit-wrapper{position:relative;display:inline-block;}
         .logo-edit-preview{
             width:88px;height:88px;border-radius:50%;object-fit:contain;
@@ -243,42 +241,69 @@
             .btn-sm.btn-icon-only{width:27px;height:27px;font-size:11px;padding:0;flex-shrink:0;}
             .dc-modal-box{max-width:96%;}
         }
+
+        /* ══════════════════════════════════════════════════
+           IMPRESIÓN — REPORTE DE CUOTAS (pantalla principal)
+           Solo se activa cuando NO se está imprimiendo el padrón
+           ══════════════════════════════════════════════════ */
         @media print{
-            body{background-color:#ffffff!important;color:#000000!important;padding:0!important;margin:0!important;}
-            header,.card:has(#form-alumno),.btn-sm,.acciones-header,td.acciones-header,th.acciones-header,.alert-banner,.aviso-programado,.period-selector,.card-header-actions,.filtro-busqueda{display:none!important;}
-            .container{display:block!important;width:100%!important;margin:0!important;padding:0!important;}
-            .card{padding:0!important;border:none!important;background:transparent!important;box-shadow:none!important;margin-bottom:20px!important;}
-            .print-header{display:block!important;position:relative;text-align:center;margin-bottom:10px;padding-bottom:15px;border-bottom:3px solid #000;color:#000!important;}
-            .print-header img{position:absolute;left:0;top:10px;width:80px;height:80px;}
-            .print-header h1{font-size:22px;text-transform:uppercase;margin-bottom:5px;margin-top:0;}
-            .print-header p{font-size:14px;margin:3px 0;}
-            .print-mes-container{display:block!important;text-align:center;margin-bottom:20px;}
-            .mes-destacado{font-size:16px;text-transform:uppercase;letter-spacing:1px;color:#000!important;margin:0;}
-            .widgets{display:flex!important;justify-content:space-between!important;margin-bottom:25px!important;border:2px solid #000!important;border-radius:0!important;gap:0!important;padding:0!important;}
-            .card-widget{background:transparent!important;border:none!important;border-right:1px solid #000!important;border-radius:0!important;padding:10px!important;flex:1!important;text-align:center!important;}
-            .card-widget:last-child{border-right:none!important;}
-            .card-widget h3{color:#000!important;font-size:12px!important;margin-bottom:5px!important;font-weight:bold!important;}
-            .card-widget p{color:#000!important;font-size:18px!important;font-weight:bold!important;margin:0!important;}
-            .col-telefono,.col-oculta-principal{display:table-cell!important;}
-            .col-estado-screen{display:none!important;}
-            .col-observacion-print{display:table-cell!important;}
-            table{display:table!important;width:100%!important;border-collapse:collapse!important;border:none!important;border-top:2px solid #000!important;border-bottom:2px solid #000!important;}
-            thead{display:table-header-group!important;position:static!important;}
-            tbody{display:table-row-group!important;}
-            tr{display:table-row!important;border:none!important;background:none!important;page-break-inside:avoid!important;margin:0!important;padding:0!important;}
-            th{display:table-cell!important;background-color:#f0f0f0!important;color:#000!important;border:none!important;border-bottom:2px solid #000!important;padding:10px!important;text-align:center!important;font-weight:bold!important;text-transform:uppercase;font-size:12px!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-            td{display:table-cell!important;border:none!important;border-bottom:1px solid #000!important;padding:8px!important;text-align:center!important;font-size:12px!important;color:#000!important;position:static!important;}
-            td:before{content:none!important;}
-            td:first-child{text-align:left!important;font-weight:bold;border-bottom:1px solid #000!important;}
-            .badge{border:1px solid #000!important;background:transparent!important;color:#000!important;padding:3px 8px!important;font-size:11px!important;font-weight:bold!important;border-radius:4px!important;}
-            .table-date-input{display:none!important;}
-            .print-only{display:inline!important;font-weight:bold;}
-            td[data-label="Fecha de Pago"]{text-align:center!important;}
-            td[data-label="Fecha de Pago"] .badge{display:none!important;}
-            td[data-label="Fecha de Pago"] .print-only{display:inline!important;}
-            .dc-modal-overlay{display:none!important;}
+            /* Ocultar TODO cuando se imprime el padrón */
+            body.imprimiendo-padron > *{display:none!important;}
+            body.imprimiendo-padron > #padron-print-content{display:block!important;}
+
+            /* ── Reporte de cuotas normal ── */
+            body:not(.imprimiendo-padron) header,
+            body:not(.imprimiendo-padron) .card:has(#form-alumno),
+            body:not(.imprimiendo-padron) .btn-sm,
+            body:not(.imprimiendo-padron) .acciones-header,
+            body:not(.imprimiendo-padron) td.acciones-header,
+            body:not(.imprimiendo-padron) th.acciones-header,
+            body:not(.imprimiendo-padron) .alert-banner,
+            body:not(.imprimiendo-padron) .aviso-programado,
+            body:not(.imprimiendo-padron) .period-selector,
+            body:not(.imprimiendo-padron) .card-header-actions,
+            body:not(.imprimiendo-padron) .filtro-busqueda,
+            body:not(.imprimiendo-padron) #padron-modal,
+            body:not(.imprimiendo-padron) #padron-print-content,
+            body:not(.imprimiendo-padron) .dc-modal-overlay{display:none!important;}
+
+            body:not(.imprimiendo-padron){background-color:#ffffff!important;color:#000000!important;padding:0!important;margin:0!important;}
+            body:not(.imprimiendo-padron) .container{display:block!important;width:100%!important;margin:0!important;padding:0!important;}
+            body:not(.imprimiendo-padron) .card{padding:0!important;border:none!important;background:transparent!important;box-shadow:none!important;margin-bottom:20px!important;}
+            body:not(.imprimiendo-padron) .print-header{display:block!important;position:relative;text-align:center;margin-bottom:10px;padding-bottom:15px;border-bottom:3px solid #000;color:#000!important;}
+            body:not(.imprimiendo-padron) .print-header img{position:absolute;left:0;top:10px;width:80px;height:80px;}
+            body:not(.imprimiendo-padron) .print-header h1{font-size:22px;text-transform:uppercase;margin-bottom:5px;margin-top:0;}
+            body:not(.imprimiendo-padron) .print-header p{font-size:14px;margin:3px 0;}
+            body:not(.imprimiendo-padron) .print-mes-container{display:block!important;text-align:center;margin-bottom:20px;}
+            body:not(.imprimiendo-padron) .mes-destacado{font-size:16px;text-transform:uppercase;letter-spacing:1px;color:#000!important;margin:0;}
+            body:not(.imprimiendo-padron) .widgets{display:flex!important;justify-content:space-between!important;margin-bottom:25px!important;border:2px solid #000!important;border-radius:0!important;gap:0!important;padding:0!important;}
+            body:not(.imprimiendo-padron) .card-widget{background:transparent!important;border:none!important;border-right:1px solid #000!important;border-radius:0!important;padding:10px!important;flex:1!important;text-align:center!important;}
+            body:not(.imprimiendo-padron) .card-widget:last-child{border-right:none!important;}
+            body:not(.imprimiendo-padron) .card-widget h3{color:#000!important;font-size:12px!important;margin-bottom:5px!important;font-weight:bold!important;}
+            body:not(.imprimiendo-padron) .card-widget p{color:#000!important;font-size:18px!important;font-weight:bold!important;margin:0!important;}
+            body:not(.imprimiendo-padron) .col-telefono,
+            body:not(.imprimiendo-padron) .col-oculta-principal{display:table-cell!important;}
+            body:not(.imprimiendo-padron) .col-estado-screen{display:none!important;}
+            body:not(.imprimiendo-padron) .col-observacion-print{display:table-cell!important;}
+            body:not(.imprimiendo-padron) table{display:table!important;width:100%!important;border-collapse:collapse!important;border:none!important;border-top:2px solid #000!important;border-bottom:2px solid #000!important;}
+            body:not(.imprimiendo-padron) thead{display:table-header-group!important;position:static!important;}
+            body:not(.imprimiendo-padron) tbody{display:table-row-group!important;}
+            body:not(.imprimiendo-padron) tr{display:table-row!important;border:none!important;background:none!important;page-break-inside:avoid!important;margin:0!important;padding:0!important;}
+            body:not(.imprimiendo-padron) th{display:table-cell!important;background-color:#f0f0f0!important;color:#000!important;border:none!important;border-bottom:2px solid #000!important;padding:10px!important;text-align:center!important;font-weight:bold!important;text-transform:uppercase;font-size:12px!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+            body:not(.imprimiendo-padron) td{display:table-cell!important;border:none!important;border-bottom:1px solid #000!important;padding:8px!important;text-align:center!important;font-size:12px!important;color:#000!important;position:static!important;}
+            body:not(.imprimiendo-padron) td:before{content:none!important;}
+            body:not(.imprimiendo-padron) td:first-child{text-align:left!important;font-weight:bold;border-bottom:1px solid #000!important;}
+            body:not(.imprimiendo-padron) .badge{border:1px solid #000!important;background:transparent!important;color:#000!important;padding:3px 8px!important;font-size:11px!important;font-weight:bold!important;border-radius:4px!important;}
+            body:not(.imprimiendo-padron) .table-date-input{display:none!important;}
+            body:not(.imprimiendo-padron) .print-only{display:inline!important;font-weight:bold;}
+            body:not(.imprimiendo-padron) td[data-label="Fecha de Pago"]{text-align:center!important;}
+            body:not(.imprimiendo-padron) td[data-label="Fecha de Pago"] .badge{display:none!important;}
+            body:not(.imprimiendo-padron) td[data-label="Fecha de Pago"] .print-only{display:inline!important;}
         }
-        /* ── MODAL PADRÓN ── */
+
+        /* ══════════════════════════════════════════════════
+           MODAL PADRÓN — vista interactiva en pantalla
+           ══════════════════════════════════════════════════ */
         #padron-modal{
             display:none;position:fixed;inset:0;z-index:8000;
             background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);
@@ -297,9 +322,9 @@
             #padron-modal{padding:20px 16px;}
             #padron-modal-box{border-radius:12px;min-height:unset;}
         }
-        /* Área scrolleable del body */
         #padron-modal-body{padding:14px;flex:1;overflow-x:hidden;}
         @media(min-width:600px){#padron-modal-body{padding:20px;}}
+
         /* Cabecera interna del padrón */
         .pm-cabecera{
             display:flex;align-items:center;gap:12px;
@@ -315,21 +340,20 @@
         @media(min-width:480px){.pm-cabecera-centro .pm-dojo{font-size:14px;}}
         .pm-cabecera-centro .pm-sub{font-size:11px;color:var(--text-muted);line-height:1.4;}
         .pm-subtitulo{text-align:center;margin:10px 0 12px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);}
-        /* Contenedor scrolleable horizontal para la tabla (solo en pantallas medianas/grandes) */
+
+        /* ── TABLA — pantallas medianas/grandes ── */
         .pm-tabla-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-        /* Tabla del padrón: columnas definidas, solo líneas horizontales */
+
         #padron-modal table{
             width:100%;border-collapse:collapse;font-size:11px;
             min-width:460px;table-layout:fixed;
         }
-        /* Anchos de columna proporcionales */
         #padron-modal col.col-nombre   {width:30%;}
         #padron-modal col.col-dni      {width:14%;}
         #padron-modal col.col-fnac     {width:16%;}
         #padron-modal col.col-edad     {width:10%;}
         #padron-modal col.col-tel      {width:16%;}
         #padron-modal col.col-grad     {width:14%;}
-        /* Encabezados: fondo oscuro, texto blanco, separador inferior */
         #padron-modal thead th{
             background:var(--header-bg);color:var(--header-text);
             padding:9px 6px;text-align:center;text-transform:uppercase;
@@ -338,7 +362,6 @@
             overflow:hidden;text-overflow:ellipsis;
         }
         #padron-modal thead th:first-child{text-align:left;padding-left:8px;}
-        /* Celdas: solo borde inferior, sin bordes laterales */
         #padron-modal tbody td{
             padding:8px 6px;
             border:none;
@@ -355,42 +378,102 @@
             padding:8px 6px;font-size:10px;color:var(--text-muted);
             text-align:right;border:none;border-top:2px solid var(--border-color);
         }
-        /* ── Vista en tarjetas para celulares (sin scroll horizontal) ── */
+
+        /* ══════════════════════════════════════════════════
+           PADRÓN — VISTA TARJETA PARA CELULAR (≤ 599px)
+           Mismo layout que el modal de info de alumno:
+           cada campo en su propia fila con etiqueta a la
+           izquierda y valor a la derecha.
+           ══════════════════════════════════════════════════ */
         @media screen and (max-width:599px){
+            /* Quitar scroll horizontal; cada alumno es una tarjeta */
             .pm-tabla-wrapper{overflow-x:visible;}
-            #padron-modal table{min-width:unset;table-layout:auto;font-size:13px;}
+
+            /* Ocultar colgroup y thead; convertir todo a bloque */
             #padron-modal colgroup{display:none;}
             #padron-modal thead{display:none;}
-            #padron-modal tbody,#padron-modal tr,#padron-modal td{display:block;width:auto!important;}
-            #padron-modal tbody tr{
-                border:1px solid var(--border-color);border-radius:10px;
-                margin-bottom:10px;padding:10px 12px;background:var(--card-bg)!important;
-            }
-            #padron-modal tbody td{
-                border:none;padding:0;text-align:right;
-                white-space:normal;overflow:visible;text-overflow:unset;
-            }
-            #padron-modal tbody td:first-child{
-                display:block;text-align:left;padding:0 0 8px 0;margin-bottom:6px;
-                border-bottom:2px solid var(--primary);
-                font-size:14px;font-weight:800;color:var(--primary);
-            }
-            #padron-modal tbody td:not(:first-child){
-                display:flex;justify-content:space-between;align-items:baseline;gap:10px;
-                padding:5px 0;font-size:13px;
-            }
-            #padron-modal tbody td:not(:first-child):not(:last-child){
-                border-bottom:1px dashed var(--border-color);
-            }
-            #padron-modal tbody td:not(:first-child)::before{
-                content:attr(data-label);font-size:10px;font-weight:700;
-                text-transform:uppercase;letter-spacing:0.4px;color:var(--text-muted);
-                flex-shrink:0;
-            }
+            #padron-modal table{min-width:unset;table-layout:auto;font-size:14px;display:block;}
+            #padron-modal tbody{display:flex;flex-direction:column;gap:10px;}
             #padron-modal tfoot{display:block;}
-            #padron-modal tfoot td{display:block;text-align:center;border-top:1px solid var(--border-color);padding-top:8px;margin-top:4px;}
+
+            /* Tarjeta por alumno */
+            #padron-modal tbody tr{
+                display:block;
+                background:var(--card-bg);
+                border:1px solid var(--border-color);
+                border-radius:10px;
+                overflow:hidden;
+                box-shadow:0 1px 4px rgba(0,0,0,0.06);
+            }
+
+            /* Nombre del alumno — encabezado de tarjeta con acento rojo */
+            #padron-modal tbody td:first-child{
+                display:block;
+                background:var(--primary);
+                color:#fff;
+                font-size:14px;
+                font-weight:700;
+                padding:10px 14px;
+                text-align:left;
+                white-space:normal;
+                overflow:visible;
+                text-overflow:unset;
+                border:none;
+            }
+
+            /* Filas de datos: etiqueta izquierda + valor derecha */
+            #padron-modal tbody td:not(:first-child){
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                padding:9px 14px;
+                border:none;
+                border-bottom:1px solid var(--border-color);
+                font-size:13px;
+                white-space:normal;
+                overflow:visible;
+                text-overflow:unset;
+            }
+            #padron-modal tbody td:not(:first-child):last-child{
+                border-bottom:none;
+            }
+
+            /* Etiqueta (izquierda) generada desde data-label */
+            #padron-modal tbody td:not(:first-child)::before{
+                content:attr(data-label);
+                font-size:11px;
+                font-weight:700;
+                text-transform:uppercase;
+                letter-spacing:0.4px;
+                color:var(--text-muted);
+                flex-shrink:0;
+                margin-right:12px;
+            }
+
+            /* Valor (derecha) */
+            #padron-modal tbody td:not(:first-child){
+                text-align:right;
+                color:var(--text-main);
+                font-weight:500;
+            }
+
+            /* Filas pares — fondo suave para alternar */
+            #padron-modal tbody tr:nth-child(even) td{background:inherit;}
+            #padron-modal tbody tr:nth-child(even) td:first-child{background:var(--primary);}
+
+            /* Pie de tabla */
+            #padron-modal tfoot td{
+                display:block;
+                text-align:center;
+                padding:10px 14px;
+                font-size:11px;
+                color:var(--text-muted);
+                border:none;
+                border-top:1px solid var(--border-color);
+            }
         }
-        /* Barra de acciones — sticky al fondo */
+
+        /* Barra de acciones sticky */
         .pm-acciones{
             display:flex;gap:10px;justify-content:flex-end;align-items:center;
             padding:12px 14px;border-top:1px solid var(--border-color);
@@ -399,17 +482,14 @@
         @media(min-width:600px){.pm-acciones{padding:14px 20px;}}
         .pm-acciones .btn{width:auto;}
 
-        /* ── IMPRESIÓN DEL PADRÓN ──────────────────────────────────────────
-           Contenido totalmente independiente del modal interactivo: evita
-           que la vista de tarjetas (móvil) o el scroll horizontal del modal
-           interfieran con el resultado impreso, y evita que el contenido
-           se "duplique" por desbordes de ancho al paginar. ────────────── */
+        /* ══════════════════════════════════════════════════
+           IMPRESIÓN DEL PADRÓN — contenido aislado
+           Nunca se muestra en pantalla; solo al imprimir
+           con body.imprimiendo-padron activo.
+           ══════════════════════════════════════════════════ */
         #padron-print-content{display:none;}
-        @media print{
-            /* Ocultar TODO salvo el contenido de impresión del padrón */
-            body.imprimiendo-padron > *{display:none!important;}
-            body.imprimiendo-padron > #padron-print-content{display:block!important;}
 
+        @media print{
             #padron-print-content{
                 padding:10px;background:#fff;color:#000;
                 font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
@@ -424,8 +504,6 @@
             #padron-print-content .pp-sub{font-size:11px;color:#555;}
             #padron-print-content .pp-subtitulo{text-align:center;margin:10px 0 12px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#333;}
 
-            /* Tabla simple: ancho fijo al 100% para que NUNCA desborde la página
-               y por lo tanto no se pagine horizontalmente repitiendo filas. */
             #padron-print-content table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:11px;}
             #padron-print-content col.col-nombre{width:30%;}
             #padron-print-content col.col-dni{width:14%;}
@@ -455,7 +533,6 @@
 
 <!-- ── MODALES PERSONALIZADOS DOJO CONTROL ─────────────────────────── -->
 
-<!-- Modal Alerta (reemplaza alert) -->
 <div class="dc-modal-overlay" id="dc-alert-overlay">
     <div class="dc-modal-box">
         <div class="dc-modal-header">
@@ -473,7 +550,6 @@
     </div>
 </div>
 
-<!-- Modal Prompt (reemplaza prompt) -->
 <div class="dc-modal-overlay" id="dc-prompt-overlay">
     <div class="dc-modal-box">
         <div class="dc-modal-header">
@@ -493,7 +569,6 @@
     </div>
 </div>
 
-<!-- Modal Confirm (reemplaza confirm) -->
 <div class="dc-modal-overlay" id="dc-confirm-overlay">
     <div class="dc-modal-box">
         <div class="dc-modal-header">
@@ -625,13 +700,6 @@
                         <option value="">— Sin graduación —</option>
                     </select>
                     <button type="button" id="btn-gestionar-graduaciones" class="btn btn-secondary btn-inline-sm" title="Gestionar graduaciones"><i class="fas fa-medal"></i></button>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="descuento">Descuento Mensual ($)</label>
-                <div class="input-clearable">
-                    <input type="number" id="descuento" class="form-control" placeholder="0" min="0" step="100">
-                    <button type="button" class="btn-clear" data-target="descuento" title="Limpiar"><i class="fas fa-times"></i></button>
                 </div>
             </div>
             <button type="submit" class="btn"><i class="fas fa-user-plus"></i> Añadir Alumno</button>
@@ -823,10 +891,8 @@
     </div>
 </div>
 
-<!-- CONTENIDO DE IMPRESIÓN DEL PADRÓN (independiente del modal, solo visible al imprimir) -->
-<div id="padron-print-content">
-    <!-- contenido generado dinámicamente -->
-</div>
+<!-- CONTENIDO DE IMPRESIÓN DEL PADRÓN (independiente del modal) -->
+<div id="padron-print-content"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -851,7 +917,7 @@ const PASSWORD_REQUERIDA = "sensei2026";
 let cuotaPredeterminada = 25000;
 let alumnos = [];
 let graduaciones = [];
-let cuotasPorMes = {}; // historial de cuotas: { 'YYYY-MM': valor }
+let cuotasPorMes = {};
 let ultimoConfig = null;
 let nombreDojo = 'BUTOKU-KAI SHOTOKAN KARATE-DO';
 let nombreSede = 'Villa Ángela';
@@ -859,7 +925,7 @@ let nombreSensei = 'Yamil Rodriguez';
 let logoBase64 = null;
 
 // ══════════════════════════════════════════════════════════════════════════
-// SISTEMA DE DIÁLOGOS PERSONALIZADOS (reemplaza alert / prompt / confirm)
+// SISTEMA DE DIÁLOGOS PERSONALIZADOS
 // ══════════════════════════════════════════════════════════════════════════
 
 function dcSyncLogoModals() {
@@ -870,11 +936,6 @@ function dcSyncLogoModals() {
     });
 }
 
-/**
- * dcAlert(mensaje, tipo)
- * tipo: 'info' | 'ok' | 'warn' | 'err'
- * Devuelve Promise<void>
- */
 function dcAlert(mensaje, tipo = 'info') {
     return new Promise(resolve => {
         dcSyncLogoModals();
@@ -882,9 +943,7 @@ function dcAlert(mensaje, tipo = 'info') {
         const msgEl = document.getElementById('dc-alert-message');
         const iconEl = document.getElementById('dc-alert-icon');
         const okBtn = document.getElementById('dc-alert-ok');
-
         msgEl.innerHTML = mensaje;
-
         const iconos = {
             info: '<i class="fas fa-circle-info" style="color:var(--info);font-size:28px;"></i>',
             ok:   '<i class="fas fa-circle-check" style="color:var(--success);font-size:28px;"></i>',
@@ -892,26 +951,19 @@ function dcAlert(mensaje, tipo = 'info') {
             err:  '<i class="fas fa-circle-xmark" style="color:#e53e3e;font-size:28px;"></i>'
         };
         iconEl.innerHTML = iconos[tipo] || iconos.info;
-
         overlay.classList.add('visible');
-
         function cerrar() {
             overlay.classList.remove('visible');
             okBtn.removeEventListener('click', cerrar);
             resolve();
         }
         okBtn.addEventListener('click', cerrar);
-        // También cerrar con Escape
         function escHandler(e) { if (e.key === 'Escape') { cerrar(); document.removeEventListener('keydown', escHandler); } }
         document.addEventListener('keydown', escHandler);
         setTimeout(() => okBtn.focus(), 80);
     });
 }
 
-/**
- * dcPrompt(mensaje)
- * Devuelve Promise<string|null> — null si canceló
- */
 function dcPrompt(mensaje) {
     return new Promise(resolve => {
         dcSyncLogoModals();
@@ -920,12 +972,10 @@ function dcPrompt(mensaje) {
         const input    = document.getElementById('dc-prompt-input');
         const okBtn    = document.getElementById('dc-prompt-ok');
         const cancelBtn= document.getElementById('dc-prompt-cancel');
-
         msgEl.textContent = mensaje;
         input.value = '';
         input.classList.remove('error');
         overlay.classList.add('visible');
-
         function cerrar(valor) {
             overlay.classList.remove('visible');
             okBtn.removeEventListener('click', handleOk);
@@ -942,7 +992,6 @@ function dcPrompt(mensaje) {
         function handleCancel() { cerrar(null); }
         function handleKey(e) { if (e.key === 'Enter') handleOk(); }
         function escHandler(e) { if (e.key === 'Escape') cerrar(null); }
-
         okBtn.addEventListener('click', handleOk);
         cancelBtn.addEventListener('click', handleCancel);
         input.addEventListener('keydown', handleKey);
@@ -951,10 +1000,6 @@ function dcPrompt(mensaje) {
     });
 }
 
-/**
- * dcConfirm(mensaje, textoBotonOk)
- * Devuelve Promise<boolean>
- */
 function dcConfirm(mensaje, textoBotonOk = 'Confirmar') {
     return new Promise(resolve => {
         dcSyncLogoModals();
@@ -962,11 +1007,9 @@ function dcConfirm(mensaje, textoBotonOk = 'Confirmar') {
         const msgEl    = document.getElementById('dc-confirm-message');
         const okBtn    = document.getElementById('dc-confirm-ok');
         const cancelBtn= document.getElementById('dc-confirm-cancel');
-
         msgEl.innerHTML = mensaje;
         okBtn.innerHTML = `<i class="fas fa-trash" style="margin-right:6px;"></i>${textoBotonOk}`;
         overlay.classList.add('visible');
-
         function cerrar(valor) {
             overlay.classList.remove('visible');
             okBtn.removeEventListener('click', handleOk);
@@ -977,7 +1020,6 @@ function dcConfirm(mensaje, textoBotonOk = 'Confirmar') {
         function handleOk() { cerrar(true); }
         function handleCancel() { cerrar(false); }
         function escHandler(e) { if (e.key === 'Escape') cerrar(false); }
-
         okBtn.addEventListener('click', handleOk);
         cancelBtn.addEventListener('click', handleCancel);
         document.addEventListener('keydown', escHandler);
@@ -1040,19 +1082,6 @@ function formatearMesTexto(s) {
     if (!s) return '';
     const [anio, mes] = s.split('-');
     return ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][parseInt(mes)-1] + ' ' + anio;
-}
-
-// ── FECHA SERVIDOR ────────────────────────────────────────────────────────
-async function obtenerFechaServidor() {
-    try {
-        const r = await fetch('https://worldtimeapi.org/api/timezone/America/Argentina/Buenos_Aires');
-        if (!r.ok) throw new Error('no response');
-        const d = await r.json();
-        return new Date(d.datetime);
-    } catch(e) {
-        console.warn('Usando fecha local:', e.message);
-        return new Date();
-    }
 }
 
 // ── GRADUACIONES ──────────────────────────────────────────────────────────
@@ -1151,25 +1180,18 @@ onValue(ref(db, 'alumnos'), (snapshot) => {
     renderalumnos(); calcularMetricas(); verificarAlertas();
 });
 
-// Cuota base vigente para un mes: busca el último valor definido en o antes de ese mes.
-// Si la cuota cambió hace 6 meses, todos los meses desde ese cambio usan ese valor
-// hasta que se registre un nuevo cambio. Si no hay ningún registro previo, usa la
-// cuota predeterminada de la configuración.
 function getCuotaMes(periodo) {
     const claves = Object.keys(cuotasPorMes).filter(k => k <= periodo).sort();
     if (claves.length > 0) return cuotasPorMes[claves[claves.length - 1]];
     return cuotaPredeterminada;
 }
 
-// Cuota efectiva de un alumno para un período dado (cuota del mes − descuento personal)
 function getCuotaEfectiva(alumno, periodo) {
     const base = getCuotaMes(periodo);
     const descuento = Number(alumno.descuento) || 0;
     return Math.max(0, base - descuento);
 }
 
-// Sincroniza el popover de cuota: muestra el mes seleccionado y, si no está
-// en edición, el valor vigente para ese mes.
 function actualizarPopoverCuota() {
     if (!mesSelector.value) return;
     const periodo = obtenerPeriodoSeleccionado();
@@ -1233,7 +1255,7 @@ function inicializarSelector() {
 }
 function obtenerPeriodoSeleccionado() { return mesSelector.value; }
 
-// ── CUOTA MENSUAL (POPOVER / VENTANA SECUNDARIA) ──────────────────────────
+// ── CUOTA MENSUAL (POPOVER) ───────────────────────────────────────────────
 const cuotaPopover = document.getElementById('cuota-popover');
 const cuotaBackdrop = document.getElementById('cuota-popover-backdrop');
 
@@ -1262,12 +1284,8 @@ document.getElementById('btn-cuota-toggle').addEventListener('click', (e) => {
         abrirPopoverCuota();
     }
 });
-// Cerrar tocando el fondo oscuro (no afecta a los modales de contraseña,
-// que no son descendientes del backdrop y por lo tanto no disparan este evento)
 cuotaBackdrop.addEventListener('click', cerrarPopoverCuota);
-// Cerrar con el botón "x"
 document.getElementById('cuota-popover-close').addEventListener('click', cerrarPopoverCuota);
-// Cerrar con la tecla Escape
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && cuotaPopover.classList.contains('visible')) cerrarPopoverCuota();
 });
@@ -1288,7 +1306,6 @@ btnGuardar.addEventListener('click', async () => {
     if (!valor || valor <= 0) { await dcAlert('Ingresá un monto válido mayor a cero.', 'warn'); return; }
     const periodo = obtenerPeriodoSeleccionado();
     try {
-        // Guardar la cuota vigente desde este mes en adelante (historial por mes)
         await set(ref(db, `cuotasMes/${periodo}`), valor);
         inputCuota.disabled = true;
         btnGuardar.style.display = 'none';
@@ -1312,13 +1329,12 @@ form.addEventListener('submit', async (e) => {
             dni: document.getElementById('dni').value.trim(),
             fechaNacimiento: document.getElementById('fechaNacimiento').value || '',
             graduacion: document.getElementById('graduacion').value || '',
-            descuento: parseInt(document.getElementById('descuento').value) || 0,
+            descuento: 0,
             cuota: cuotaPredeterminada,
             pagos: { "inicializacion": "true" }
         });
         form.reset();
         document.getElementById('edad-calculada').innerText = '— años';
-        actualizarBtnClear(document.getElementById('descuento'));
     } catch(e) {
         await dcAlert('Error al registrar el alumno: ' + e.message, 'err');
     }
@@ -1407,7 +1423,6 @@ window.addEventListener('click', e => { if (e.target === modalInfo) modalInfo.st
 window.eliminarAlumno = async function(id) {
     const alumno = alumnos.find(a => a.id === id);
     const nombre = alumno ? alumno.nombre : 'este alumno';
-
     const pwd = await dcPrompt(`Para dar de baja a ${nombre} se requiere autorización.\nIngresá la contraseña del Sensei:`);
     if (!pwd) return;
     if (pwd !== PASSWORD_REQUERIDA) {
@@ -1419,7 +1434,6 @@ window.eliminarAlumno = async function(id) {
         'Sí, eliminar'
     );
     if (!confirmar) return;
-
     try {
         await set(ref(db, 'alumnos/' + id), null);
         if (modalInfo.style.display === 'flex') modalInfo.style.display = 'none';
@@ -1646,7 +1660,7 @@ document.getElementById('btn-guardar-config').addEventListener('click', async ()
     }
 });
 
-// ── GRADUACIONES EN CONFIG ────────────────────────────────────────────────
+// ── GRADUACIONES ──────────────────────────────────────────────────────────
 document.getElementById('btn-agregar-graduacion').addEventListener('click', async () => {
     const val = document.getElementById('nueva-graduacion').value.trim();
     if (!val) { await dcAlert('Escribí el nombre de la graduación antes de agregar.', 'warn'); return; }
@@ -1678,8 +1692,7 @@ btnContactos.addEventListener('click', async () => {
 });
 
 // ── TOGGLE ALERTA MOROSOS ─────────────────────────────────────────────────
-let alertaOculta = true; // oculto por defecto al abrir la app
-// Aplicar estado inicial oculto
+let alertaOculta = true;
 document.getElementById('alerta-body').classList.add('oculto');
 document.getElementById('icono-toggle-alerta').className = 'fas fa-eye-slash';
 document.getElementById('btn-toggle-alerta').title = 'Mostrar detalle';
@@ -1711,11 +1724,12 @@ function abrirPadron() {
     const sub       = `Sede ${nombreSede} | Sensei ${nombreSensei}`;
     const fechaHoy  = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' });
 
+    // Las celdas de datos llevan data-label para la vista tarjeta en móvil
     const filas = ordenados.map((a, i) => {
         const edad    = calcularEdad(a.fechaNacimiento);
         const edadStr = edad !== null ? `${edad} años` : '—';
         return `<tr>
-            <td style="font-weight:700;">${i + 1}. ${a.nombre}</td>
+            <td>${i + 1}. ${a.nombre}</td>
             <td data-label="DNI">${a.dni || '—'}</td>
             <td data-label="Fecha Nac.">${formatearFechaNac(a.fechaNacimiento)}</td>
             <td data-label="Edad">${edadStr}</td>
@@ -1746,7 +1760,7 @@ function abrirPadron() {
         </thead>`;
     const tfootHtml = `<tfoot><tr><td colspan="6">Dojo Control &mdash; Reporte confidencial de uso interno</td></tr></tfoot>`;
 
-    // ── Vista interactiva del modal (tabla en pantallas grandes, tarjetas en celular) ──
+    // ── Vista interactiva del modal ──
     padronBody.innerHTML = `
         <div class="pm-cabecera">
             <img src="${logoSrc}" alt="Logo">
@@ -1768,8 +1782,9 @@ function abrirPadron() {
             </table>
         </div>`;
 
-    // ── Contenido independiente para impresión: tabla simple aislada del modal,
-    // evita que la vista de tarjetas/scroll del modal "duplique" filas al imprimir ──
+    // ── Contenido independiente para impresión ──
+    // Esta copia existe SOLO para imprimir y nunca se muestra en pantalla.
+    // Evita que la vista de tarjetas o el scroll del modal interfieran.
     document.getElementById('padron-print-content').innerHTML = `
         <div class="pp-cabecera">
             <img src="${logoSrc}" alt="Logo">
@@ -1791,7 +1806,7 @@ function abrirPadron() {
 
     padronModal.classList.add('visible');
     padronModal.scrollTop = 0;
-    document.body.style.overflow = 'hidden'; // evitar scroll de fondo
+    document.body.style.overflow = 'hidden';
 }
 
 function cerrarPadron() {
@@ -1800,7 +1815,7 @@ function cerrarPadron() {
 }
 
 function imprimirDesdePadron() {
-    // Marcar el body para que @media print sepa que es el padrón y no el reporte de cuotas
+    // Marcar el body: @media print sabrá que debe mostrar solo #padron-print-content
     document.body.classList.add('imprimiendo-padron');
 
     const limpiar = () => {
@@ -1811,18 +1826,15 @@ function imprimirDesdePadron() {
     const limpiarFoco = () => limpiar();
 
     window.onafterprint = () => limpiar();
-    // Fallback móvil: el foco vuelve cuando se cierra el gestor
+    // Fallback móvil: el foco vuelve cuando se cierra el gestor de impresión
     setTimeout(() => window.addEventListener('focus', limpiarFoco, { once: true }), 500);
 
-    // Pequeña pausa para que el DOM aplique la clase antes de abrir el gestor
     setTimeout(() => window.print(), 50);
 }
 
 pmBtnVolver.addEventListener('click', cerrarPadron);
 pmBtnImprimir.addEventListener('click', imprimirDesdePadron);
-// Cerrar tocando el fondo oscuro
 padronModal.addEventListener('click', e => { if (e.target === padronModal) cerrarPadron(); });
-// Cerrar con Escape
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && padronModal.classList.contains('visible')) cerrarPadron(); });
 
 document.getElementById('btn-imprimir-padron').addEventListener('click', abrirPadron);
