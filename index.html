@@ -229,12 +229,6 @@
             .container{grid-template-columns:1fr;}
             table{width:100%;border-collapse:collapse;}
             thead tr{display:none;}
-            /* ── Padrón: restaurar comportamiento normal de tabla ── */
-            #padron-modal thead tr{display:table-row;}
-            #padron-modal tbody{display:table-row-group;}
-            #padron-modal tbody tr{display:table-row;background:none;border:none;border-radius:0;margin:0;padding:0;min-height:unset;overflow:visible;width:auto;box-sizing:content-box;gap:0;flex-direction:unset;align-items:unset;}
-            #padron-modal tbody td{display:table-cell;flex:unset;min-width:unset;font-size:13px;font-weight:normal;white-space:nowrap;overflow:visible;text-overflow:unset;padding:9px 16px;border:none;border-bottom:1px solid var(--border-color);text-align:left;}
-            #padron-modal tbody td:first-child{font-weight:600;}
             tbody{display:block;}
             tbody tr{display:flex;flex-direction:row;align-items:center;gap:4px;background:var(--table-row-bg);border:1px solid var(--border-color);border-radius:8px;margin-bottom:8px;padding:6px 8px;min-height:44px;overflow:hidden;width:100%;box-sizing:border-box;}
             tbody tr td.col-telefono,tbody tr td.col-oculta-principal,tbody tr td.col-observacion-print{display:none!important;}
@@ -246,6 +240,19 @@
             tbody tr td.acciones-header{display:flex!important;flex-direction:row;align-items:center;gap:3px;flex:0 0 auto;padding:0;border:none;}
             .btn-sm.btn-icon-only{width:27px;height:27px;font-size:11px;padding:0;flex-shrink:0;}
             .dc-modal-box{max-width:96%;}
+            /* ── Padrón y contenido de impresión: restaurar tabla normal DESPUÉS de las reglas genéricas ── */
+            #padron-modal thead tr,
+            #padron-print-content thead tr{display:table-row!important;}
+            #padron-modal thead,
+            #padron-print-content thead{display:table-header-group!important;}
+            #padron-modal tbody,
+            #padron-print-content tbody{display:table-row-group!important;}
+            #padron-modal tbody tr,
+            #padron-print-content tbody tr{display:table-row!important;background:none!important;border:none!important;border-radius:0!important;margin:0!important;padding:0!important;min-height:unset!important;overflow:visible!important;width:auto!important;box-sizing:content-box!important;gap:0!important;flex-direction:unset!important;align-items:unset!important;}
+            #padron-modal tbody td,
+            #padron-print-content tbody td{display:table-cell!important;flex:unset!important;min-width:unset!important;white-space:nowrap;overflow:visible!important;text-overflow:unset!important;padding:9px 16px!important;border:none!important;border-bottom:1px solid var(--border-color)!important;text-align:left!important;font-size:13px!important;color:var(--text-main)!important;}
+            #padron-modal tbody td:first-child,
+            #padron-print-content tbody td:first-child{font-weight:600!important;}
         }
 
         /* ══════════════════════════════════════════════════
