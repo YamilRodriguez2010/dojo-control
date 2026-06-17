@@ -240,7 +240,6 @@
             tbody tr td.acciones-header{display:flex!important;flex-direction:row;align-items:center;gap:3px;flex:0 0 auto;padding:0;border:none;}
             .btn-sm.btn-icon-only{width:27px;height:27px;font-size:11px;padding:0;flex-shrink:0;}
             .dc-modal-box{max-width:96%;}
-            /* ── Padrón y contenido de impresión: restaurar tabla normal DESPUÉS de las reglas genéricas ── */
             #padron-modal thead tr,
             #padron-print-content thead tr{display:table-row!important;}
             #padron-modal thead,
@@ -257,10 +256,8 @@
 
         /* ══════════════════════════════════════════════════
            IMPRESIÓN — REPORTE DE CUOTAS (pantalla principal)
-           El padrón se imprime 100% desde JS, sin @media print
            ══════════════════════════════════════════════════ */
         @media print{
-            /* Ocultar todo salvo el reporte de cuotas */
             header,.card:has(#form-alumno),.btn-sm,.acciones-header,
             td.acciones-header,th.acciones-header,.alert-banner,
             .aviso-programado,.period-selector,.card-header-actions,
@@ -302,15 +299,15 @@
 
         /* ══════════════════════════════════════════════════
            MODAL PADRÓN — vista interactiva en pantalla
+           Respeta el tema claro/oscuro via variables CSS
            ══════════════════════════════════════════════════ */
-        #padron-modal{
+        #padron-modal {
             display:none;position:fixed;inset:0;z-index:8000;
             background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);
-            animation:dcFadeIn 0.15s ease;overflow-y:auto;
-            padding:0;
+            animation:dcFadeIn 0.15s ease;overflow-y:auto;padding:0;
         }
-        #padron-modal.visible{display:block;}
-        #padron-modal-box{
+        #padron-modal.visible { display:block; }
+        #padron-modal-box {
             background:var(--card-bg);color:var(--text-main);
             border-radius:0;max-width:860px;margin:0 auto;
             box-shadow:0 20px 60px rgba(0,0,0,0.4);
@@ -318,154 +315,133 @@
             min-height:100dvh;display:flex;flex-direction:column;
         }
         @media(min-width:600px){
-            #padron-modal{padding:20px 16px;}
-            #padron-modal-box{border-radius:12px;min-height:unset;}
+            #padron-modal { padding:20px 16px; }
+            #padron-modal-box { border-radius:12px; min-height:unset; }
         }
-        #padron-modal-body{padding:14px;flex:1;overflow-x:visible;}
-        @media(min-width:600px){#padron-modal-body{padding:20px;}}
+        #padron-modal-body { padding:14px;flex:1;overflow-x:visible; }
+        @media(min-width:600px){ #padron-modal-body { padding:20px; } }
 
-        /* Cabecera interna del padrón */
-        .pm-cabecera{
+        .pm-cabecera {
             display:flex;align-items:center;gap:12px;
             padding-bottom:12px;border-bottom:3px solid var(--primary);margin-bottom:8px;
         }
-        .pm-cabecera img{width:46px;height:46px;object-fit:contain;border-radius:50%;flex-shrink:0;background:var(--input-disabled-bg);padding:2px;}
-        @media(min-width:480px){.pm-cabecera img{width:60px;height:60px;}}
-        .pm-cabecera-centro{flex:1;min-width:0;text-align:center;}
-        .pm-cabecera-centro .pm-dojo{
-            font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;
-            margin-bottom:2px;line-height:1.3;word-break:break-word;
+        .pm-cabecera img {
+            width:46px;height:46px;object-fit:contain;border-radius:50%;
+            flex-shrink:0;background:var(--input-disabled-bg);padding:2px;
         }
-        @media(min-width:480px){.pm-cabecera-centro .pm-dojo{font-size:14px;}}
-        .pm-cabecera-centro .pm-sub{font-size:11px;color:var(--text-muted);line-height:1.4;}
-        .pm-subtitulo{text-align:center;margin:10px 0 12px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);}
-
-        /* ── TABLA DEL PADRÓN ──────────────────────────────────────────────
-           El wrapper provee scroll horizontal.
-           Se anulan TODAS las reglas globales de móvil que rompen la tabla
-           (tbody display:block, tr display:flex, etc.) dentro del modal. */
-
-        .pm-tabla-wrapper{
-            overflow-x:auto;
-            -webkit-overflow-scrolling:touch;
+        @media(min-width:480px){ .pm-cabecera img { width:60px;height:60px; } }
+        .pm-cabecera-centro { flex:1;min-width:0;text-align:center; }
+        .pm-cabecera-centro .pm-dojo {
+            font-size:12px;font-weight:800;text-transform:uppercase;
+            letter-spacing:0.4px;margin-bottom:2px;line-height:1.3;word-break:break-word;
         }
+        @media(min-width:480px){ .pm-cabecera-centro .pm-dojo { font-size:14px; } }
+        .pm-cabecera-centro .pm-sub { font-size:11px;color:var(--text-muted);line-height:1.4; }
+        .pm-subtitulo {
+            text-align:center;margin:10px 0 12px;font-size:12px;font-weight:700;
+            text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);
+        }
+        .pm-tabla-wrapper { overflow-x:auto;-webkit-overflow-scrolling:touch; }
 
-        /* Anular reglas globales de móvil que convierten la tabla en flex */
-        #padron-modal table        { display:table !important; border-collapse:collapse; font-size:13px; width:100%; }
-        #padron-modal thead        { display:table-header-group !important; }
-        #padron-modal tbody        { display:table-row-group !important; }
-        #padron-modal tfoot        { display:table-footer-group !important; }
-        #padron-modal tr           { display:table-row !important; background:none !important; border:none !important; border-radius:0 !important; margin:0 !important; padding:0 !important; flex-direction:unset !important; min-height:unset !important; width:auto !important; box-sizing:content-box !important; gap:0 !important; }
+        /* Anular reglas globales de móvil dentro del modal */
+        #padron-modal table  { display:table !important;border-collapse:collapse;font-size:13px;width:100%; }
+        #padron-modal thead  { display:table-header-group !important; }
+        #padron-modal tbody  { display:table-row-group !important; }
+        #padron-modal tfoot  { display:table-footer-group !important; }
+        #padron-modal tr     { display:table-row !important;background:none !important;border:none !important;border-radius:0 !important;margin:0 !important;padding:0 !important;flex-direction:unset !important;min-height:unset !important;width:auto !important;box-sizing:content-box !important;gap:0 !important; }
         #padron-modal th,
-        #padron-modal td           { display:table-cell !important; flex:unset !important; min-width:unset !important; }
+        #padron-modal td     { display:table-cell !important;flex:unset !important;min-width:unset !important; }
 
-        /* Encabezados */
-        #padron-modal thead th{
-            background:var(--header-bg) !important;
-            color:var(--header-text) !important;
-            padding:10px 16px !important;
-            text-align:left !important;
-            text-transform:uppercase;
-            font-size:10px;
-            letter-spacing:0.5px;
-            white-space:nowrap;
-            border:none !important;
-            border-bottom:2px solid var(--primary) !important;
-            font-weight:700;
+        #padron-modal thead th {
+            background:var(--header-bg) !important;color:var(--header-text) !important;
+            padding:10px 16px !important;text-align:left !important;text-transform:uppercase;
+            font-size:10px;letter-spacing:0.5px;white-space:nowrap;border:none !important;
+            border-bottom:2px solid var(--primary) !important;font-weight:700;
         }
-
-        /* Filas separadas solo por línea horizontal */
-        #padron-modal tbody tr{
-            border-bottom:1px solid var(--border-color) !important;
+        #padron-modal tbody tr { border-bottom:1px solid var(--border-color) !important; }
+        #padron-modal tbody td {
+            padding:9px 16px !important;white-space:nowrap;border:none !important;
+            border-bottom:none !important;color:var(--text-main) !important;
+            text-align:left !important;font-size:13px;overflow:visible !important;text-overflow:unset !important;
         }
-        #padron-modal tbody td{
-            padding:9px 16px !important;
-            white-space:nowrap;
-            border:none !important;
-            border-bottom:none !important;
-            color:var(--text-main) !important;
-            text-align:left !important;
-            font-size:13px;
-            overflow:visible !important;
-            text-overflow:unset !important;
-        }
-        #padron-modal tbody td:first-child{ font-weight:600; }
-
-        /* Filas alternas suaves */
-        #padron-modal tbody tr:nth-child(even) td{ background:var(--table-th-bg) !important; }
-
-        /* Pie */
-        #padron-modal tfoot td{
-            padding:8px 16px !important;
-            font-size:10px;
-            color:var(--text-muted);
-            text-align:right !important;
-            border:none !important;
-            border-top:2px solid var(--border-color) !important;
+        #padron-modal tbody td:first-child { font-weight:600; }
+        #padron-modal tbody tr:nth-child(even) td { background:var(--table-th-bg) !important; }
+        #padron-modal tfoot td {
+            padding:8px 16px !important;font-size:10px;color:var(--text-muted);
+            text-align:right !important;border:none !important;border-top:2px solid var(--border-color) !important;
         }
 
         /* Barra de acciones sticky */
-        .pm-acciones{
+        .pm-acciones {
             display:flex;gap:10px;justify-content:flex-end;align-items:center;
             padding:12px 14px;border-top:1px solid var(--border-color);
             background:var(--card-bg);position:sticky;bottom:0;flex-shrink:0;
         }
-        @media(min-width:600px){.pm-acciones{padding:14px 20px;}}
-        .pm-acciones .btn{width:auto;}
+        @media(min-width:600px){ .pm-acciones { padding:14px 20px; } }
+        .pm-acciones .btn { width:auto; }
 
         /* ══════════════════════════════════════════════════
-           IMPRESIÓN DEL PADRÓN — contenido aislado
-           Nunca se muestra en pantalla; solo al imprimir
-           con body.imprimiendo-padron activo.
+           IMPRESIÓN DEL PADRÓN
+           Se activa con body.imprimiendo-padron
+           El modal se convierte en el contenido de impresión
            ══════════════════════════════════════════════════ */
-        #padron-print-content{display:none;}
+        #padron-print-content { display:none; }
 
-        @media print{
-            #padron-print-content{
-                padding:10px;background:#fff;color:#000;
-                font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+        @media print {
+            body.imprimiendo-padron > *:not(#padron-modal) { display:none !important; }
+            body.imprimiendo-padron #padron-modal {
+                display:block !important;position:static !important;
+                background:none !important;backdrop-filter:none !important;
+                overflow:visible !important;padding:0 !important;animation:none !important;
             }
-            #padron-print-content .pp-cabecera{
-                display:flex;align-items:center;gap:14px;
-                padding-bottom:12px;border-bottom:3px solid #d32f2f;margin-bottom:10px;
+            body.imprimiendo-padron #padron-modal-box {
+                background:#fff !important;color:#000 !important;
+                box-shadow:none !important;border-radius:0 !important;
+                min-height:unset !important;animation:none !important;
             }
-            #padron-print-content .pp-cabecera img{width:60px;height:60px;object-fit:contain;border-radius:50%;flex-shrink:0;}
-            #padron-print-content .pp-cabecera-centro{flex:1;text-align:center;}
-            #padron-print-content .pp-dojo{font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;}
-            #padron-print-content .pp-sub{font-size:11px;color:#555;}
-            #padron-print-content .pp-subtitulo{text-align:center;margin:10px 0 12px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#333;}
+            body.imprimiendo-padron .pm-acciones { display:none !important; }
+            body.imprimiendo-padron #padron-modal-body { padding:12px !important; }
 
-            /* Anular reglas globales de tbody/tr que rompen la tabla al imprimir */
-            #padron-print-content table        { display:table !important; width:100% !important; border-collapse:collapse !important; table-layout:fixed !important; font-size:11px !important; }
-            #padron-print-content col.col-nombre{ width:30%; }
-            #padron-print-content col.col-dni   { width:14%; }
-            #padron-print-content col.col-fnac  { width:16%; }
-            #padron-print-content col.col-edad  { width:10%; }
-            #padron-print-content col.col-tel   { width:16%; }
-            #padron-print-content col.col-grad  { width:14%; }
-            #padron-print-content thead         { display:table-header-group !important; }
-            #padron-print-content tbody         { display:table-row-group !important; }
-            #padron-print-content tfoot         { display:table-footer-group !important; }
-            #padron-print-content tr            { display:table-row !important; background:none !important; border:none !important; border-radius:0 !important; margin:0 !important; padding:0 !important; flex-direction:unset !important; min-height:unset !important; width:auto !important; }
-            #padron-print-content th,
-            #padron-print-content td            { display:table-cell !important; flex:unset !important; }
-            #padron-print-content thead th{
-                background:#1a1a1a !important; color:#fff !important;
-                padding:8px 6px !important; text-align:left !important; text-transform:uppercase;
-                font-size:9px; letter-spacing:0.4px; border:none !important;
+            body.imprimiendo-padron .pm-cabecera {
+                border-bottom:3px solid #d32f2f !important;
+                -webkit-print-color-adjust:exact;print-color-adjust:exact;
+            }
+            body.imprimiendo-padron .pm-cabecera img {
+                width:60px !important;height:60px !important;background:#eee !important;
+                -webkit-print-color-adjust:exact;print-color-adjust:exact;
+            }
+            body.imprimiendo-padron .pm-cabecera-centro .pm-dojo { font-size:15px !important;color:#000 !important; }
+            body.imprimiendo-padron .pm-cabecera-centro .pm-sub  { color:#555 !important; }
+            body.imprimiendo-padron .pm-subtitulo { color:#333 !important; }
+
+            body.imprimiendo-padron #padron-modal table  { display:table !important;width:100% !important;border-collapse:collapse !important;font-size:10px !important;table-layout:fixed !important; }
+            body.imprimiendo-padron #padron-modal thead  { display:table-header-group !important; }
+            body.imprimiendo-padron #padron-modal tbody  { display:table-row-group !important; }
+            body.imprimiendo-padron #padron-modal tfoot  { display:table-footer-group !important; }
+            body.imprimiendo-padron #padron-modal tr     { display:table-row !important;page-break-inside:avoid !important; }
+            body.imprimiendo-padron #padron-modal th,
+            body.imprimiendo-padron #padron-modal td     { display:table-cell !important; }
+
+            body.imprimiendo-padron #padron-modal thead th {
+                background:#1a1a1a !important;color:#fff !important;
+                padding:8px 10px !important;font-size:9px !important;
                 border-bottom:2px solid #d32f2f !important;
-                -webkit-print-color-adjust:exact; print-color-adjust:exact;
+                -webkit-print-color-adjust:exact;print-color-adjust:exact;
             }
-            #padron-print-content tbody td{
-                display:table-cell !important;
-                padding:7px 6px !important; border:none !important;
-                border-bottom:1px solid #ccc !important;
-                text-align:left !important; font-size:10px; color:#000 !important;
+            body.imprimiendo-padron #padron-modal tbody td {
+                padding:7px 10px !important;font-size:10px !important;
+                color:#000 !important;border-bottom:1px solid #ccc !important;background:transparent !important;
             }
-            #padron-print-content tbody td:first-child{ font-weight:700; }
-            #padron-print-content tbody tr:nth-child(even) td{ background:#f5f5f5 !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-            #padron-print-content tfoot td{ padding:8px 6px !important; font-size:9px; color:#666; text-align:right !important; border:none !important; border-top:2px solid #000 !important; }
-            @page{margin:1.2cm;size:A4 portrait;}
+            body.imprimiendo-padron #padron-modal tbody tr:nth-child(even) td {
+                background:#f5f5f5 !important;
+                -webkit-print-color-adjust:exact;print-color-adjust:exact;
+            }
+            body.imprimiendo-padron #padron-modal tbody td:first-child { font-weight:700 !important; }
+            body.imprimiendo-padron #padron-modal tfoot td {
+                font-size:9px !important;color:#666 !important;
+                border-top:2px solid #000 !important;text-align:right !important;padding:8px 10px !important;
+            }
+            @page { margin:1.2cm;size:A4 portrait; }
         }
     </style>
 </head>
@@ -830,9 +806,6 @@
         </div>
     </div>
 </div>
-
-<!-- CONTENIDO DE IMPRESIÓN DEL PADRÓN (independiente del modal) -->
-<div id="padron-print-content"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -1670,14 +1643,9 @@ function abrirPadron() {
         <col class="col-edad"><col class="col-tel"><col class="col-grad">
     </colgroup>`;
     const thead = `<thead><tr>
-        <th>Alumno</th>
-        <th>DNI</th>
-        <th>Fecha Nac.</th>
-        <th>Edad</th>
-        <th>Teléfono</th>
-        <th>Graduación</th>
+        <th>Alumno</th><th>DNI</th><th>Fecha Nac.</th>
+        <th>Edad</th><th>Teléfono</th><th>Graduación</th>
     </tr></thead>`;
-
     const tfoot = `<tfoot><tr><td colspan="6">Dojo Control — Reporte confidencial de uso interno</td></tr></tfoot>`;
 
     const filas = ordenados.map((a, i) => {
@@ -1692,9 +1660,9 @@ function abrirPadron() {
         </tr>`;
     }).join('');
 
-    const cabecera = `
+    padronBody.innerHTML = `
         <div class="pm-cabecera">
-            <img src="${logoSrc}" alt="Logo">
+            <img src="${logoSrc}" alt="Logo del dojo">
             <div class="pm-cabecera-centro">
                 <div class="pm-dojo">${nombreDojo}</div>
                 <div class="pm-sub">${sub}</div>
@@ -1703,36 +1671,10 @@ function abrirPadron() {
                 </div>
             </div>
         </div>
-        <div class="pm-subtitulo">Padrón Oficial de Alumnos</div>`;
-
-    padronBody.innerHTML = `
-        ${cabecera}
+        <div class="pm-subtitulo">Padrón Oficial de Alumnos</div>
         <div class="pm-tabla-wrapper">
             <table>${colgroup}${thead}<tbody>${filas}</tbody>${tfoot}</table>
         </div>`;
-
-    // Contenido aislado solo para imprimir
-    document.getElementById('padron-print-content').innerHTML = `
-        <div class="pp-cabecera">
-            <img src="${logoSrc}" alt="Logo">
-            <div class="pp-cabecera-centro">
-                <div class="pp-dojo">${nombreDojo}</div>
-                <div class="pp-sub">${sub}</div>
-                <div class="pp-sub" style="margin-top:3px;">
-                    Generado el ${fechaHoy} — Total: ${total} alumno${total !== 1 ? 's' : ''}
-                </div>
-            </div>
-        </div>
-        <div class="pp-subtitulo">Padrón Oficial de Alumnos</div>
-        <table>
-            <colgroup>
-                <col class="col-nombre"><col class="col-dni"><col class="col-fnac">
-                <col class="col-edad"><col class="col-tel"><col class="col-grad">
-            </colgroup>
-            ${thead}
-            <tbody>${filas}</tbody>
-            ${tfoot}
-        </table>`;
 
     padronModal.classList.add('visible');
     padronModal.scrollTop = 0;
@@ -1745,82 +1687,36 @@ function cerrarPadron() {
 }
 
 function imprimirDesdePadron() {
-    if (!alumnos.length) { dcAlert('No hay alumnos para imprimir.', 'warn'); return; }
-
-    const ordenados = [...alumnos].sort((a, b) => a.nombre.localeCompare(b.nombre));
-    const logoSrc   = logoBase64 || 'logo.png';
-    const sub       = `Sede ${nombreSede} | Sensei ${nombreSensei}`;
-    const fechaHoy  = new Date().toLocaleDateString('es-AR', {day:'2-digit',month:'2-digit',year:'numeric'});
-    const total     = ordenados.length;
-
-    const thS = 'background:#1a1a1a;color:#fff;padding:8px 10px;text-align:left;text-transform:uppercase;font-size:9px;letter-spacing:0.4px;border-bottom:2px solid #d32f2f;-webkit-print-color-adjust:exact;print-color-adjust:exact;';
-    const heads  = ['Alumno','DNI','Fecha Nac.','Edad','Tel\u00e9fono','Graduaci\u00f3n'];
-    const widths = ['26%','13%','15%','9%','17%','20%'];
-    const theadHtml = '<tr>' + heads.map((h,i)=>`<th style="${thS}width:${widths[i]};">${h}</th>`).join('') + '</tr>';
-
-    const tbodyHtml = ordenados.map((a, i) => {
-        const edad = calcularEdad(a.fechaNacimiento);
-        const bg   = i % 2 === 1 ? '#f5f5f5' : '#ffffff';
-        const vals = [
-            `${i+1}. ${a.nombre}`,
-            a.dni || '\u2014',
-            formatearFechaNac(a.fechaNacimiento),
-            edad !== null ? edad + ' a\u00f1os' : '\u2014',
-            a.telefono || '\u2014',
-            a.graduacion || '\u2014'
-        ];
-        return '<tr>' + vals.map((v,ci)=>
-            `<td style="padding:7px 10px;border-bottom:1px solid #ddd;font-size:10px;color:#000;background:${bg};text-align:left;${ci===0?'font-weight:700;':''}">${v}</td>`
-        ).join('') + '</tr>';
-    }).join('');
-
-    const html = `<!DOCTYPE html><html lang="es"><head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Padr\u00f3n de Alumnos</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;padding:15px;background:#fff;color:#000;}
-table{width:100%;border-collapse:collapse;table-layout:fixed;}
-@page{margin:1.2cm;size:A4 portrait;}
-</style>
-</head><body>
-<div style="display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:3px solid #d32f2f;margin-bottom:14px;">
-  <img src="${logoSrc}" style="width:60px;height:60px;object-fit:contain;border-radius:50%;flex-shrink:0;" alt="">
-  <div style="flex:1;text-align:center;">
-    <div style="font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">${nombreDojo}</div>
-    <div style="font-size:11px;color:#555;">${sub}</div>
-    <div style="font-size:11px;color:#555;margin-top:3px;">Generado el ${fechaHoy} \u2014 Total: ${total} alumno${total!==1?'s':''}</div>
-  </div>
-</div>
-<div style="text-align:center;margin-bottom:14px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#333;">Padr\u00f3n Oficial de Alumnos</div>
-<table>
-  <thead>${theadHtml}</thead>
-  <tbody>${tbodyHtml}</tbody>
-  <tfoot><tr><td colspan="6" style="padding:8px 10px;font-size:9px;color:#666;text-align:right;border-top:2px solid #000;">Dojo Control \u2014 Reporte confidencial de uso interno</td></tr></tfoot>
-</table>
-<script>window.onload=function(){window.print();};<\/script>
-</body></html>`;
-
-    // Abrir nueva pestaña con el HTML del padrón — funciona en móvil
-    const blob = new Blob([html], {type: 'text/html;charset=utf-8'});
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href = url;
-    a.target = '_blank';
-    a.rel = 'noopener';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    if (!alumnos.length) {
+        dcAlert('No hay alumnos para imprimir.', 'warn');
+        return;
+    }
+    // Asegurar que el modal está visible y actualizado
+    if (!padronModal.classList.contains('visible')) {
+        abrirPadron();
+    }
+    // Activar clase que dispara el CSS de impresión del padrón
+    document.body.classList.add('imprimiendo-padron');
+    // Restaurar overflow momentáneamente para que el diálogo de impresión funcione
+    document.body.style.overflow = '';
+    window.print();
+    // Limpiar después de imprimir
+    const limpiar = () => {
+        document.body.classList.remove('imprimiendo-padron');
+        if (padronModal.classList.contains('visible')) {
+            document.body.style.overflow = 'hidden';
+        }
+        window.removeEventListener('afterprint', limpiar);
+    };
+    window.addEventListener('afterprint', limpiar);
 }
-
 
 pmBtnVolver.addEventListener('click', cerrarPadron);
 pmBtnImprimir.addEventListener('click', imprimirDesdePadron);
 padronModal.addEventListener('click', e => { if (e.target === padronModal) cerrarPadron(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && padronModal.classList.contains('visible')) cerrarPadron(); });
-
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && padronModal.classList.contains('visible')) cerrarPadron();
+});
 document.getElementById('btn-imprimir-padron').addEventListener('click', abrirPadron);
 
 // ── INIT ──────────────────────────────────────────────────────────────────
