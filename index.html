@@ -1816,24 +1816,39 @@ function imprimirDesdePadron() {
   </table>
 </div>`;
 
-    // ── Ocultar todos los nodos actuales del body ───────────────────────
-    const nodos = Array.from(document.body.children);
-    nodos.forEach(n => n.style.setProperty('display', 'none', 'important'));
-
-    // ── Insertar el padrón al final del body ─────────────────────────────
+    // ── 1. Insertar el padrón como nodo oculto en el body ───────────────
     const contenedor = document.createElement('div');
     contenedor.id = '__padron_print__';
     contenedor.innerHTML = padronHTML;
     document.body.appendChild(contenedor);
 
-    // ── Restaurar después de imprimir ─────────────────────────────────────
-    const restaurar = () => {
-        const el = document.getElementById('__padron_print__');
-        if (el) el.remove();
-        nodos.forEach(n => n.style.removeProperty('display'));
+    // ── 2. Inyectar <style> en el <head> que al imprimir muestra SOLO el padrón
+    //       Esto funciona en todos los navegadores móviles porque el CSS
+    //       @media print tiene prioridad sobre cualquier otra regla de pantalla.
+    const estiloImpr = document.createElement('style');
+    estiloImpr.id = '__estilo_padron_print__';
+    estiloImpr.textContent = `
+@media print {
+    body > *                { display:none !important; }
+    body > #__padron_print__{ display:block !important; }
+    #__padron_print__ table { display:table !important; width:100% !important; border-collapse:collapse !important; table-layout:fixed !important; }
+    #__padron_print__ thead { display:table-header-group !important; }
+    #__padron_print__ tbody { display:table-row-group !important; }
+    #__padron_print__ tfoot { display:table-footer-group !important; }
+    #__padron_print__ tr    { display:table-row !important; background:none !important; border:none !important; padding:0 !important; margin:0 !important; }
+    #__padron_print__ th,
+    #__padron_print__ td    { display:table-cell !important; }
+    @page { margin:1.2cm; size:A4 portrait; }
+}`;
+    document.head.appendChild(estiloImpr);
+
+    // ── 3. Limpiar después de imprimir ────────────────────────────────────
+    const limpiar = () => {
+        document.getElementById('__padron_print__')?.remove();
+        document.getElementById('__estilo_padron_print__')?.remove();
         window.onafterprint = null;
     };
-    window.onafterprint = restaurar;
+    window.onafterprint = limpiar;
 
     window.print();
 }
