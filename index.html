@@ -261,8 +261,18 @@
            ══════════════════════════════════════════════════ */
         @media print{
             /* Ocultar TODO cuando se imprime el padrón */
-            body.imprimiendo-padron > *{display:none!important;}
-            body.imprimiendo-padron > #padron-print-content{display:block!important;}
+            body.imprimiendo-padron > * { display:none !important; }
+            body.imprimiendo-padron > #padron-print-content { display:block !important; }
+            /* Anular reglas @media screen dentro del contexto de impresión del padrón */
+            body.imprimiendo-padron #padron-print-content table        { display:table !important; width:100% !important; border-collapse:collapse !important; }
+            body.imprimiendo-padron #padron-print-content thead        { display:table-header-group !important; }
+            body.imprimiendo-padron #padron-print-content thead tr     { display:table-row !important; }
+            body.imprimiendo-padron #padron-print-content tbody        { display:table-row-group !important; }
+            body.imprimiendo-padron #padron-print-content tbody tr     { display:table-row !important; border:none !important; background:none !important; border-radius:0 !important; margin:0 !important; padding:0 !important; min-height:unset !important; flex-direction:unset !important; gap:0 !important; }
+            body.imprimiendo-padron #padron-print-content tbody td     { display:table-cell !important; flex:unset !important; white-space:normal !important; padding:7px 6px !important; border:none !important; border-bottom:1px solid #ccc !important; text-align:left !important; font-size:10px !important; color:#000 !important; }
+            body.imprimiendo-padron #padron-print-content tbody td:first-child { font-weight:700 !important; }
+            body.imprimiendo-padron #padron-print-content tfoot        { display:table-footer-group !important; }
+            body.imprimiendo-padron #padron-print-content tfoot td     { display:table-cell !important; }
 
             /* ── Reporte de cuotas normal ── */
             body:not(.imprimiendo-padron) header,
