@@ -1769,21 +1769,51 @@ function cerrarPadron() {
 }
 
 function imprimirDesdePadron() {
-    // Marcar el body: @media print sabrá que debe mostrar solo #padron-print-content
-    document.body.classList.add('imprimiendo-padron');
+    // Obtener el HTML del padrón ya generado
+    const contenido = document.getElementById('padron-print-content').innerHTML;
+    if (!contenido) { dcAlert('No hay datos para imprimir.', 'warn'); return; }
 
-    const limpiar = () => {
-        document.body.classList.remove('imprimiendo-padron');
-        window.onafterprint = null;
-        window.removeEventListener('focus', limpiarFoco);
-    };
-    const limpiarFoco = () => limpiar();
-
-    window.onafterprint = () => limpiar();
-    // Fallback móvil: el foco vuelve cuando se cierra el gestor de impresión
-    setTimeout(() => window.addEventListener('focus', limpiarFoco, { once: true }), 500);
-
-    setTimeout(() => window.print(), 50);
+    // Abrir ventana nueva de impresión completamente independiente
+    const ventana = window.open('', '_blank', 'width=900,height=650');
+    ventana.document.write(`<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Padrón de Alumnos</title>
+<style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;padding:15px;color:#000;background:#fff;}
+    .pp-cabecera{display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:3px solid #d32f2f;margin-bottom:12px;}
+    .pp-cabecera img{width:60px;height:60px;object-fit:contain;border-radius:50%;flex-shrink:0;}
+    .pp-cabecera-centro{flex:1;text-align:center;}
+    .pp-dojo{font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;}
+    .pp-sub{font-size:11px;color:#555;margin-top:2px;}
+    .pp-subtitulo{text-align:center;margin:10px 0 14px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#333;}
+    table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:11px;}
+    col.col-nombre{width:28%;}
+    col.col-dni{width:13%;}
+    col.col-fnac{width:15%;}
+    col.col-edad{width:9%;}
+    col.col-tel{width:17%;}
+    col.col-grad{width:18%;}
+    thead tr{display:table-row;}
+    thead th{background:#1a1a1a;color:#fff;padding:8px 8px;text-align:left;text-transform:uppercase;font-size:9px;letter-spacing:0.4px;border:none;border-bottom:2px solid #d32f2f;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    tbody tr{display:table-row;}
+    tbody td{padding:7px 8px;border:none;border-bottom:1px solid #ccc;text-align:left;font-size:10px;color:#000;}
+    tbody td:first-child{font-weight:700;}
+    tbody tr:nth-child(even) td{background:#f5f5f5;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    tfoot td{padding:8px;font-size:9px;color:#666;text-align:right;border-top:2px solid #000;}
+    @page{margin:1.2cm;size:A4 portrait;}
+</style>
+</head>
+<body>${contenido}</body>
+</html>`);
+    ventana.document.close();
+    ventana.focus();
+    setTimeout(() => {
+        ventana.print();
+        ventana.close();
+    }, 400);
 }
 
 pmBtnVolver.addEventListener('click', cerrarPadron);
