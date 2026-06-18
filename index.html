@@ -1689,91 +1689,103 @@ function imprimirDesdePadron() {
     const fechaHoy  = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' });
     const total     = ordenados.length;
 
+    const tdBase = 'padding:7px 10px;border-bottom:1px solid #ddd;font-size:10px;color:#000;text-align:left;';
+    const thStyle = 'background:#1a1a1a;color:#fff;padding:8px 10px;text-align:left;text-transform:uppercase;font-size:9px;letter-spacing:0.4px;border-bottom:2px solid #d32f2f;-webkit-print-color-adjust:exact;print-color-adjust:exact;';
+
     const filas = ordenados.map((a, i) => {
         const edad = calcularEdad(a.fechaNacimiento);
         const bg   = i % 2 === 1 ? '#f5f5f5' : '#ffffff';
+        const td   = `${tdBase}background:${bg};`;
         return `<tr>
-            <td style="font-weight:700;padding:7px 10px;border-bottom:1px solid #ddd;font-size:10px;color:#000;background:${bg};text-align:left;">${i + 1}. ${a.nombre}</td>
-            <td style="padding:7px 10px;border-bottom:1px solid #ddd;font-size:10px;color:#000;background:${bg};text-align:left;">${a.dni || '—'}</td>
-            <td style="padding:7px 10px;border-bottom:1px solid #ddd;font-size:10px;color:#000;background:${bg};text-align:left;">${formatearFechaNac(a.fechaNacimiento)}</td>
-            <td style="padding:7px 10px;border-bottom:1px solid #ddd;font-size:10px;color:#000;background:${bg};text-align:left;">${edad !== null ? edad + ' años' : '—'}</td>
-            <td style="padding:7px 10px;border-bottom:1px solid #ddd;font-size:10px;color:#000;background:${bg};text-align:left;">${a.telefono || '—'}</td>
-            <td style="padding:7px 10px;border-bottom:1px solid #ddd;font-size:10px;color:#000;background:${bg};text-align:left;">${a.graduacion || '—'}</td>
+            <td style="font-weight:700;${td}">${i + 1}. ${a.nombre}</td>
+            <td style="${td}">${a.dni || '—'}</td>
+            <td style="${td}">${formatearFechaNac(a.fechaNacimiento)}</td>
+            <td style="${td}">${edad !== null ? edad + ' años' : '—'}</td>
+            <td style="${td}">${a.telefono || '—'}</td>
+            <td style="${td}">${a.graduacion || '—'}</td>
         </tr>`;
     }).join('');
-
-    const thStyle = 'background:#1a1a1a;color:#fff;padding:8px 10px;text-align:left;text-transform:uppercase;font-size:9px;letter-spacing:0.4px;border-bottom:2px solid #d32f2f;-webkit-print-color-adjust:exact;print-color-adjust:exact;';
 
     const html = `<!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Padrón de Alumnos — ${nombreDojo}</title>
-    <style>
-        *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;}
-        body{padding:0;background:#fff;color:#000;}
-        table{width:100%;border-collapse:collapse;table-layout:fixed;}
-        @page{margin:1.2cm;size:A4 portrait;}
-        @media print{body{padding:0;}}
-    </style>
+<meta charset="UTF-8">
+<title>Padrón — ${nombreDojo}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;}
+body{padding:12px;background:#fff;color:#000;}
+table{width:100%;border-collapse:collapse;table-layout:fixed;}
+@page{margin:1.2cm;size:A4 portrait;}
+</style>
 </head>
 <body>
-    <!-- ENCABEZADO -->
-    <div style="display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:3px solid #d32f2f;margin-bottom:14px;">
-        <img src="${logoSrc}" style="width:64px;height:64px;object-fit:contain;border-radius:50%;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;" alt="Logo">
-        <div style="flex:1;text-align:center;">
-            <div style="font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">${nombreDojo}</div>
-            <div style="font-size:11px;color:#555;">${sub}</div>
-            <div style="font-size:11px;color:#555;margin-top:3px;">Generado el ${fechaHoy} — Total: ${total} alumno${total !== 1 ? 's' : ''}</div>
-        </div>
+<div style="display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:3px solid #d32f2f;margin-bottom:14px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+    <img src="${logoSrc}" style="width:60px;height:60px;object-fit:contain;border-radius:50%;flex-shrink:0;" alt="Logo">
+    <div style="flex:1;text-align:center;">
+        <div style="font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">${nombreDojo}</div>
+        <div style="font-size:11px;color:#555;">${sub}</div>
+        <div style="font-size:11px;color:#555;margin-top:3px;">Generado el ${fechaHoy} — Total: ${total} alumno${total !== 1 ? 's' : ''}</div>
     </div>
-    <!-- TÍTULO -->
-    <div style="text-align:center;margin-bottom:14px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#333;">
-        Padrón Oficial de Alumnos
-    </div>
-    <!-- TABLA -->
-    <table>
-        <colgroup>
-            <col style="width:26%;"><col style="width:13%;"><col style="width:15%;">
-            <col style="width:9%;"><col style="width:17%;"><col style="width:20%;">
-        </colgroup>
-        <thead>
-            <tr>
-                <th style="${thStyle}">Alumno</th>
-                <th style="${thStyle}">DNI</th>
-                <th style="${thStyle}">Fecha Nac.</th>
-                <th style="${thStyle}">Edad</th>
-                <th style="${thStyle}">Teléfono</th>
-                <th style="${thStyle}">Graduación</th>
-            </tr>
-        </thead>
-        <tbody>${filas}</tbody>
-        <tfoot>
-            <tr>
-                <td colspan="6" style="padding:8px 10px;font-size:9px;color:#666;text-align:right;border-top:2px solid #000;">
-                    Dojo Control — Reporte confidencial de uso interno
-                </td>
-            </tr>
-        </tfoot>
-    </table>
-    <script>
-        window.onload = function() {
-            window.print();
-            window.onafterprint = function() { window.close(); };
-            setTimeout(function() { window.close(); }, 5000);
-        };
-    <\/script>
+</div>
+<div style="text-align:center;margin-bottom:14px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#333;">Padrón Oficial de Alumnos</div>
+<table>
+<colgroup><col style="width:26%;"><col style="width:13%;"><col style="width:15%;"><col style="width:9%;"><col style="width:17%;"><col style="width:20%;"></colgroup>
+<thead><tr>
+    <th style="${thStyle}">Alumno</th>
+    <th style="${thStyle}">DNI</th>
+    <th style="${thStyle}">Fecha Nac.</th>
+    <th style="${thStyle}">Edad</th>
+    <th style="${thStyle}">Teléfono</th>
+    <th style="${thStyle}">Graduación</th>
+</tr></thead>
+<tbody>${filas}</tbody>
+<tfoot><tr><td colspan="6" style="padding:8px 10px;font-size:9px;color:#666;text-align:right;border-top:2px solid #000;">Dojo Control — Reporte confidencial de uso interno</td></tr></tfoot>
+</table>
 </body>
 </html>`;
 
-    const ventana = window.open('', '_blank', 'width=900,height=700');
-    if (!ventana) {
-        dcAlert('El navegador bloqueó la ventana emergente. Permití las ventanas emergentes para este sitio e intentá de nuevo.', 'warn');
-        return;
+    // Eliminar iframe previo si existe
+    const previo = document.getElementById('padron-print-iframe');
+    if (previo) previo.remove();
+
+    // Crear iframe oculto — funciona en móviles sin necesitar ventanas emergentes
+    const iframe = document.createElement('iframe');
+    iframe.id = 'padron-print-iframe';
+    iframe.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;border:none;pointer-events:none;z-index:-1;';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    doc.open();
+    doc.write(html);
+    doc.close();
+
+    // Esperar a que cargue el contenido (especialmente el logo si es base64)
+    const ejecutarImpresion = () => {
+        try {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+        } catch(e) {
+            // Fallback para navegadores muy restrictivos: blob URL
+            const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+            const url  = URL.createObjectURL(blob);
+            const a    = document.createElement('a');
+            a.href = url; a.target = '_blank'; a.rel = 'noopener';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 10000);
+        }
+        // Limpiar iframe después de imprimir
+        setTimeout(() => { if (iframe.parentNode) iframe.remove(); }, 8000);
+    };
+
+    // Logo base64 ya está disponible; logo externo necesita tiempo de carga
+    if (logoBase64) {
+        setTimeout(ejecutarImpresion, 300);
+    } else {
+        iframe.contentWindow.onload = ejecutarImpresion;
+        setTimeout(ejecutarImpresion, 1500); // safety timeout
     }
-    ventana.document.open();
-    ventana.document.write(html);
-    ventana.document.close();
 }
 
 pmBtnVolver.addEventListener('click', cerrarPadron);
