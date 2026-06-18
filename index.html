@@ -1677,25 +1677,20 @@ function cerrarPadron() {
     document.body.style.overflow = '';
 }
 
-function imprimirDesdePadron() {
-    if (!alumnos.length) {
-        dcAlert('No hay alumnos para imprimir.', 'warn');
-        return;
-    }
-
+function generarHTMLPadron() {
     const ordenados = [...alumnos].sort((a, b) => a.nombre.localeCompare(b.nombre));
     const logoSrc   = logoBase64 || 'logo.png';
     const sub       = `Sede ${nombreSede} | Sensei ${nombreSensei}`;
     const fechaHoy  = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' });
     const total     = ordenados.length;
 
-    const tdBase = 'padding:7px 10px;border-bottom:1px solid #ddd;font-size:10px;color:#000;text-align:left;';
+    const tdBase  = 'padding:7px 10px;border-bottom:1px solid #ddd;font-size:10px;color:#000;text-align:left;';
     const thStyle = 'background:#1a1a1a;color:#fff;padding:8px 10px;text-align:left;text-transform:uppercase;font-size:9px;letter-spacing:0.4px;border-bottom:2px solid #d32f2f;-webkit-print-color-adjust:exact;print-color-adjust:exact;';
 
     const filas = ordenados.map((a, i) => {
         const edad = calcularEdad(a.fechaNacimiento);
         const bg   = i % 2 === 1 ? '#f5f5f5' : '#ffffff';
-        const td   = `${tdBase}background:${bg};`;
+        const td   = `${tdBase}background:${bg};-webkit-print-color-adjust:exact;print-color-adjust:exact;`;
         return `<tr>
             <td style="font-weight:700;${td}">${i + 1}. ${a.nombre}</td>
             <td style="${td}">${a.dni || '—'}</td>
@@ -1706,21 +1701,26 @@ function imprimirDesdePadron() {
         </tr>`;
     }).join('');
 
-    const html = `<!DOCTYPE html>
+    return `<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Padrón — ${nombreDojo}</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Padrón Oficial — ${nombreDojo}</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;}
-body{padding:12px;background:#fff;color:#000;}
+html,body{background:#fff!important;color:#000!important;padding:12px;}
 table{width:100%;border-collapse:collapse;table-layout:fixed;}
 @page{margin:1.2cm;size:A4 portrait;}
+@media print{
+    html,body{padding:0!important;background:#fff!important;}
+    table{width:100%!important;border-collapse:collapse!important;table-layout:fixed!important;}
+}
 </style>
 </head>
 <body>
 <div style="display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:3px solid #d32f2f;margin-bottom:14px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
-    <img src="${logoSrc}" style="width:60px;height:60px;object-fit:contain;border-radius:50%;flex-shrink:0;" alt="Logo">
+    <img src="${logoSrc}" style="width:60px;height:60px;object-fit:contain;border-radius:50%;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;" alt="Logo">
     <div style="flex:1;text-align:center;">
         <div style="font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">${nombreDojo}</div>
         <div style="font-size:11px;color:#555;">${sub}</div>
@@ -1729,7 +1729,10 @@ table{width:100%;border-collapse:collapse;table-layout:fixed;}
 </div>
 <div style="text-align:center;margin-bottom:14px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#333;">Padrón Oficial de Alumnos</div>
 <table>
-<colgroup><col style="width:26%;"><col style="width:13%;"><col style="width:15%;"><col style="width:9%;"><col style="width:17%;"><col style="width:20%;"></colgroup>
+<colgroup>
+    <col style="width:26%;"><col style="width:13%;"><col style="width:15%;">
+    <col style="width:9%;"><col style="width:17%;"><col style="width:20%;">
+</colgroup>
 <thead><tr>
     <th style="${thStyle}">Alumno</th>
     <th style="${thStyle}">DNI</th>
@@ -1739,53 +1742,40 @@ table{width:100%;border-collapse:collapse;table-layout:fixed;}
     <th style="${thStyle}">Graduación</th>
 </tr></thead>
 <tbody>${filas}</tbody>
-<tfoot><tr><td colspan="6" style="padding:8px 10px;font-size:9px;color:#666;text-align:right;border-top:2px solid #000;">Dojo Control — Reporte confidencial de uso interno</td></tr></tfoot>
+<tfoot><tr>
+    <td colspan="6" style="padding:8px 10px;font-size:9px;color:#666;text-align:right;border-top:2px solid #000;">
+        Dojo Control — Reporte confidencial de uso interno
+    </td>
+</tr></tfoot>
 </table>
 </body>
 </html>`;
+}
 
-    // Eliminar iframe previo si existe
-    const previo = document.getElementById('padron-print-iframe');
-    if (previo) previo.remove();
-
-    // Crear iframe oculto — funciona en móviles sin necesitar ventanas emergentes
-    const iframe = document.createElement('iframe');
-    iframe.id = 'padron-print-iframe';
-    iframe.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;border:none;pointer-events:none;z-index:-1;';
-    document.body.appendChild(iframe);
-
-    const doc = iframe.contentDocument || iframe.contentWindow.document;
-    doc.open();
-    doc.write(html);
-    doc.close();
-
-    // Esperar a que cargue el contenido (especialmente el logo si es base64)
-    const ejecutarImpresion = () => {
-        try {
-            iframe.contentWindow.focus();
-            iframe.contentWindow.print();
-        } catch(e) {
-            // Fallback para navegadores muy restrictivos: blob URL
-            const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-            const url  = URL.createObjectURL(blob);
-            const a    = document.createElement('a');
-            a.href = url; a.target = '_blank'; a.rel = 'noopener';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            setTimeout(() => URL.revokeObjectURL(url), 10000);
-        }
-        // Limpiar iframe después de imprimir
-        setTimeout(() => { if (iframe.parentNode) iframe.remove(); }, 8000);
-    };
-
-    // Logo base64 ya está disponible; logo externo necesita tiempo de carga
-    if (logoBase64) {
-        setTimeout(ejecutarImpresion, 300);
-    } else {
-        iframe.contentWindow.onload = ejecutarImpresion;
-        setTimeout(ejecutarImpresion, 1500); // safety timeout
+function imprimirDesdePadron() {
+    if (!alumnos.length) {
+        dcAlert('No hay alumnos para imprimir.', 'warn');
+        return;
     }
+
+    const html = generarHTMLPadron();
+
+    // Blob URL: documento 100% independiente, sin herencia de CSS de la página padre.
+    // Funciona en móviles (Chrome Android, Safari iOS) y escritorio sin pop-ups bloqueados.
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const url  = URL.createObjectURL(blob);
+
+    // Abrir en pestaña nueva — en móviles esto abre el visor/gestor de impresión nativo
+    const link = document.createElement('a');
+    link.href     = url;
+    link.target   = '_blank';
+    link.rel      = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Liberar memoria después de que el navegador haya cargado el blob
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
 }
 
 pmBtnVolver.addEventListener('click', cerrarPadron);
