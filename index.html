@@ -2092,13 +2092,28 @@ function generarHTMLPadron() {
 html,body{background:#fff!important;color:#000!important;padding:12px;}
 table{width:100%;border-collapse:collapse;table-layout:fixed;}
 @page{margin:1.2cm;size:A4 portrait;}
+.pp-toolbar{
+    display:flex;justify-content:center;gap:10px;margin-bottom:16px;
+    padding:10px;background:#f4f4f4;border-radius:8px;
+}
+.pp-btn{
+    border:none;border-radius:6px;padding:10px 18px;font-size:14px;font-weight:700;
+    cursor:pointer;display:inline-flex;align-items:center;gap:8px;
+}
+.pp-btn-print{background:#d32f2f;color:#fff;}
+.pp-btn-close{background:#4a5568;color:#fff;}
 @media print{
     html,body{padding:0!important;background:#fff!important;}
     table{width:100%!important;border-collapse:collapse!important;table-layout:fixed!important;}
+    .pp-toolbar{display:none!important;}
 }
 </style>
 </head>
 <body>
+<div class="pp-toolbar">
+    <button class="pp-btn pp-btn-print" onclick="dispararImpresion()">🖨️ Imprimir / Guardar PDF</button>
+    <button class="pp-btn pp-btn-close" onclick="cerrarVentana()">✕ Cerrar</button>
+</div>
 <div style="display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:3px solid #d32f2f;margin-bottom:14px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
     <img src="${logoSrc}" style="width:60px;height:60px;object-fit:contain;border-radius:50%;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;" alt="Logo" id="pp-logo-img">
     <div style="flex:1;text-align:center;">
@@ -2128,6 +2143,41 @@ table{width:100%;border-collapse:collapse;table-layout:fixed;}
     </td>
 </tr></tfoot>
 </table>
+<script>
+    var impresionDisparada = false;
+    var yaCerrado = false;
+
+    function cerrarVentana() {
+        if (yaCerrado) return;
+        yaCerrado = true;
+        window.close();
+    }
+
+    function dispararImpresion() {
+        if (impresionDisparada) return;
+        impresionDisparada = true;
+        window.print();
+    }
+
+    window.addEventListener('afterprint', cerrarVentana);
+    window.addEventListener('focus', function() {
+        if (impresionDisparada) setTimeout(cerrarVentana, 400);
+    });
+    document.addEventListener('visibilitychange', function() {
+        if (impresionDisparada && document.visibilityState === 'visible') {
+            setTimeout(cerrarVentana, 400);
+        }
+    });
+
+    var imgLogo = document.getElementById('pp-logo-img');
+    if (imgLogo.complete) {
+        setTimeout(dispararImpresion, 200);
+    } else {
+        imgLogo.addEventListener('load', function(){ setTimeout(dispararImpresion, 150); });
+        imgLogo.addEventListener('error', function(){ setTimeout(dispararImpresion, 150); });
+        setTimeout(dispararImpresion, 1800);
+    }
+<\/script>
 </body>
 </html>`;
 }
@@ -2141,53 +2191,24 @@ function imprimirDesdePadron() {
     try {
         const html = generarHTMLPadron();
 
-        // Eliminar iframe de impresión previo si quedó alguno colgado
-        const previo = document.getElementById('padron-print-frame');
-        if (previo) previo.remove();
+        // Ventana nueva real (no iframe): así el contenido a imprimir queda
+        // completamente aislado del DOM de la página principal — el @media print
+        // de la página padre (que oculta/transforma cosas para el reporte de cuotas)
+        // no puede filtrarse ni mezclarse con el documento del padrón.
+        // Se usa document.write sobre una ventana vacía en vez de un Blob URL,
+        // ya que algunos navegadores móviles restringen la navegación a blob: en
+        // pestañas nuevas; este método es soportado universalmente.
+        const ventana = window.open('', '_blank');
 
-        // Iframe oculto en la propia página: evita por completo los problemas de
-        // window.open() con Blob URL en navegadores móviles (Chrome Android, Safari iOS),
-        // donde abrir pestañas nuevas con blob: suele fallar silenciosamente o ser bloqueado.
-        const iframe = document.createElement('iframe');
-        iframe.id = 'padron-print-frame';
-        iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
-        document.body.appendChild(iframe);
-
-        const doc = iframe.contentWindow.document;
-        doc.open();
-        doc.write(html);
-        doc.close();
-
-        const limpiarIframe = () => {
-            setTimeout(() => {
-                const el = document.getElementById('padron-print-frame');
-                if (el) el.remove();
-            }, 1000);
-        };
-
-        const dispararDesdeIframe = () => {
-            try {
-                iframe.contentWindow.focus();
-                iframe.contentWindow.print();
-            } catch(err) {
-                dcAlert('No se pudo abrir el gestor de impresión automáticamente.<br><br>Se descargará el padrón como archivo HTML — abrilo desde tus descargas y usá la opción de imprimir de tu navegador.', 'warn');
-                descargarPadronComoArchivo(html);
-            }
-            iframe.contentWindow.addEventListener('afterprint', limpiarIframe);
-            // Resguardo por si 'afterprint' no dispara en el navegador del usuario
-            setTimeout(limpiarIframe, 60000);
-        };
-
-        // Esperar a que el logo cargue dentro del iframe antes de imprimir,
-        // para que no salga recortado o en blanco en el documento impreso.
-        const imgLogo = doc.getElementById('pp-logo-img');
-        if (imgLogo && !imgLogo.complete) {
-            imgLogo.addEventListener('load', () => setTimeout(dispararDesdeIframe, 150));
-            imgLogo.addEventListener('error', () => setTimeout(dispararDesdeIframe, 150));
-            setTimeout(dispararDesdeIframe, 1800);
-        } else {
-            setTimeout(dispararDesdeIframe, 250);
+        if (!ventana) {
+            dcAlert('El navegador bloqueó la ventana de impresión.<br><br>Se descargará el padrón como archivo HTML — abrilo y usá la opción de imprimir de tu navegador.', 'warn');
+            descargarPadronComoArchivo(html);
+            return;
         }
+
+        ventana.document.open();
+        ventana.document.write(html);
+        ventana.document.close();
     } catch(err) {
         dcAlert('Ocurrió un error al preparar la impresión del padrón. Probá nuevamente.', 'err');
     }
