@@ -409,9 +409,19 @@
             #padron-modal tbody td:first-child{font-weight:600!important;}
 
             /* ── Tabla de Alumnos: tabla real con scroll horizontal en vez de tarjetas ── */
+            .grid-2 > .card{min-width:0;}
             .tabla-alumnos-wrapper{
-                overflow-x:auto;-webkit-overflow-scrolling:touch;
-                border-radius:8px;margin-top:10px;
+                display:block;
+                width:100%;
+                max-width:100%;
+                overflow-x:auto;
+                overflow-y:hidden;
+                -webkit-overflow-scrolling:touch;
+                touch-action:pan-x;
+                contain:layout;
+                border-radius:8px;
+                margin-top:10px;
+                border:1px solid var(--border-color);
             }
             #tabla-alumnos-simple-el{
                 display:table!important;width:max-content!important;min-width:100%!important;
