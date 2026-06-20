@@ -2064,8 +2064,8 @@ table{width:100%;border-collapse:collapse;table-layout:fixed;}
 </head>
 <body>
 <div class="pp-toolbar">
-    <button class="pp-btn pp-btn-print" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
-    <button class="pp-btn pp-btn-close" onclick="window.close()">✕ Cerrar</button>
+    <button class="pp-btn pp-btn-print" onclick="dispararImpresion()">🖨️ Imprimir / Guardar PDF</button>
+    <button class="pp-btn pp-btn-close" onclick="cerrarVentana()">✕ Cerrar</button>
 </div>
 <div style="display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:3px solid #d32f2f;margin-bottom:14px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
     <img src="${logoSrc}" style="width:60px;height:60px;object-fit:contain;border-radius:50%;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;" alt="Logo" id="pp-logo-img">
@@ -2097,9 +2097,37 @@ table{width:100%;border-collapse:collapse;table-layout:fixed;}
 </tr></tfoot>
 </table>
 <script>
+    var impresionDisparada = false;
+    var yaCerrado = false;
+
+    function cerrarVentana() {
+        if (yaCerrado) return;
+        yaCerrado = true;
+        window.close();
+    }
+
     function dispararImpresion() {
+        if (impresionDisparada) return;
+        impresionDisparada = true;
         window.print();
     }
+
+    // Cierre automático cuando el diálogo de impresión se cierra
+    // (ya sea imprimiendo o cancelando). Soportado en Chrome, Edge, Firefox y Safari.
+    window.addEventListener('afterprint', cerrarVentana);
+
+    // Respaldo para navegadores/WebViews donde 'afterprint' no dispara de forma
+    // confiable (algunos navegadores móviles): al volver el foco a esta pestaña
+    // después de haber impreso, se asume que el diálogo se cerró.
+    window.addEventListener('focus', function() {
+        if (impresionDisparada) setTimeout(cerrarVentana, 400);
+    });
+    document.addEventListener('visibilitychange', function() {
+        if (impresionDisparada && document.visibilityState === 'visible') {
+            setTimeout(cerrarVentana, 400);
+        }
+    });
+
     var imgLogo = document.getElementById('pp-logo-img');
     if (imgLogo.complete) {
         setTimeout(dispararImpresion, 200);
