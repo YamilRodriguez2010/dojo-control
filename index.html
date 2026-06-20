@@ -465,47 +465,122 @@
            IMPRESIÓN — REPORTE DE CUOTAS (pantalla principal)
            ══════════════════════════════════════════════════ */
         @media print{
-            .sidebar,.topbar,.bottom-nav,.page-header-actions,.btn-sm,.acciones-header,
-            td.acciones-header,th.acciones-header,.alert-banner,
-            .aviso-programado,.period-selector,.card-header-actions,
-            .filtro-busqueda,#padron-modal,.dc-modal-overlay,
-            .page:not(.printing-source){display:none!important;}
+            /* ── MODO PADRÓN: oculta todo excepto el bloque de impresión del padrón ── */
+            body.imprimiendo-padron .app-shell,
+            body.imprimiendo-padron #padron-modal,
+            body.imprimiendo-padron .dc-modal-overlay,
+            body.imprimiendo-padron .print-header,
+            body.imprimiendo-padron .print-mes-container{display:none!important;}
+            body.imprimiendo-padron #padron-print-block{display:block!important;}
+
+            /* ── MODO REPORTE DE CUOTAS (por defecto, cuando NO se imprime el padrón) ── */
+            body:not(.imprimiendo-padron) .sidebar,
+            body:not(.imprimiendo-padron) .topbar,
+            body:not(.imprimiendo-padron) .bottom-nav,
+            body:not(.imprimiendo-padron) .page-header-actions,
+            body:not(.imprimiendo-padron) .btn-sm,
+            body:not(.imprimiendo-padron) .acciones-header,
+            body:not(.imprimiendo-padron) td.acciones-header,
+            body:not(.imprimiendo-padron) th.acciones-header,
+            body:not(.imprimiendo-padron) .alert-banner,
+            body:not(.imprimiendo-padron) .aviso-programado,
+            body:not(.imprimiendo-padron) .period-selector,
+            body:not(.imprimiendo-padron) .card-header-actions,
+            body:not(.imprimiendo-padron) .filtro-busqueda,
+            body:not(.imprimiendo-padron) #padron-modal,
+            body:not(.imprimiendo-padron) .dc-modal-overlay,
+            body:not(.imprimiendo-padron) #padron-print-block,
+            body:not(.imprimiendo-padron) .page:not(.printing-source){display:none!important;}
 
             body{background-color:#ffffff!important;color:#000000!important;padding:0!important;margin:0!important;}
-            .app-shell{display:block!important;}
-            .content-area{padding:0!important;}
-            .page.printing-source{display:block!important;width:100%!important;margin:0!important;padding:0!important;max-width:none!important;}
-            .card{padding:0!important;border:none!important;background:transparent!important;box-shadow:none!important;margin-bottom:20px!important;}
-            .print-header{display:block!important;position:relative;text-align:center;margin-bottom:10px;padding-bottom:15px;border-bottom:3px solid #000;color:#000!important;}
-            .print-header img{position:absolute;left:0;top:10px;width:80px;height:80px;}
-            .print-header h1{font-size:22px;text-transform:uppercase;margin-bottom:5px;margin-top:0;}
-            .print-header p{font-size:14px;margin:3px 0;}
-            .print-mes-container{display:block!important;text-align:center;margin-bottom:20px;}
-            .mes-destacado{font-size:16px;text-transform:uppercase;letter-spacing:1px;color:#000!important;margin:0;}
-            .widgets{display:flex!important;justify-content:space-between!important;margin-bottom:25px!important;border:2px solid #000!important;border-radius:0!important;gap:0!important;padding:0!important;}
-            .card-widget{background:transparent!important;border:none!important;border-right:1px solid #000!important;border-radius:0!important;padding:10px!important;flex:1!important;text-align:center!important;}
-            .card-widget:last-child{border-right:none!important;}
-            .card-widget i.cw-icon{display:none!important;}
-            .card-widget h3{color:#000!important;font-size:12px!important;margin-bottom:5px!important;font-weight:bold!important;}
-            .card-widget p{color:#000!important;font-size:18px!important;font-weight:bold!important;margin:0!important;}
-            .col-telefono,.col-oculta-principal{display:table-cell!important;}
-            .col-estado-screen{display:none!important;}
-            .col-observacion-print{display:table-cell!important;}
-            table{display:table!important;width:100%!important;border-collapse:collapse!important;border:none!important;border-top:2px solid #000!important;border-bottom:2px solid #000!important;}
-            thead{display:table-header-group!important;position:static!important;}
-            tbody{display:table-row-group!important;}
-            tr{display:table-row!important;border:none!important;background:none!important;page-break-inside:avoid!important;margin:0!important;padding:0!important;}
-            th{display:table-cell!important;background-color:#f0f0f0!important;color:#000!important;border:none!important;border-bottom:2px solid #000!important;padding:10px!important;text-align:center!important;font-weight:bold!important;text-transform:uppercase;font-size:12px!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-            td{display:table-cell!important;border:none!important;border-bottom:1px solid #000!important;padding:8px!important;text-align:center!important;font-size:12px!important;color:#000!important;position:static!important;}
-            td:before{content:none!important;}
-            td:first-child{text-align:left!important;font-weight:bold;border-bottom:1px solid #000!important;}
-            .badge{border:1px solid #000!important;background:transparent!important;color:#000!important;padding:3px 8px!important;font-size:11px!important;font-weight:bold!important;border-radius:4px!important;}
-            .table-date-input{display:none!important;}
-            .print-only{display:inline!important;font-weight:bold;}
-            td[data-label="Fecha de Pago"]{text-align:center!important;}
-            td[data-label="Fecha de Pago"] .badge{display:none!important;}
-            td[data-label="Fecha de Pago"] .print-only{display:inline!important;}
+            body:not(.imprimiendo-padron) .app-shell{display:block!important;}
+            body:not(.imprimiendo-padron) .content-area{padding:0!important;}
+            body:not(.imprimiendo-padron) .page.printing-source{display:block!important;width:100%!important;margin:0!important;padding:0!important;max-width:none!important;}
+            body:not(.imprimiendo-padron) .card{padding:0!important;border:none!important;background:transparent!important;box-shadow:none!important;margin-bottom:20px!important;}
+            body:not(.imprimiendo-padron) .print-header{display:block!important;position:relative;text-align:center;margin-bottom:10px;padding-bottom:15px;border-bottom:3px solid #000;color:#000!important;}
+            body:not(.imprimiendo-padron) .print-header img{position:absolute;left:0;top:10px;width:80px;height:80px;}
+            body:not(.imprimiendo-padron) .print-header h1{font-size:22px;text-transform:uppercase;margin-bottom:5px;margin-top:0;}
+            body:not(.imprimiendo-padron) .print-header p{font-size:14px;margin:3px 0;}
+            body:not(.imprimiendo-padron) .print-mes-container{display:block!important;text-align:center;margin-bottom:20px;}
+            body:not(.imprimiendo-padron) .mes-destacado{font-size:16px;text-transform:uppercase;letter-spacing:1px;color:#000!important;margin:0;}
+            body:not(.imprimiendo-padron) .widgets{display:flex!important;justify-content:space-between!important;margin-bottom:25px!important;border:2px solid #000!important;border-radius:0!important;gap:0!important;padding:0!important;}
+            body:not(.imprimiendo-padron) .card-widget{background:transparent!important;border:none!important;border-right:1px solid #000!important;border-radius:0!important;padding:10px!important;flex:1!important;text-align:center!important;}
+            body:not(.imprimiendo-padron) .card-widget:last-child{border-right:none!important;}
+            body:not(.imprimiendo-padron) .card-widget i.cw-icon{display:none!important;}
+            body:not(.imprimiendo-padron) .card-widget h3{color:#000!important;font-size:12px!important;margin-bottom:5px!important;font-weight:bold!important;}
+            body:not(.imprimiendo-padron) .card-widget p{color:#000!important;font-size:18px!important;font-weight:bold!important;margin:0!important;}
+            body:not(.imprimiendo-padron) .col-telefono,
+            body:not(.imprimiendo-padron) .col-oculta-principal{display:table-cell!important;}
+            body:not(.imprimiendo-padron) .col-estado-screen{display:none!important;}
+            body:not(.imprimiendo-padron) .col-observacion-print{display:table-cell!important;}
+            body:not(.imprimiendo-padron) table{display:table!important;width:100%!important;border-collapse:collapse!important;border:none!important;border-top:2px solid #000!important;border-bottom:2px solid #000!important;}
+            body:not(.imprimiendo-padron) thead{display:table-header-group!important;position:static!important;}
+            body:not(.imprimiendo-padron) tbody{display:table-row-group!important;}
+            body:not(.imprimiendo-padron) tr{display:table-row!important;border:none!important;background:none!important;page-break-inside:avoid!important;margin:0!important;padding:0!important;}
+            body:not(.imprimiendo-padron) th{display:table-cell!important;background-color:#f0f0f0!important;color:#000!important;border:none!important;border-bottom:2px solid #000!important;padding:10px!important;text-align:center!important;font-weight:bold!important;text-transform:uppercase;font-size:12px!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+            body:not(.imprimiendo-padron) td{display:table-cell!important;border:none!important;border-bottom:1px solid #000!important;padding:8px!important;text-align:center!important;font-size:12px!important;color:#000!important;position:static!important;}
+            body:not(.imprimiendo-padron) td:before{content:none!important;}
+            body:not(.imprimiendo-padron) td:first-child{text-align:left!important;font-weight:bold;border-bottom:1px solid #000!important;}
+            body:not(.imprimiendo-padron) .badge{border:1px solid #000!important;background:transparent!important;color:#000!important;padding:3px 8px!important;font-size:11px!important;font-weight:bold!important;border-radius:4px!important;}
+            body:not(.imprimiendo-padron) .table-date-input{display:none!important;}
+            body:not(.imprimiendo-padron) .print-only{display:inline!important;font-weight:bold;}
+            body:not(.imprimiendo-padron) td[data-label="Fecha de Pago"]{text-align:center!important;}
+            body:not(.imprimiendo-padron) td[data-label="Fecha de Pago"] .badge{display:none!important;}
+            body:not(.imprimiendo-padron) td[data-label="Fecha de Pago"] .print-only{display:inline!important;}
+
+            /* ── ESTILOS DEL BLOQUE DE IMPRESIÓN DEL PADRÓN ── */
+            #padron-print-block{
+                background:#fff!important;color:#000!important;
+                padding:0;margin:0;width:100%;
+            }
+            #padron-print-block .pp-cabecera{
+                display:flex;align-items:center;gap:14px;
+                padding-bottom:12px;border-bottom:3px solid #d32f2f;margin-bottom:14px;
+                -webkit-print-color-adjust:exact;print-color-adjust:exact;
+            }
+            #padron-print-block .pp-cabecera img{
+                width:60px;height:60px;object-fit:contain;border-radius:50%;flex-shrink:0;
+                -webkit-print-color-adjust:exact;print-color-adjust:exact;
+            }
+            #padron-print-block .pp-cabecera-centro{flex:1;text-align:center;}
+            #padron-print-block .pp-dojo{font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;color:#000;}
+            #padron-print-block .pp-sub{font-size:11px;color:#555;}
+            #padron-print-block .pp-subtitulo{
+                text-align:center;margin-bottom:14px;font-size:13px;font-weight:700;
+                text-transform:uppercase;letter-spacing:1px;color:#333;
+            }
+            #padron-print-block table{
+                width:100%!important;border-collapse:collapse!important;table-layout:fixed!important;
+                display:table!important;
+            }
+            #padron-print-block thead{display:table-header-group!important;}
+            #padron-print-block tbody{display:table-row-group!important;}
+            #padron-print-block tfoot{display:table-footer-group!important;}
+            #padron-print-block tr{display:table-row!important;page-break-inside:avoid!important;background:none!important;border:none!important;margin:0!important;padding:0!important;}
+            #padron-print-block th{
+                display:table-cell!important;background:#1a1a1a!important;color:#fff!important;
+                padding:8px 10px!important;font-size:9px!important;text-align:left!important;
+                text-transform:uppercase;border:none!important;border-bottom:2px solid #d32f2f!important;
+                font-weight:700;-webkit-print-color-adjust:exact;print-color-adjust:exact;
+            }
+            #padron-print-block td{
+                display:table-cell!important;padding:7px 10px!important;font-size:10px!important;
+                color:#000!important;border:none!important;border-bottom:1px solid #ccc!important;
+                text-align:left!important;background:transparent!important;
+            }
+            #padron-print-block td:first-child{font-weight:700!important;}
+            #padron-print-block tbody tr:nth-child(even) td{
+                background:#f5f5f5!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;
+            }
+            #padron-print-block tfoot td{
+                font-size:9px!important;color:#666!important;border-top:2px solid #000!important;
+                text-align:right!important;
+            }
+            @page{margin:1.2cm;size:A4 portrait;}
         }
+
+        /* El bloque de impresión del padrón nunca se muestra en pantalla */
+        #padron-print-block{display:none;}
 
         /* ══════════════════════════════════════════════════
            MODAL PADRÓN — vista interactiva en pantalla
@@ -657,6 +732,44 @@
 </div>
 <div class="print-mes-container">
     <p class="mes-destacado"><strong>Mes de Gestión: <span id="print-mes"></span></strong></p>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     BLOQUE DE IMPRESIÓN DEL PADRÓN OFICIAL
+     Oculto en pantalla; solo se muestra cuando body
+     tiene la clase 'imprimiendo-padron' durante print.
+     Se regenera con datos frescos cada vez que se imprime.
+     ══════════════════════════════════════════════════ -->
+<div id="padron-print-block">
+    <div class="pp-cabecera">
+        <img src="logo.png" alt="Logo" id="pp-print-logo">
+        <div class="pp-cabecera-centro">
+            <div class="pp-dojo" id="pp-print-dojo">BUTOKU-KAI SHOTOKAN KARATE-DO</div>
+            <div class="pp-sub" id="pp-print-sub">Sede Villa Ángela | Sensei Yamil Rodriguez</div>
+            <div class="pp-sub" id="pp-print-meta" style="margin-top:3px;"></div>
+        </div>
+    </div>
+    <div class="pp-subtitulo">Padrón Oficial de Alumnos</div>
+    <table>
+        <colgroup>
+            <col style="width:26%;"><col style="width:13%;"><col style="width:15%;">
+            <col style="width:9%;"><col style="width:17%;"><col style="width:20%;">
+        </colgroup>
+        <thead>
+            <tr>
+                <th>Alumno</th>
+                <th>DNI</th>
+                <th>Fecha Nac.</th>
+                <th>Edad</th>
+                <th>Teléfono</th>
+                <th>Graduación</th>
+            </tr>
+        </thead>
+        <tbody id="pp-print-tbody"></tbody>
+        <tfoot>
+            <tr><td colspan="6">Dojo Control — Reporte confidencial de uso interno</td></tr>
+        </tfoot>
+    </table>
 </div>
 
 <!-- ══════════════════════════════════════════════════
@@ -2057,173 +2170,57 @@ function cerrarPadron() {
     document.body.style.overflow = '';
 }
 
-function generarHTMLPadron() {
-    const ordenados = [...alumnos].sort((a, b) => a.nombre.localeCompare(b.nombre));
-    const logoSrc   = logoBase64 || 'logo.png';
-    const sub       = `Sede ${nombreSede} | Sensei ${nombreSensei}`;
-    const fechaHoy  = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' });
-    const total     = ordenados.length;
-
-    const tdBase  = 'padding:7px 10px;border-bottom:1px solid #ddd;font-size:10px;color:#000;text-align:left;';
-    const thStyle = 'background:#1a1a1a;color:#fff;padding:8px 10px;text-align:left;text-transform:uppercase;font-size:9px;letter-spacing:0.4px;border-bottom:2px solid #d32f2f;-webkit-print-color-adjust:exact;print-color-adjust:exact;';
-
-    const filas = ordenados.map((a, i) => {
-        const edad = calcularEdad(a.fechaNacimiento);
-        const bg   = i % 2 === 1 ? '#f5f5f5' : '#ffffff';
-        const td   = `${tdBase}background:${bg};-webkit-print-color-adjust:exact;print-color-adjust:exact;`;
-        return `<tr>
-            <td style="font-weight:700;${td}">${i + 1}. ${a.nombre}</td>
-            <td style="${td}">${a.dni || '—'}</td>
-            <td style="${td}">${formatearFechaNac(a.fechaNacimiento)}</td>
-            <td style="${td}">${edad !== null ? edad + ' años' : '—'}</td>
-            <td style="${td}">${a.telefono || '—'}</td>
-            <td style="${td}">${a.graduacion || '—'}</td>
-        </tr>`;
-    }).join('');
-
-    return `<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Padrón Oficial — ${nombreDojo}</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;}
-html,body{background:#fff!important;color:#000!important;padding:12px;}
-table{width:100%;border-collapse:collapse;table-layout:fixed;}
-@page{margin:1.2cm;size:A4 portrait;}
-.pp-toolbar{
-    display:flex;justify-content:center;gap:10px;margin-bottom:16px;
-    padding:10px;background:#f4f4f4;border-radius:8px;
-}
-.pp-btn{
-    border:none;border-radius:6px;padding:10px 18px;font-size:14px;font-weight:700;
-    cursor:pointer;display:inline-flex;align-items:center;gap:8px;
-}
-.pp-btn-print{background:#d32f2f;color:#fff;}
-.pp-btn-close{background:#4a5568;color:#fff;}
-@media print{
-    html,body{padding:0!important;background:#fff!important;}
-    table{width:100%!important;border-collapse:collapse!important;table-layout:fixed!important;}
-    .pp-toolbar{display:none!important;}
-}
-</style>
-</head>
-<body>
-<div class="pp-toolbar">
-    <button class="pp-btn pp-btn-print" onclick="dispararImpresion()">🖨️ Imprimir / Guardar PDF</button>
-    <button class="pp-btn pp-btn-close" onclick="cerrarVentana()">✕ Cerrar</button>
-</div>
-<div style="display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:3px solid #d32f2f;margin-bottom:14px;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
-    <img src="${logoSrc}" style="width:60px;height:60px;object-fit:contain;border-radius:50%;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;" alt="Logo" id="pp-logo-img">
-    <div style="flex:1;text-align:center;">
-        <div style="font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">${nombreDojo}</div>
-        <div style="font-size:11px;color:#555;">${sub}</div>
-        <div style="font-size:11px;color:#555;margin-top:3px;">Generado el ${fechaHoy} — Total: ${total} alumno${total !== 1 ? 's' : ''}</div>
-    </div>
-</div>
-<div style="text-align:center;margin-bottom:14px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#333;">Padrón Oficial de Alumnos</div>
-<table>
-<colgroup>
-    <col style="width:26%;"><col style="width:13%;"><col style="width:15%;">
-    <col style="width:9%;"><col style="width:17%;"><col style="width:20%;">
-</colgroup>
-<thead><tr>
-    <th style="${thStyle}">Alumno</th>
-    <th style="${thStyle}">DNI</th>
-    <th style="${thStyle}">Fecha Nac.</th>
-    <th style="${thStyle}">Edad</th>
-    <th style="${thStyle}">Teléfono</th>
-    <th style="${thStyle}">Graduación</th>
-</tr></thead>
-<tbody>${filas}</tbody>
-<tfoot><tr>
-    <td colspan="6" style="padding:8px 10px;font-size:9px;color:#666;text-align:right;border-top:2px solid #000;">
-        Dojo Control — Reporte confidencial de uso interno
-    </td>
-</tr></tfoot>
-</table>
-<script>
-    var impresionDisparada = false;
-    var yaCerrado = false;
-
-    function cerrarVentana() {
-        if (yaCerrado) return;
-        yaCerrado = true;
-        window.close();
-    }
-
-    function dispararImpresion() {
-        if (impresionDisparada) return;
-        impresionDisparada = true;
-        window.print();
-    }
-
-    window.addEventListener('afterprint', cerrarVentana);
-    window.addEventListener('focus', function() {
-        if (impresionDisparada) setTimeout(cerrarVentana, 400);
-    });
-    document.addEventListener('visibilitychange', function() {
-        if (impresionDisparada && document.visibilityState === 'visible') {
-            setTimeout(cerrarVentana, 400);
-        }
-    });
-
-    var imgLogo = document.getElementById('pp-logo-img');
-    if (imgLogo.complete) {
-        setTimeout(dispararImpresion, 200);
-    } else {
-        imgLogo.addEventListener('load', function(){ setTimeout(dispararImpresion, 150); });
-        imgLogo.addEventListener('error', function(){ setTimeout(dispararImpresion, 150); });
-        setTimeout(dispararImpresion, 1800);
-    }
-<\/script>
-</body>
-</html>`;
-}
-
 function imprimirDesdePadron() {
     if (!alumnos.length) {
         dcAlert('No hay alumnos para imprimir.', 'warn');
         return;
     }
 
-    try {
-        const html = generarHTMLPadron();
+    const ordenados = [...alumnos].sort((a, b) => a.nombre.localeCompare(b.nombre));
+    const logoSrc    = logoBase64 || 'logo.png';
+    const sub        = `Sede ${nombreSede} | Sensei ${nombreSensei}`;
+    const fechaHoy   = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' });
+    const total      = ordenados.length;
 
-        // Ventana nueva real (no iframe): así el contenido a imprimir queda
-        // completamente aislado del DOM de la página principal — el @media print
-        // de la página padre (que oculta/transforma cosas para el reporte de cuotas)
-        // no puede filtrarse ni mezclarse con el documento del padrón.
-        // Se usa document.write sobre una ventana vacía en vez de un Blob URL,
-        // ya que algunos navegadores móviles restringen la navegación a blob: en
-        // pestañas nuevas; este método es soportado universalmente.
-        const ventana = window.open('', '_blank');
+    const filas = ordenados.map((a, i) => {
+        const edad = calcularEdad(a.fechaNacimiento);
+        return `<tr>
+            <td>${i + 1}. ${a.nombre}</td>
+            <td>${a.dni || '—'}</td>
+            <td>${formatearFechaNac(a.fechaNacimiento)}</td>
+            <td>${edad !== null ? edad + ' años' : '—'}</td>
+            <td>${a.telefono || '—'}</td>
+            <td>${a.graduacion || '—'}</td>
+        </tr>`;
+    }).join('');
 
-        if (!ventana) {
-            dcAlert('El navegador bloqueó la ventana de impresión.<br><br>Se descargará el padrón como archivo HTML — abrilo y usá la opción de imprimir de tu navegador.', 'warn');
-            descargarPadronComoArchivo(html);
-            return;
-        }
+    // Rellenar el bloque de impresión dedicado, dentro de la misma página.
+    // No se abren ventanas ni iframes: se usa el mismo mecanismo simple y
+    // confiable que ya funciona para el reporte de cuotas (window.print()
+    // directo), con el body marcado para que el @media print muestre
+    // únicamente este bloque y oculte el resto de la aplicación.
+    document.getElementById('pp-print-logo').src = logoSrc;
+    document.getElementById('pp-print-dojo').innerText = nombreDojo;
+    document.getElementById('pp-print-sub').innerText = sub;
+    document.getElementById('pp-print-meta').innerText = `Generado el ${fechaHoy} — Total: ${total} alumno${total !== 1 ? 's' : ''}`;
+    document.getElementById('pp-print-tbody').innerHTML = filas;
 
-        ventana.document.open();
-        ventana.document.write(html);
-        ventana.document.close();
-    } catch(err) {
-        dcAlert('Ocurrió un error al preparar la impresión del padrón. Probá nuevamente.', 'err');
-    }
-}
+    document.body.classList.add('imprimiendo-padron');
 
-function descargarPadronComoArchivo(html) {
-    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-    const url  = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `Padron-${nombreDojo.replace(/\s+/g,'-')}.html`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    setTimeout(() => URL.revokeObjectURL(url), 30000);
+    const finalizarImpresion = () => {
+        document.body.classList.remove('imprimiendo-padron');
+        window.removeEventListener('afterprint', finalizarImpresion);
+    };
+    window.addEventListener('afterprint', finalizarImpresion);
+
+    // Pequeña espera para asegurar que el logo (si cambió) se pinte antes
+    // de invocar el gestor de impresión nativo del dispositivo.
+    setTimeout(() => {
+        window.print();
+        // Resguardo: si 'afterprint' no dispara en el navegador del usuario,
+        // se restaura igualmente la vista normal pasado un tiempo prudencial.
+        setTimeout(finalizarImpresion, 4000);
+    }, 150);
 }
 
 pmBtnVolver.addEventListener('click', cerrarPadron);
