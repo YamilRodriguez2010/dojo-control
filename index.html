@@ -329,7 +329,7 @@
         }
         .logo-reset-link:hover{color:var(--primary);background:var(--table-th-bg);}
 
-        /* ── Settings: bloques desplegables (acordeón) ── */
+        .celda-acciones-simple{display:flex;gap:6px;justify-content:center;align-items:center;}
         .settings-stack{display:flex;flex-direction:column;gap:12px;max-width:680px;}
         .accordion{
             background:var(--card-bg);border:1px solid var(--border-color);border-radius:10px;
@@ -407,6 +407,41 @@
             #padron-modal tbody tr{display:table-row!important;background:none!important;border:none!important;border-radius:0!important;margin:0!important;padding:0!important;min-height:unset!important;overflow:visible!important;width:auto!important;box-sizing:content-box!important;gap:0!important;flex-direction:unset!important;align-items:unset!important;}
             #padron-modal tbody td{display:table-cell!important;flex:unset!important;min-width:unset!important;white-space:nowrap;overflow:visible!important;text-overflow:unset!important;padding:9px 16px!important;border:none!important;border-bottom:1px solid var(--border-color)!important;text-align:left!important;font-size:13px!important;color:var(--text-main)!important;}
             #padron-modal tbody td:first-child{font-weight:600!important;}
+
+            /* ── Tabla de Alumnos: tabla real con scroll horizontal en vez de tarjetas ── */
+            .tabla-alumnos-wrapper{
+                overflow-x:auto;-webkit-overflow-scrolling:touch;
+                border-radius:8px;margin-top:10px;
+            }
+            #tabla-alumnos-simple-el{
+                display:table!important;width:max-content!important;min-width:100%!important;
+                border-collapse:collapse;margin-top:0;
+            }
+            #tabla-alumnos-simple-el thead{display:table-header-group!important;}
+            #tabla-alumnos-simple-el thead tr{display:table-row!important;}
+            #tabla-alumnos-simple-el th{
+                display:table-cell!important;white-space:nowrap;padding:10px 14px;
+                font-size:12px;position:sticky;top:0;background:var(--table-th-bg);z-index:1;
+            }
+            #tabla-alumnos-simple-el tbody{display:table-row-group!important;}
+            #tabla-alumnos-simple-el tbody tr{
+                display:table-row!important;background:none!important;border:none!important;
+                border-radius:0!important;margin:0!important;padding:0!important;
+                min-height:unset!important;overflow:visible!important;width:auto!important;
+                box-sizing:content-box!important;gap:0!important;flex-direction:unset!important;align-items:unset!important;
+                border-bottom:1px solid var(--border-color)!important;
+            }
+            #tabla-alumnos-simple-el tbody td{
+                display:table-cell!important;flex:unset!important;min-width:unset!important;
+                white-space:nowrap;overflow:visible!important;text-overflow:unset!important;
+                padding:10px 14px!important;border:none!important;text-align:left!important;
+                font-size:13px!important;color:var(--text-main)!important;
+            }
+            #tabla-alumnos-simple-el tbody td:first-child{font-weight:600!important;}
+            #tabla-alumnos-simple-el tbody td.celda-acciones-simple{
+                display:flex!important;gap:6px;justify-content:flex-start;align-items:center;
+                padding:10px 14px!important;border:none!important;
+            }
 
             /* shell responsive */
             .sidebar{display:none;}
@@ -812,17 +847,19 @@
                         <input type="text" id="filtro-nombre-alumnos" class="form-control" placeholder="Buscar alumno por nombre..." style="padding-right:34px;">
                         <button type="button" class="btn-clear" data-target="filtro-nombre-alumnos" title="Limpiar"><i class="fas fa-times"></i></button>
                     </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Alumno</th>
-                                <th>Teléfono</th>
-                                <th>Graduación</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabla-alumnos-simple"></tbody>
-                    </table>
+                    <div class="tabla-alumnos-wrapper">
+                        <table id="tabla-alumnos-simple-el">
+                            <thead>
+                                <tr>
+                                    <th>Alumno</th>
+                                    <th>Teléfono</th>
+                                    <th>Graduación</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-alumnos-simple"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </section>
@@ -840,7 +877,7 @@
             <div class="settings-stack">
 
                 <!-- ── BLOQUE: Identidad del Dojo ── -->
-                <div class="accordion open" data-accordion="identidad">
+                <div class="accordion" data-accordion="identidad">
                     <button type="button" class="accordion-header">
                         <div class="accordion-icon" style="color:var(--primary);"><i class="fas fa-gear"></i></div>
                         <div class="accordion-title-group">
@@ -1760,7 +1797,7 @@ function renderAlumnosSimple() {
             <td>${alumno.nombre}</td>
             <td>${alumno.telefono || '—'}</td>
             <td>${alumno.graduacion || '—'}</td>
-            <td style="display:flex;gap:6px;justify-content:center;align-items:center;">
+            <td class="celda-acciones-simple">
                 <button class="btn-sm btn-icon-only btn-info" onclick="verInfoAlumno('${alumno.id}')" title="Ver Detalles"><i class="fas fa-info-circle"></i></button>
                 <button class="btn-sm btn-icon-only" style="background-color:#6b46c1;color:white;" onclick="editarAlumno('${alumno.id}')" title="Editar"><i class="fas fa-user-pen"></i></button>
                 <button class="btn-sm btn-icon-only" style="background-color:#e53e3e;color:white;" onclick="eliminarAlumno('${alumno.id}')" title="Eliminar"><i class="fas fa-trash"></i></button>
