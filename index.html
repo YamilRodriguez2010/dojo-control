@@ -465,13 +465,36 @@
            IMPRESIÓN — REPORTE DE CUOTAS (pantalla principal)
            ══════════════════════════════════════════════════ */
         @media print{
-            /* ── MODO PADRÓN: oculta todo excepto el bloque de impresión del padrón ── */
+            /* ── MODO PADRÓN: oculta todo excepto el bloque de impresión del padrón ──
+               Se ocultan tanto el contenedor padre (.app-shell) como cada página
+               y elemento crítico de forma individual y redundante, porque algunos
+               motores de impresión móviles no siempre respetan display:none
+               aplicado a un ancestro que contiene elementos position:sticky/fixed. ── */
             body.imprimiendo-padron .app-shell,
+            body.imprimiendo-padron .sidebar,
+            body.imprimiendo-padron .topbar,
+            body.imprimiendo-padron .bottom-nav,
+            body.imprimiendo-padron .content-area,
+            body.imprimiendo-padron .page,
+            body.imprimiendo-padron #page-inicio,
+            body.imprimiendo-padron #page-alumnos,
+            body.imprimiendo-padron #page-ajustes,
+            body.imprimiendo-padron #form-alumno,
             body.imprimiendo-padron #padron-modal,
+            body.imprimiendo-padron #modal-info,
+            body.imprimiendo-padron #modal-editar,
             body.imprimiendo-padron .dc-modal-overlay,
             body.imprimiendo-padron .print-header,
-            body.imprimiendo-padron .print-mes-container{display:none!important;}
-            body.imprimiendo-padron #padron-print-block{display:block!important;}
+            body.imprimiendo-padron .print-mes-container{
+                display:none!important;visibility:hidden!important;
+                position:absolute!important;width:0!important;height:0!important;
+                overflow:hidden!important;
+            }
+            body.imprimiendo-padron #padron-print-block{
+                display:block!important;visibility:visible!important;
+                position:static!important;width:100%!important;height:auto!important;
+                overflow:visible!important;
+            }
 
             /* ── MODO REPORTE DE CUOTAS (por defecto, cuando NO se imprime el padrón) ── */
             body:not(.imprimiendo-padron) .sidebar,
