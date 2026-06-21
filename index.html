@@ -528,30 +528,35 @@
             body:not(.imprimiendo-padron) td[data-label="Fecha de Pago"] .badge{display:none!important;}
             body:not(.imprimiendo-padron) td[data-label="Fecha de Pago"] .print-only{display:inline!important;}
 
-            /* ── ESTILOS DEL BLOQUE DE IMPRESIÓN DEL PADRÓN ── */
+            /* ── ESTILOS DEL BLOQUE DE IMPRESIÓN DEL PADRÓN ──
+               El contenido clonado usa las mismas clases que el modal
+               en pantalla (pm-cabecera, pm-dojo, pm-sub, pm-subtitulo,
+               pm-tabla-wrapper), así que se sobre-escriben aquí solo
+               las propiedades necesarias para que luzcan bien en papel. ── */
             #padron-print-block{
                 background:#fff!important;color:#000!important;
                 padding:0;margin:0;width:100%;
             }
-            #padron-print-block .pp-cabecera{
-                display:flex;align-items:center;gap:14px;
-                padding-bottom:12px;border-bottom:3px solid #d32f2f;margin-bottom:14px;
+            #padron-print-block .pm-cabecera{
+                display:flex!important;align-items:center;gap:14px;
+                padding-bottom:12px;border-bottom:3px solid #d32f2f!important;margin-bottom:14px;
                 -webkit-print-color-adjust:exact;print-color-adjust:exact;
             }
-            #padron-print-block .pp-cabecera img{
-                width:60px;height:60px;object-fit:contain;border-radius:50%;flex-shrink:0;
-                -webkit-print-color-adjust:exact;print-color-adjust:exact;
+            #padron-print-block .pm-cabecera img{
+                width:60px!important;height:60px!important;object-fit:contain;border-radius:50%;flex-shrink:0;
+                background:#eee!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;
             }
-            #padron-print-block .pp-cabecera-centro{flex:1;text-align:center;}
-            #padron-print-block .pp-dojo{font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;color:#000;}
-            #padron-print-block .pp-sub{font-size:11px;color:#555;}
-            #padron-print-block .pp-subtitulo{
-                text-align:center;margin-bottom:14px;font-size:13px;font-weight:700;
-                text-transform:uppercase;letter-spacing:1px;color:#333;
+            #padron-print-block .pm-cabecera-centro{flex:1;text-align:center;}
+            #padron-print-block .pm-dojo{font-size:15px!important;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;color:#000!important;}
+            #padron-print-block .pm-sub{font-size:11px!important;color:#555!important;}
+            #padron-print-block .pm-subtitulo{
+                text-align:center;margin:10px 0 14px;font-size:13px!important;font-weight:700;
+                text-transform:uppercase;letter-spacing:1px;color:#333!important;
             }
+            #padron-print-block .pm-tabla-wrapper{overflow:visible!important;}
             #padron-print-block table{
                 width:100%!important;border-collapse:collapse!important;table-layout:fixed!important;
-                display:table!important;
+                display:table!important;font-size:11px!important;
             }
             #padron-print-block thead{display:table-header-group!important;}
             #padron-print-block tbody{display:table-row-group!important;}
@@ -561,12 +566,12 @@
                 display:table-cell!important;background:#1a1a1a!important;color:#fff!important;
                 padding:8px 10px!important;font-size:9px!important;text-align:left!important;
                 text-transform:uppercase;border:none!important;border-bottom:2px solid #d32f2f!important;
-                font-weight:700;-webkit-print-color-adjust:exact;print-color-adjust:exact;
+                font-weight:700;-webkit-print-color-adjust:exact;print-color-adjust:exact;white-space:nowrap;
             }
             #padron-print-block td{
                 display:table-cell!important;padding:7px 10px!important;font-size:10px!important;
                 color:#000!important;border:none!important;border-bottom:1px solid #ccc!important;
-                text-align:left!important;background:transparent!important;
+                text-align:left!important;background:transparent!important;white-space:normal!important;
             }
             #padron-print-block td:first-child{font-weight:700!important;}
             #padron-print-block tbody tr:nth-child(even) td{
@@ -738,39 +743,12 @@
      BLOQUE DE IMPRESIÓN DEL PADRÓN OFICIAL
      Oculto en pantalla; solo se muestra cuando body
      tiene la clase 'imprimiendo-padron' durante print.
-     Se regenera con datos frescos cada vez que se imprime.
+     Su contenido se clona desde el modal del padrón
+     (#padron-modal-body) justo antes de cada impresión,
+     así el resultado impreso es siempre idéntico a lo
+     que el usuario ve al presionar "Ver Padrón".
      ══════════════════════════════════════════════════ -->
-<div id="padron-print-block">
-    <div class="pp-cabecera">
-        <img src="logo.png" alt="Logo" id="pp-print-logo">
-        <div class="pp-cabecera-centro">
-            <div class="pp-dojo" id="pp-print-dojo">BUTOKU-KAI SHOTOKAN KARATE-DO</div>
-            <div class="pp-sub" id="pp-print-sub">Sede Villa Ángela | Sensei Yamil Rodriguez</div>
-            <div class="pp-sub" id="pp-print-meta" style="margin-top:3px;"></div>
-        </div>
-    </div>
-    <div class="pp-subtitulo">Padrón Oficial de Alumnos</div>
-    <table>
-        <colgroup>
-            <col style="width:26%;"><col style="width:13%;"><col style="width:15%;">
-            <col style="width:9%;"><col style="width:17%;"><col style="width:20%;">
-        </colgroup>
-        <thead>
-            <tr>
-                <th>Alumno</th>
-                <th>DNI</th>
-                <th>Fecha Nac.</th>
-                <th>Edad</th>
-                <th>Teléfono</th>
-                <th>Graduación</th>
-            </tr>
-        </thead>
-        <tbody id="pp-print-tbody"></tbody>
-        <tfoot>
-            <tr><td colspan="6">Dojo Control — Reporte confidencial de uso interno</td></tr>
-        </tfoot>
-    </table>
-</div>
+<div id="padron-print-block"></div>
 
 <!-- ══════════════════════════════════════════════════
      APP SHELL: sidebar (desktop) + topbar/bottom-nav (móvil)
@@ -2176,34 +2154,15 @@ function imprimirDesdePadron() {
         return;
     }
 
-    const ordenados = [...alumnos].sort((a, b) => a.nombre.localeCompare(b.nombre));
-    const logoSrc    = logoBase64 || 'logo.png';
-    const sub        = `Sede ${nombreSede} | Sensei ${nombreSensei}`;
-    const fechaHoy   = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' });
-    const total      = ordenados.length;
+    // Asegurar que el modal tenga los datos más recientes antes de clonar su contenido.
+    abrirPadron();
 
-    const filas = ordenados.map((a, i) => {
-        const edad = calcularEdad(a.fechaNacimiento);
-        return `<tr>
-            <td>${i + 1}. ${a.nombre}</td>
-            <td>${a.dni || '—'}</td>
-            <td>${formatearFechaNac(a.fechaNacimiento)}</td>
-            <td>${edad !== null ? edad + ' años' : '—'}</td>
-            <td>${a.telefono || '—'}</td>
-            <td>${a.graduacion || '—'}</td>
-        </tr>`;
-    }).join('');
-
-    // Rellenar el bloque de impresión dedicado, dentro de la misma página.
-    // No se abren ventanas ni iframes: se usa el mismo mecanismo simple y
-    // confiable que ya funciona para el reporte de cuotas (window.print()
-    // directo), con el body marcado para que el @media print muestre
-    // únicamente este bloque y oculte el resto de la aplicación.
-    document.getElementById('pp-print-logo').src = logoSrc;
-    document.getElementById('pp-print-dojo').innerText = nombreDojo;
-    document.getElementById('pp-print-sub').innerText = sub;
-    document.getElementById('pp-print-meta').innerText = `Generado el ${fechaHoy} — Total: ${total} alumno${total !== 1 ? 's' : ''}`;
-    document.getElementById('pp-print-tbody').innerHTML = filas;
+    // Se clona EXACTAMENTE el contenido visible del modal del padrón (cabecera con
+    // logo, membrete del dojo, título "Padrón Oficial de Alumnos", encabezados de
+    // columna y listado completo) hacia el bloque de impresión. Así lo que se
+    // imprime es siempre idéntico a lo que el usuario ve al presionar "Ver Padrón".
+    const bloqueImpresion = document.getElementById('padron-print-block');
+    bloqueImpresion.innerHTML = padronBody.innerHTML;
 
     document.body.classList.add('imprimiendo-padron');
 
