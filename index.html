@@ -2154,26 +2154,30 @@ function imprimirDesdePadron() {
         return;
     }
 
-    // Asegurar que el modal tenga los datos más recientes antes de clonar su contenido.
-    abrirPadron();
-
-    // Se clona EXACTAMENTE el contenido visible del modal del padrón (cabecera con
-    // logo, membrete del dojo, título "Padrón Oficial de Alumnos", encabezados de
-    // columna y listado completo) hacia el bloque de impresión. Así lo que se
-    // imprime es siempre idéntico a lo que el usuario ve al presionar "Ver Padrón".
+    // El modal ya está abierto y con datos frescos (se llenó al presionar
+    // "Ver Padrón"), así que clonamos directamente su contenido visible —
+    // no hace falta volver a llamar abrirPadron() aquí.
     const bloqueImpresion = document.getElementById('padron-print-block');
     bloqueImpresion.innerHTML = padronBody.innerHTML;
+
+    // Liberar el overflow:hidden que el modal aplica al body. Si queda activo,
+    // varios navegadores móviles (Chrome Android, Safari iOS) no recalculan
+    // correctamente el layout de impresión y el documento sale vacío o falla.
+    const overflowPrevio = document.body.style.overflow;
+    document.body.style.overflow = '';
 
     document.body.classList.add('imprimiendo-padron');
 
     const finalizarImpresion = () => {
         document.body.classList.remove('imprimiendo-padron');
+        // Restaurar el bloqueo de scroll del modal, ya que sigue abierto detrás.
+        document.body.style.overflow = overflowPrevio;
         window.removeEventListener('afterprint', finalizarImpresion);
     };
     window.addEventListener('afterprint', finalizarImpresion);
 
-    // Pequeña espera para asegurar que el logo (si cambió) se pinte antes
-    // de invocar el gestor de impresión nativo del dispositivo.
+    // Pequeña espera para que el navegador termine de aplicar los cambios de
+    // estilo/overflow antes de invocar el gestor de impresión nativo.
     setTimeout(() => {
         window.print();
         // Resguardo: si 'afterprint' no dispara en el navegador del usuario,
