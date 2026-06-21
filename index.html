@@ -2166,24 +2166,41 @@ function imprimirDesdePadron() {
     const overflowPrevio = document.body.style.overflow;
     document.body.style.overflow = '';
 
+    // Ocultar el modal explícitamente por JS además del CSS de impresión:
+    // en algunos navegadores móviles, un elemento position:fixed con z-index alto
+    // puede seguir "ganando" el snapshot de impresión aunque el @media print le
+    // aplique display:none, si el motor no recalcula el stacking context a tiempo.
+    const modalEstabaVisible = padronModal.classList.contains('visible');
+    padronModal.classList.remove('visible');
+
     document.body.classList.add('imprimiendo-padron');
+
+    // Forzar un reflow síncrono para que el navegador aplique de inmediato
+    // los cambios de clase/estilo anteriores antes de seguir.
+    void document.body.offsetHeight;
 
     const finalizarImpresion = () => {
         document.body.classList.remove('imprimiendo-padron');
-        // Restaurar el bloqueo de scroll del modal, ya que sigue abierto detrás.
+        // Restaurar el bloqueo de scroll y la visibilidad del modal, ya que sigue "abierto" detrás.
         document.body.style.overflow = overflowPrevio;
+        if (modalEstabaVisible) padronModal.classList.add('visible');
         window.removeEventListener('afterprint', finalizarImpresion);
     };
     window.addEventListener('afterprint', finalizarImpresion);
 
-    // Pequeña espera para que el navegador termine de aplicar los cambios de
-    // estilo/overflow antes de invocar el gestor de impresión nativo.
-    setTimeout(() => {
-        window.print();
-        // Resguardo: si 'afterprint' no dispara en el navegador del usuario,
-        // se restaura igualmente la vista normal pasado un tiempo prudencial.
-        setTimeout(finalizarImpresion, 4000);
-    }, 150);
+    // Doble requestAnimationFrame: garantiza que el navegador haya completado
+    // al menos un ciclo de pintado real con los nuevos estilos aplicados antes
+    // de invocar window.print(). Un setTimeout fijo puede no ser suficiente en
+    // dispositivos móviles más lentos, que es la causa típica de que la
+    // impresión funcione en desktop pero falle o salga vacía en celular.
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            window.print();
+            // Resguardo: si 'afterprint' no dispara en el navegador del usuario,
+            // se restaura igualmente la vista normal pasado un tiempo prudencial.
+            setTimeout(finalizarImpresion, 4000);
+        });
+    });
 }
 
 pmBtnVolver.addEventListener('click', cerrarPadron);
