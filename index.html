@@ -2183,39 +2183,62 @@ function imprimirDesdePadron() {
     const bloqueImpresion = document.getElementById('padron-print-block');
     bloqueImpresion.innerHTML = padronBody.innerHTML;
 
-    // Liberar el overflow:hidden que el modal aplica al body. Si queda activo,
-    // varios navegadores móviles (Chrome Android, Safari iOS) no recalculan
-    // correctamente el layout de impresión y el documento sale vacío o falla.
+    // ── Extracción física del DOM (en vez de ocultar con CSS) ──
+    // Las reglas @media print con display:none no siempre son respetadas de
+    // forma consistente por todos los motores de impresión móviles, sobre todo
+    // cuando hay elementos position:sticky/fixed de por medio (sidebar, modales).
+    // La forma 100% confiable de garantizar que algo NO aparezca impreso es que
+    // directamente no exista en el documento en ese momento: se desconectan del
+    // DOM todos los bloques de la app (shell completo y los modales, incluido
+    // el propio modal del padrón), se imprime solo lo que queda (el bloque
+    // dedicado del padrón), y se reinserta todo exactamente donde estaba al
+    // terminar, en el mismo orden.
+    const elementosAOcultar = [
+        document.querySelector('.app-shell'),
+        document.getElementById('modal-info'),
+        document.getElementById('modal-editar'),
+        document.getElementById('padron-modal'),
+        ...document.querySelectorAll('.dc-modal-overlay')
+    ].filter(Boolean);
+
+    const elementosExtraidos = elementosAOcultar.map(el => ({
+        el,
+        padre: el.parentNode,
+        siguiente: el.nextSibling
+    }));
+    elementosExtraidos.forEach(({el, padre}) => padre.removeChild(el));
+
+    // Liberar el overflow:hidden que el modal aplica al body, y restaurar
+    // el scroll a la posición superior para que el gestor de impresión
+    // mida correctamente la altura real del documento.
     const overflowPrevio = document.body.style.overflow;
     document.body.style.overflow = '';
-
-    // Ocultar el modal explícitamente por JS además del CSS de impresión:
-    // en algunos navegadores móviles, un elemento position:fixed con z-index alto
-    // puede seguir "ganando" el snapshot de impresión aunque el @media print le
-    // aplique display:none, si el motor no recalcula el stacking context a tiempo.
-    const modalEstabaVisible = padronModal.classList.contains('visible');
-    padronModal.classList.remove('visible');
+    window.scrollTo(0, 0);
 
     document.body.classList.add('imprimiendo-padron');
+    bloqueImpresion.style.display = 'block';
 
-    // Forzar un reflow síncrono para que el navegador aplique de inmediato
-    // los cambios de clase/estilo anteriores antes de seguir.
-    void document.body.offsetHeight;
-
+    let restaurado = false;
     const finalizarImpresion = () => {
+        if (restaurado) return;
+        restaurado = true;
+        // Reinsertar cada elemento exactamente donde estaba antes de quitarlo.
+        elementosExtraidos.forEach(({el, padre, siguiente}) => {
+            if (siguiente) padre.insertBefore(el, siguiente);
+            else padre.appendChild(el);
+        });
+        bloqueImpresion.style.display = '';
+        bloqueImpresion.innerHTML = '';
         document.body.classList.remove('imprimiendo-padron');
-        // Restaurar el bloqueo de scroll y la visibilidad del modal, ya que sigue "abierto" detrás.
         document.body.style.overflow = overflowPrevio;
-        if (modalEstabaVisible) padronModal.classList.add('visible');
         window.removeEventListener('afterprint', finalizarImpresion);
     };
     window.addEventListener('afterprint', finalizarImpresion);
 
     // Doble requestAnimationFrame: garantiza que el navegador haya completado
-    // al menos un ciclo de pintado real con los nuevos estilos aplicados antes
-    // de invocar window.print(). Un setTimeout fijo puede no ser suficiente en
-    // dispositivos móviles más lentos, que es la causa típica de que la
-    // impresión funcione en desktop pero falle o salga vacía en celular.
+    // al menos un ciclo de pintado real con el DOM ya reorganizado antes de
+    // invocar window.print(). Más confiable que un setTimeout fijo en
+    // dispositivos móviles de distinta velocidad.
     requestAnimationFrame(() => {
         requestAnimationFrame(() => {
             window.print();
