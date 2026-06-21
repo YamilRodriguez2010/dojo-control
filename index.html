@@ -2231,9 +2231,30 @@ function imprimirDesdePadron() {
         bloqueImpresion.innerHTML = '';
         document.body.classList.remove('imprimiendo-padron');
         document.body.style.overflow = overflowPrevio;
-        window.removeEventListener('afterprint', finalizarImpresion);
+        document.removeEventListener('visibilitychange', handleVisibility);
     };
-    window.addEventListener('afterprint', finalizarImpresion);
+
+    // NOTA IMPORTANTE: no se usa window.addEventListener('afterprint', ...) como
+    // único disparador de restauración. En muchos navegadores/WebViews móviles
+    // ese evento dispara de forma prematura o inconsistente (a veces apenas se
+    // abre el diálogo nativo de impresión, no cuando se cierra), lo que
+    // reinsertaba el formulario y el resto de la app mientras el usuario
+    // todavía estaba viendo/usando el gestor de impresión — y por eso terminaba
+    // imprimiéndose el contenido restaurado en lugar del padrón.
+    //
+    // En su lugar se combinan dos señales más confiables en contexto móvil:
+    // 1) 'visibilitychange' a 'visible': quien dispara cuando el usuario vuelve
+    //    a la pestaña/app después de cerrar el diálogo nativo de impresión del
+    //    sistema operativo (Android/iOS), que es donde realmente termina el flujo.
+    // 2) Un timeout de seguridad generoso, por si el navegador no dispara ese
+    //    evento en absoluto.
+    const handleVisibility = () => {
+        if (document.visibilityState === 'visible') {
+            setTimeout(finalizarImpresion, 500);
+        }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    setTimeout(finalizarImpresion, 15000);
 
     // Doble requestAnimationFrame: garantiza que el navegador haya completado
     // al menos un ciclo de pintado real con el DOM ya reorganizado antes de
@@ -2242,9 +2263,6 @@ function imprimirDesdePadron() {
     requestAnimationFrame(() => {
         requestAnimationFrame(() => {
             window.print();
-            // Resguardo: si 'afterprint' no dispara en el navegador del usuario,
-            // se restaura igualmente la vista normal pasado un tiempo prudencial.
-            setTimeout(finalizarImpresion, 4000);
         });
     });
 }
