@@ -904,87 +904,112 @@
             <div class="page-header">
                 <div class="page-header-text">
                     <div class="ph-eyebrow">Gestión de Alumnos</div>
-                    <h1>Registrar Nuevo Alumno</h1>
-                    <p>Cargá los datos del nuevo integrante del dojo</p>
+                    <h1>Alumnos</h1>
+                    <p>Registrá nuevos alumnos y consultá el listado completo</p>
                 </div>
             </div>
 
-            <div class="grid-2">
-                <div class="card">
-                    <h2>Datos del Alumno</h2>
-                    <form id="form-alumno">
-                        <div class="form-group">
-                            <label for="nombre">Nombre Completo</label>
-                            <div class="input-clearable">
-                                <input type="text" id="nombre" class="form-control" placeholder="Ej. Cristian Rodriguez" required>
-                                <button type="button" class="btn-clear" data-target="nombre" title="Limpiar"><i class="fas fa-times"></i></button>
-                            </div>
+            <div class="settings-stack">
+
+                <!-- ── BLOQUE: Agregar Alumno ── -->
+                <div class="accordion" data-accordion="agregar-alumno">
+                    <button type="button" class="accordion-header">
+                        <div class="accordion-icon" style="color:var(--success);"><i class="fas fa-user-plus"></i></div>
+                        <div class="accordion-title-group">
+                            <div class="accordion-title">Agregar Alumno</div>
+                            <div class="accordion-subtitle">Registrá los datos del nuevo integrante del dojo</div>
                         </div>
-                        <div class="form-group">
-                            <label for="telefono">Número de Teléfono</label>
-                            <div class="phone-input-group">
-                                <div class="input-clearable" style="flex:1;display:flex;">
-                                    <input type="tel" id="telefono" class="form-control" placeholder="Ej. 3735537179" style="border-top-right-radius:0;border-bottom-right-radius:0;">
-                                    <button type="button" class="btn-clear" data-target="telefono" title="Limpiar"><i class="fas fa-times"></i></button>
+                        <i class="fas fa-chevron-down accordion-chevron"></i>
+                    </button>
+                    <div class="accordion-panel">
+                        <div class="accordion-panel-inner">
+                            <form id="form-alumno">
+                                <div class="form-group">
+                                    <label for="nombre">Nombre Completo</label>
+                                    <div class="input-clearable">
+                                        <input type="text" id="nombre" class="form-control" placeholder="Ej. Cristian Rodriguez" required>
+                                        <button type="button" class="btn-clear" data-target="nombre" title="Limpiar"><i class="fas fa-times"></i></button>
+                                    </div>
                                 </div>
-                                <button type="button" id="btn-contactos" class="btn-contacts" title="Elegir desde la agenda"><i class="fas fa-address-book"></i></button>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="dni">DNI</label>
-                            <div class="input-clearable">
-                                <input type="text" id="dni" class="form-control" placeholder="Ej. 40123456" maxlength="10">
-                                <button type="button" class="btn-clear" data-target="dni" title="Limpiar"><i class="fas fa-times"></i></button>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Fecha de Nacimiento</label>
-                            <div style="display:flex;gap:8px;align-items:center;">
-                                <input type="date" id="fechaNacimiento" class="form-control" style="flex:1;">
-                                <div style="background:var(--table-th-bg);border:1px solid var(--border-color);border-radius:6px;padding:10px 12px;font-size:13px;font-weight:600;color:var(--text-muted);white-space:nowrap;flex-shrink:0;">
-                                    <span id="edad-calculada">— años</span>
+                                <div class="form-group">
+                                    <label for="telefono">Número de Teléfono</label>
+                                    <div class="phone-input-group">
+                                        <div class="input-clearable" style="flex:1;display:flex;">
+                                            <input type="tel" id="telefono" class="form-control" placeholder="Ej. 3735537179" style="border-top-right-radius:0;border-bottom-right-radius:0;">
+                                            <button type="button" class="btn-clear" data-target="telefono" title="Limpiar"><i class="fas fa-times"></i></button>
+                                        </div>
+                                        <button type="button" id="btn-contactos" class="btn-contacts" title="Elegir desde la agenda"><i class="fas fa-address-book"></i></button>
+                                    </div>
                                 </div>
-                            </div>
+                                <div class="form-group">
+                                    <label for="dni">DNI</label>
+                                    <div class="input-clearable">
+                                        <input type="text" id="dni" class="form-control" placeholder="Ej. 40123456" maxlength="10">
+                                        <button type="button" class="btn-clear" data-target="dni" title="Limpiar"><i class="fas fa-times"></i></button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Fecha de Nacimiento</label>
+                                    <div style="display:flex;gap:8px;align-items:center;">
+                                        <input type="date" id="fechaNacimiento" class="form-control" style="flex:1;">
+                                        <div style="background:var(--table-th-bg);border:1px solid var(--border-color);border-radius:6px;padding:10px 12px;font-size:13px;font-weight:600;color:var(--text-muted);white-space:nowrap;flex-shrink:0;">
+                                            <span id="edad-calculada">— años</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="graduacion">Graduación</label>
+                                    <div class="input-group-editable">
+                                        <select id="graduacion" class="form-control">
+                                            <option value="">— Sin graduación —</option>
+                                        </select>
+                                        <button type="button" id="btn-gestionar-graduaciones" class="btn btn-secondary btn-inline-sm" title="Gestionar graduaciones"><i class="fas fa-medal"></i></button>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn"><i class="fas fa-user-plus"></i> Añadir Alumno</button>
+                            </form>
                         </div>
-                        <div class="form-group">
-                            <label for="graduacion">Graduación</label>
-                            <div class="input-group-editable">
-                                <select id="graduacion" class="form-control">
-                                    <option value="">— Sin graduación —</option>
-                                </select>
-                                <button type="button" id="btn-gestionar-graduaciones" class="btn btn-secondary btn-inline-sm" title="Gestionar graduaciones"><i class="fas fa-medal"></i></button>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn"><i class="fas fa-user-plus"></i> Añadir Alumno</button>
-                    </form>
+                    </div>
                 </div>
 
-                <div class="card">
-                    <div class="card-header-actions">
-                        <h2 style="margin:0;border:none;padding:0;">Listado de Alumnos</h2>
-                        <div style="display:flex;gap:6px;">
-                            <button class="btn btn-sm" style="background-color:#6b46c1;color:white;" id="btn-imprimir-padron" title="Imprimir Padrón de Alumnos"><i class="fas fa-address-card"></i></button>
+                <!-- ── BLOQUE: Listado de Alumnos ── -->
+                <div class="accordion" data-accordion="listado-alumnos">
+                    <button type="button" class="accordion-header">
+                        <div class="accordion-icon" style="color:var(--info);"><i class="fas fa-people-group"></i></div>
+                        <div class="accordion-title-group">
+                            <div class="accordion-title">Listado de Alumnos</div>
+                            <div class="accordion-subtitle" id="acc-subtitle-listado">Consultá y gestioná todos los alumnos</div>
+                        </div>
+                        <i class="fas fa-chevron-down accordion-chevron"></i>
+                    </button>
+                    <div class="accordion-panel">
+                        <div class="accordion-panel-inner">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                                <span style="font-size:13px;color:var(--text-muted);">Buscá por nombre</span>
+                                <button class="btn btn-sm" style="background-color:#6b46c1;color:white;" id="btn-imprimir-padron" title="Ver Padrón Oficial"><i class="fas fa-address-card"></i>&nbsp; Padrón</button>
+                            </div>
+                            <div class="filtro-busqueda input-clearable">
+                                <i class="fas fa-search icono-busqueda"></i>
+                                <input type="text" id="filtro-nombre-alumnos" class="form-control" placeholder="Buscar alumno por nombre..." style="padding-right:34px;">
+                                <button type="button" class="btn-clear" data-target="filtro-nombre-alumnos" title="Limpiar"><i class="fas fa-times"></i></button>
+                            </div>
+                            <div class="tabla-alumnos-wrapper">
+                                <table id="tabla-alumnos-simple-el">
+                                    <thead>
+                                        <tr>
+                                            <th>Alumno</th>
+                                            <th>Teléfono</th>
+                                            <th>Graduación</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabla-alumnos-simple"></tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
-                    <div class="filtro-busqueda input-clearable">
-                        <i class="fas fa-search icono-busqueda"></i>
-                        <input type="text" id="filtro-nombre-alumnos" class="form-control" placeholder="Buscar alumno por nombre..." style="padding-right:34px;">
-                        <button type="button" class="btn-clear" data-target="filtro-nombre-alumnos" title="Limpiar"><i class="fas fa-times"></i></button>
-                    </div>
-                    <div class="tabla-alumnos-wrapper">
-                        <table id="tabla-alumnos-simple-el">
-                            <thead>
-                                <tr>
-                                    <th>Alumno</th>
-                                    <th>Teléfono</th>
-                                    <th>Graduación</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabla-alumnos-simple"></tbody>
-                        </table>
-                    </div>
                 </div>
+
             </div>
         </section>
 
@@ -998,9 +1023,7 @@
                 </div>
             </div>
 
-            <div class="settings-stack">
-
-                <!-- ── BLOQUE: Identidad del Dojo ── -->
+            <div class="settings-stack" data-solo>
                 <div class="accordion" data-accordion="identidad">
                     <button type="button" class="accordion-header">
                         <div class="accordion-icon" style="color:var(--primary);"><i class="fas fa-gear"></i></div>
@@ -1497,20 +1520,21 @@ btnCollapseSidebar.addEventListener('click', () => {
 });
 aplicarColapso(localStorage.getItem('dojo_sidebar_collapsed') === '1');
 
-// ── ACORDEÓN DE AJUSTES ───────────────────────────────────────────────────
+// ── ACORDEÓN ─────────────────────────────────────────────────────────────
 document.querySelectorAll('.accordion-header').forEach(header => {
     header.addEventListener('click', () => {
         const acc = header.closest('.accordion');
         const yaAbierto = acc.classList.contains('open');
-        // Comportamiento tipo acordeón: abrir uno cierra los demás del mismo stack
         const stack = acc.closest('.settings-stack');
-        if (stack) {
+        // Si el stack tiene data-solo, solo puede haber un bloque abierto a la vez
+        // (comportamiento de Ajustes). En caso contrario, cada bloque es independiente.
+        if (stack && stack.dataset.solo !== undefined) {
             stack.querySelectorAll('.accordion').forEach(a => a.classList.remove('open'));
         }
         if (!yaAbierto) acc.classList.add('open');
+        else acc.classList.remove('open');
     });
 });
-
 
 // ── REFERENCIAS DOM ───────────────────────────────────────────────────────
 const form = document.getElementById('form-alumno');
@@ -1847,6 +1871,10 @@ function calcularMetricas() {
     document.getElementById('print-mes').innerText = formatearMesTexto(periodo);
     const badge = document.getElementById('sb-badge-alumnos');
     if (badge) badge.innerText = total;
+    const subtListado = document.getElementById('acc-subtitle-listado');
+    if (subtListado) subtListado.innerText = total === 0
+        ? 'Consultá y gestioná todos los alumnos'
+        : `${total} alumno${total !== 1 ? 's' : ''} registrado${total !== 1 ? 's' : ''}`;
 }
 
 function verificarAlertas() {
