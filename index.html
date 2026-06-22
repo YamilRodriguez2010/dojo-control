@@ -1196,8 +1196,27 @@
     </div>
 </div>
 
-<!-- MODAL GRADUACIONES (legacy id soportado por compatibilidad de JS) -->
-<div id="modal-graduaciones" class="modal" style="display:none;"></div>
+<!-- MODAL GRADUACIONES -->
+<div id="modal-graduaciones" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" id="close-modal-graduaciones">&times;</span>
+        <h2 style="margin-bottom:18px;color:var(--primary);font-size:18px;">
+            <i class="fas fa-medal" style="margin-right:8px;color:var(--accent-gold);"></i>Gestionar Graduaciones
+        </h2>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;line-height:1.5;">
+            Agregá una nueva graduación para seleccionarla en el formulario del alumno.
+        </p>
+        <div style="display:flex;gap:8px;margin-bottom:16px;">
+            <input type="text" id="modal-nueva-graduacion" class="form-control"
+                placeholder="Ej. 9° Kyu - Blanco" style="flex:1;">
+            <button type="button" id="modal-btn-agregar-graduacion"
+                class="btn btn-success" style="width:auto;padding:10px 14px;flex-shrink:0;">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+        <div id="modal-lista-graduaciones" style="display:flex;flex-wrap:wrap;gap:6px;min-height:32px;"></div>
+    </div>
+</div>
 
 <!-- MODAL PADRÓN DE ALUMNOS -->
 <div id="padron-modal" role="dialog" aria-modal="true" aria-label="Padrón de Alumnos">
@@ -1532,6 +1551,7 @@ onValue(ref(db, 'graduaciones'), (snapshot) => {
     graduaciones = data ? Object.values(data) : [];
     actualizarSelectsGraduacion();
     renderListaGraduaciones();
+    renderListaGraduacionesModal();
 });
 
 onValue(ref(db, 'cuotasMes'), (snapshot) => {
@@ -2059,6 +2079,73 @@ document.getElementById('btn-guardar-config').addEventListener('click', async ()
 });
 
 // ── GRADUACIONES ──────────────────────────────────────────────────────────
+
+// Función para renderizar la lista dentro del modal de graduaciones
+function renderListaGraduacionesModal() {
+    const lista = document.getElementById('modal-lista-graduaciones');
+    if (!lista) return;
+    lista.innerHTML = '';
+    if (graduaciones.length === 0) {
+        lista.innerHTML = '<span style="font-size:12px;color:var(--text-muted);">Sin graduaciones cargadas aún.</span>';
+        return;
+    }
+    graduaciones.forEach((g, idx) => {
+        const tag = document.createElement('div');
+        tag.style.cssText = 'display:inline-flex;align-items:center;gap:5px;background:var(--table-th-bg);border:1px solid var(--border-color);border-radius:20px;padding:4px 10px;font-size:12px;';
+        tag.innerHTML = `<span>${g}</span><button type="button" onclick="window.eliminarGraduacion(${idx})" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:12px;padding:0;line-height:1;" title="Eliminar"><i class="fas fa-times"></i></button>`;
+        lista.appendChild(tag);
+    });
+}
+
+// Abrir el modal desde el botón del formulario de alumnos
+const modalGraduaciones = document.getElementById('modal-graduaciones');
+document.getElementById('btn-gestionar-graduaciones').addEventListener('click', () => {
+    renderListaGraduacionesModal();
+    document.getElementById('modal-nueva-graduacion').value = '';
+    modalGraduaciones.style.display = 'flex';
+});
+document.getElementById('close-modal-graduaciones').addEventListener('click', () => {
+    modalGraduaciones.style.display = 'none';
+});
+window.addEventListener('click', e => {
+    if (e.target === modalGraduaciones) modalGraduaciones.style.display = 'none';
+});
+// Cerrar con Escape
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && modalGraduaciones.style.display === 'flex') {
+        modalGraduaciones.style.display = 'none';
+    }
+});
+
+// Agregar graduación desde el modal del formulario
+document.getElementById('modal-btn-agregar-graduacion').addEventListener('click', async () => {
+    const input = document.getElementById('modal-nueva-graduacion');
+    const val = input.value.trim();
+    if (!val) { await dcAlert('Escribí el nombre de la graduación antes de agregar.', 'warn'); return; }
+    if (graduaciones.includes(val)) { await dcAlert('Esa graduación ya existe en la lista.', 'warn'); return; }
+    const nuevas = [...graduaciones, val];
+    const obj = {}; nuevas.forEach((g, i) => obj[i] = g);
+    try {
+        await set(ref(db, 'graduaciones'), obj);
+        input.value = '';
+        // Seleccionar automáticamente la graduación recién creada en el formulario
+        setTimeout(() => {
+            const sel = document.getElementById('graduacion');
+            if (sel) sel.value = val;
+        }, 300);
+    } catch(e) {
+        await dcAlert('Error al agregar la graduación: ' + e.message, 'err');
+    }
+});
+// Enviar con Enter desde el input del modal
+document.getElementById('modal-nueva-graduacion').addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('modal-btn-agregar-graduacion').click();
+    }
+});
+
+// Agregar desde Ajustes
 document.getElementById('btn-agregar-graduacion').addEventListener('click', async () => {
     const val = document.getElementById('nueva-graduacion').value.trim();
     if (!val) { await dcAlert('Escribí el nombre de la graduación antes de agregar.', 'warn'); return; }
