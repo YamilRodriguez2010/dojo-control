@@ -791,6 +791,9 @@
             <button class="sb-item active" data-page="inicio" title="Inicio">
                 <i class="fas fa-house"></i><span>Inicio</span>
             </button>
+            <button class="sb-item" data-page="pagos" title="Pagos">
+                <i class="fas fa-money-bill-wave"></i><span>Pagos</span>
+            </button>
             <button class="sb-item" data-page="alumnos" title="Alumnos">
                 <i class="fas fa-people-group"></i><span>Alumnos</span>
                 <span class="sb-badge" id="sb-badge-alumnos">0</span>
@@ -820,12 +823,23 @@
             </div>
         </div>
 
-        <!-- ═══ PÁGINA: INICIO ═══ -->
+        <!-- ═══ PÁGINA: INICIO (nueva, vacía por el momento) ═══ -->
         <section class="page active" id="page-inicio" data-page-name="inicio">
             <div class="page-header">
                 <div class="page-header-text">
-                    <div class="ph-eyebrow">Panel General</div>
+                    <div class="ph-eyebrow">Bienvenido</div>
                     <h1>Inicio</h1>
+                    <p>Panel principal del Dojo</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ PÁGINA: PAGOS ═══ -->
+        <section class="page" id="page-pagos" data-page-name="pagos">
+            <div class="page-header">
+                <div class="page-header-text">
+                    <div class="ph-eyebrow">Control de Cuotas</div>
+                    <h1>Pagos</h1>
                     <p>Resumen del mes y estado de cuotas</p>
                 </div>
             </div>
@@ -870,32 +884,43 @@
                 <div class="card-widget" style="border-left:4px solid var(--accent-gold);"><i class="fas fa-sack-dollar cw-icon" style="color:var(--accent-gold);"></i><h3>Caja Mensual</h3><p id="widget-caja">$0</p></div>
             </div>
 
-            <div class="card">
-                <div class="card-header-actions">
-                    <h2 style="margin:0;border:none;padding:0;">Listado Rápido — Estado del Mes</h2>
-                    <div style="display:flex;gap:6px;">
-                        <button class="btn btn-sm btn-secondary" id="btn-imprimir" title="Imprimir Reporte de Cuotas"><i class="fas fa-print"></i></button>
+            <div class="settings-stack">
+                <div class="accordion" data-accordion="listado-pagos">
+                    <button type="button" class="accordion-header">
+                        <div class="accordion-icon" style="color:var(--primary);"><i class="fas fa-list-check"></i></div>
+                        <div class="accordion-title-group">
+                            <div class="accordion-title">Listado Rápido — Estado del Mes</div>
+                            <div class="accordion-subtitle">Estado de pago de cada alumno</div>
+                        </div>
+                        <i class="fas fa-chevron-down accordion-chevron"></i>
+                    </button>
+                    <div class="accordion-panel">
+                        <div class="accordion-panel-inner">
+                            <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+                                <button class="btn btn-sm btn-secondary" id="btn-imprimir" title="Imprimir Reporte de Cuotas"><i class="fas fa-print"></i>&nbsp; Imprimir</button>
+                            </div>
+                            <div class="filtro-busqueda input-clearable">
+                                <i class="fas fa-search icono-busqueda"></i>
+                                <input type="text" id="filtro-nombre" class="form-control" placeholder="Buscar alumno por nombre..." style="padding-right:34px;">
+                                <button type="button" class="btn-clear" data-target="filtro-nombre" title="Limpiar"><i class="fas fa-times"></i></button>
+                            </div>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Alumno</th>
+                                        <th class="col-telefono">Teléfono</th>
+                                        <th>Fecha de Pago</th>
+                                        <th class="col-oculta-principal">Cuota</th>
+                                        <th class="col-oculta-principal col-estado-screen">Estado</th>
+                                        <th class="col-observacion-print">Observación</th>
+                                        <th class="acciones-header">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla-alumnos"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-                <div class="filtro-busqueda input-clearable">
-                    <i class="fas fa-search icono-busqueda"></i>
-                    <input type="text" id="filtro-nombre" class="form-control" placeholder="Buscar alumno por nombre..." style="padding-right:34px;">
-                    <button type="button" class="btn-clear" data-target="filtro-nombre" title="Limpiar"><i class="fas fa-times"></i></button>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Alumno</th>
-                            <th class="col-telefono">Teléfono</th>
-                            <th>Fecha de Pago</th>
-                            <th class="col-oculta-principal">Cuota</th>
-                            <th class="col-oculta-principal col-estado-screen">Estado</th>
-                            <th class="col-observacion-print">Observación</th>
-                            <th class="acciones-header">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-alumnos"></tbody>
-                </table>
             </div>
         </section>
 
@@ -1131,6 +1156,7 @@
 <nav class="bottom-nav">
     <div class="bn-row">
         <button class="bn-item active" data-page="inicio"><i class="fas fa-house"></i>Inicio</button>
+        <button class="bn-item" data-page="pagos"><i class="fas fa-money-bill-wave"></i>Pagos</button>
         <button class="bn-item" data-page="alumnos"><i class="fas fa-people-group"></i>Alumnos</button>
         <button class="bn-item" data-page="ajustes"><i class="fas fa-gear"></i>Ajustes</button>
     </div>
