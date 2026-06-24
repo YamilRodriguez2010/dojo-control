@@ -27,6 +27,63 @@
             --bg-color:#121212;--card-bg:#1e1e1e;--text-main:#e2e8f0;--text-muted:#a0aec0;
             --border-color:#2d3748;--table-th-bg:#2d3748;--table-row-bg:#1e1e1e;--input-disabled-bg:#2d3748;
         }
+        /* ── TEMA DOJO: paleta extraída de la imagen de portada ──
+           Azul profundo (#0f3860) + Rojo dojo (#8b2413) + Dorado (#b38e3a)
+           sobre fondos cálidos de madera del dojo (beige tostado).        */
+        [data-theme="dojo"] {
+            --bg-color:#2b1e14;
+            --card-bg:#3a2a1e;
+            --text-main:#f0e6d3;
+            --text-muted:#b8a48a;
+            --primary:#c9501a;
+            --primary-hover:#a83e12;
+            --success:#4e8c4a;
+            --warning:#c9a227;
+            --info:#1e6096;
+            --border-color:#5a3f2a;
+            --header-bg:#0f2236;
+            --header-text:#f0e6d3;
+            --table-th-bg:#1e3a5a;
+            --table-row-bg:#3a2a1e;
+            --input-disabled-bg:#4a3525;
+            --accent-gold:#c9a227;
+            --sidebar-bg:#0f2236;
+            --sidebar-text:#8ab0c8;
+            --sidebar-text-active:#f0e6d3;
+        }
+        [data-theme="dojo"] .badge-paid{background-color:#1a3d1a;color:#81c784;}
+        [data-theme="dojo"] .badge-debt{background-color:#3d2a10;color:#ffb74d;}
+        [data-theme="dojo"] .badge-moroso{background-color:#3d1010;color:#ef9a9a;}
+        [data-theme="dojo"] .alert-banner{background-color:#3d1010;color:#ef9a9a;border-left-color:#c9501a;}
+        [data-theme="dojo"] .btn-toggle-alerta{color:#ef9a9a;}
+        [data-theme="dojo"] .aviso-programado{background-color:#2d1f00;color:#fcd34d;}
+        [data-theme="dojo"] .theme-switch{background:var(--primary);}
+        [data-theme="dojo"] .theme-switch-knob{transform:translateX(20px);}
+        [data-theme="dojo"] input,
+        [data-theme="dojo"] select,
+        [data-theme="dojo"] textarea{
+            background-color:#2b1e14 !important;
+            color:#f0e6d3 !important;
+            border-color:#5a3f2a !important;
+        }
+        [data-theme="dojo"] input::placeholder,
+        [data-theme="dojo"] textarea::placeholder{color:#7a6050 !important;}
+        [data-theme="dojo"] .sb-item.active,
+        [data-theme="dojo"] .sb-item.active i,
+        [data-theme="dojo"] .sb-item.active span{color:#f0e6d3 !important;}
+        [data-theme="dojo"] .sb-item.active::before{background:linear-gradient(135deg,#c9501a,#c9a227) !important;}
+        [data-theme="dojo"] .card-widget{background:linear-gradient(135deg,#1e3a5a,#0f2236);}
+        [data-theme="dojo"] .card-widget h3{color:#8ab0c8;}
+        [data-theme="dojo"] .card-widget p{color:#f0e6d3;}
+        [data-theme="dojo"] .btn{background:linear-gradient(135deg,#c9501a,#a83e12);}
+        [data-theme="dojo"] .btn:hover{background:linear-gradient(135deg,#e05a1e,#c9501a);}
+        [data-theme="dojo"] .accordion-header:hover{background:rgba(201,80,26,0.12);}
+        [data-theme="dojo"] .accordion.open .accordion-header{border-left-color:#c9a227;}
+        [data-theme="dojo"] .dc-modal-box{background:#3a2a1e;border:1px solid #5a3f2a;}
+        [data-theme="dojo"] .dc-modal-title{color:#c9a227;}
+        [data-theme="dojo"] thead th{background:#1e3a5a !important;color:#f0e6d3 !important;}
+        [data-theme="dojo"] .theme-card.tc-dojo{border-color:#c9a227;box-shadow:0 0 0 2px #c9a227;}
+
         *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;-webkit-tap-highlight-color:transparent;transition:background-color 0.3s ease,color 0.3s ease,border-color 0.3s ease;}
         html,body{height:100%;}
         body{background-color:var(--bg-color);color:var(--text-main);overflow-x:hidden;}
@@ -389,14 +446,23 @@
             position:relative;width:100%;
             display:flex;align-items:flex-end;justify-content:center;
             overflow:hidden;border-radius:12px;
-            height:calc(100dvh - 100px);
-            min-height:400px;
+            /* En móvil: alto disponible restando topbar (56px) y bottom-nav (58px) */
+            height:calc(100dvh - 114px);
+            min-height:320px;
         }
-        @media(max-width:768px){
+        @media(min-width:769px){
+            /* En desktop: la content-area ocupa 100vh menos el sidebar.
+               El .page tiene padding:20px; con margin negativo lo cancelamos
+               para que la imagen llegue borde a borde dentro del panel. */
             .inicio-portada-wrap{
-                border-radius:0;margin:-14px -14px 0;
-                width:calc(100% + 28px);
-                height:calc(100dvh - 74px - 50px);
+                border-radius:10px;
+                margin:-20px;
+                width:calc(100% + 40px);
+                /* Restamos solo el encabezado/título de página si hubiera;
+                   aquí #page-inicio tiene padding:0 así que tomamos todo el alto
+                   disponible del content-area menos un margen mínimo */
+                height:calc(100vh - 40px);
+                max-height:none;
             }
         }
         .inicio-portada-img{
@@ -449,7 +515,27 @@
         [data-theme="dark"] .theme-switch-knob{transform:translateX(20px);}
         [data-theme="dark"] .theme-option-icon{color:var(--accent-gold);}
 
-        @media screen and (max-width:768px){
+        /* ── Tarjetas de selección de tema ── */
+        .theme-cards{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+        .theme-card{
+            flex:1;min-width:80px;max-width:120px;
+            border:2px solid var(--border-color);border-radius:10px;
+            padding:10px 8px;cursor:pointer;text-align:center;
+            transition:border-color 0.2s,box-shadow 0.2s;
+            background:var(--card-bg);
+        }
+        .theme-card:hover{border-color:var(--primary);}
+        .theme-card.tc-active{border-color:var(--primary);box-shadow:0 0 0 2px var(--primary);}
+        .tc-preview{
+            width:100%;height:36px;border-radius:6px;margin-bottom:6px;
+            overflow:hidden;display:flex;
+        }
+        .tc-preview-left{flex:0 0 28%;background:#161616;}
+        .tc-preview-right{flex:1;display:flex;flex-direction:column;gap:3px;padding:4px;}
+        .tc-preview-bar{border-radius:3px;height:7px;background:currentColor;}
+        .tc-label{font-size:11px;font-weight:600;color:var(--text-muted);}
+
+
             .grid-2{grid-template-columns:1fr;}
             table{width:100%;border-collapse:collapse;}
             thead tr{display:none;}
@@ -969,6 +1055,7 @@
                                 <input type="text" id="filtro-nombre" class="form-control" placeholder="Buscar alumno por nombre..." style="padding-right:34px;">
                                 <button type="button" class="btn-clear" data-target="filtro-nombre" title="Limpiar"><i class="fas fa-times"></i></button>
                             </div>
+                            <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
                             <table>
                                 <thead>
                                     <tr>
@@ -983,6 +1070,7 @@
                                 </thead>
                                 <tbody id="tabla-alumnos"></tbody>
                             </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1189,23 +1277,54 @@
                         <div class="accordion-icon" style="color:var(--info);"><i class="fas fa-palette"></i></div>
                         <div class="accordion-title-group">
                             <div class="accordion-title">Apariencia</div>
-                            <div class="accordion-subtitle">Tema claro u oscuro</div>
+                            <div class="accordion-subtitle" id="acc-sub-apariencia">Tema claro</div>
                         </div>
                         <i class="fas fa-chevron-down accordion-chevron"></i>
                     </button>
                     <div class="accordion-panel">
                         <div class="accordion-panel-inner">
-                            <div class="theme-option-row" id="theme-toggle">
-                                <div class="theme-option-icon">
-                                    <i class="fas fa-moon" id="theme-icon"></i>
+                            <p style="font-size:13px;color:var(--text-muted);margin-bottom:4px;">Elegí el tema visual de la aplicación:</p>
+                            <div class="theme-cards" id="theme-cards">
+
+                                <!-- Tema Claro -->
+                                <div class="theme-card" data-theme-value="light" id="tc-light" title="Tema Claro">
+                                    <div class="tc-preview">
+                                        <div class="tc-preview-left" style="background:#161616;"></div>
+                                        <div class="tc-preview-right" style="background:#f4f6f9;">
+                                            <div class="tc-preview-bar" style="background:#d32f2f;width:70%;"></div>
+                                            <div class="tc-preview-bar" style="background:#e2e8f0;width:90%;"></div>
+                                            <div class="tc-preview-bar" style="background:#e2e8f0;width:60%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="tc-label">☀️ Claro</div>
                                 </div>
-                                <div class="theme-option-text">
-                                    <div class="theme-option-title">Tema oscuro</div>
-                                    <div class="theme-option-sub" id="theme-label">Activá el modo oscuro para cuidar la vista en ambientes con poca luz</div>
+
+                                <!-- Tema Oscuro -->
+                                <div class="theme-card" data-theme-value="dark" id="tc-dark" title="Tema Oscuro">
+                                    <div class="tc-preview">
+                                        <div class="tc-preview-left" style="background:#0d0d0d;"></div>
+                                        <div class="tc-preview-right" style="background:#121212;">
+                                            <div class="tc-preview-bar" style="background:#d32f2f;width:70%;"></div>
+                                            <div class="tc-preview-bar" style="background:#2d3748;width:90%;"></div>
+                                            <div class="tc-preview-bar" style="background:#2d3748;width:60%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="tc-label">🌙 Oscuro</div>
                                 </div>
-                                <div class="theme-switch" id="theme-switch">
-                                    <div class="theme-switch-knob"></div>
+
+                                <!-- Tema Dojo -->
+                                <div class="theme-card" data-theme-value="dojo" id="tc-dojo" title="Tema Dojo — inspirado en la portada">
+                                    <div class="tc-preview">
+                                        <div class="tc-preview-left" style="background:#0f2236;"></div>
+                                        <div class="tc-preview-right" style="background:#2b1e14;">
+                                            <div class="tc-preview-bar" style="background:#c9501a;width:70%;"></div>
+                                            <div class="tc-preview-bar" style="background:#5a3f2a;width:90%;"></div>
+                                            <div class="tc-preview-bar" style="background:#c9a227;width:60%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="tc-label">🥋 Dojo</div>
                                 </div>
+
                             </div>
                         </div>
                     </div>
@@ -1735,15 +1854,20 @@ document.getElementById('editar-fechaNacimiento').addEventListener('change', fun
 });
 
 // ── TEMA ──────────────────────────────────────────────────────────────────
-function conmutarTema() {
-    const t = document.documentElement.getAttribute('data-theme') !== 'dark' ? 'dark' : 'light';
+function aplicarTema(t) {
     document.documentElement.setAttribute('data-theme', t);
     localStorage.setItem('dojo_theme', t);
     actualizarUITema(t);
 }
 function actualizarUITema(t) {
-    const icon = t === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-    if (themeIcon) themeIcon.className = icon;
+    // Actualizar tarjetas activas
+    document.querySelectorAll('.theme-card').forEach(card => {
+        card.classList.toggle('tc-active', card.dataset.themeValue === t);
+    });
+    // Actualizar subtítulo del acordeón de Apariencia
+    const nombres = { light: 'Tema claro', dark: 'Tema oscuro', dojo: 'Tema Dojo 🥋' };
+    const sub = document.getElementById('acc-sub-apariencia');
+    if (sub) sub.textContent = nombres[t] || 'Tema claro';
 }
 function cargarTemaInicial() {
     const t = localStorage.getItem('dojo_theme') || 'light';
@@ -2486,7 +2610,10 @@ document.getElementById('btn-imprimir-padron').addEventListener('click', abrirPa
 // ── INIT ──────────────────────────────────────────────────────────────────
 cargarTemaInicial();
 inicializarSelector();
-themeToggle.addEventListener('click', conmutarTema);
+// ── SELECTOR DE TEMA ──────────────────────────────────────────────────────
+document.querySelectorAll('.theme-card').forEach(card => {
+    card.addEventListener('click', () => aplicarTema(card.dataset.themeValue));
+});
 btnImprimir.addEventListener('click', () => window.print());
 filtroNombre.addEventListener('input', renderalumnos);
 irAPagina('inicio');
