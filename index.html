@@ -584,7 +584,72 @@
         .inicio-btn-empezar:active{transform:scale(0.97);}
         .inicio-tagline{color:rgba(255,255,255,0.88);font-size:13px;margin-top:10px;font-weight:500;text-shadow:0 1px 4px rgba(0,0,0,0.4);}
 
-        /* ── EMPTY STATES ── */
+        /* ── AVATAR DE INICIAL ── */
+        .avatar-inicial{
+            display:inline-flex;align-items:center;justify-content:center;
+            width:32px;height:32px;border-radius:50%;
+            font-size:13px;font-weight:800;color:#fff;
+            flex-shrink:0;
+            -webkit-print-color-adjust:exact;print-color-adjust:exact;
+        }
+        .celda-nombre-con-avatar{
+            display:flex;align-items:center;gap:10px;
+        }
+        .celda-nombre-texto{
+            display:flex;flex-direction:column;
+        }
+        .celda-nombre-texto strong{font-size:13px;}
+        .celda-nombre-texto span{font-size:11px;color:var(--text-muted);}
+
+        /* ── COLORES DE FILA POR ESTADO DE PAGO ── */
+        tr.fila-aldia{
+            background:rgba(46,125,50,0.06) !important;
+        }
+        tr.fila-moroso{
+            background:rgba(211,47,47,0.06) !important;
+        }
+        tr.fila-pendiente{
+            background:rgba(245,124,0,0.05) !important;
+        }
+        [data-theme="dark"] tr.fila-aldia{background:rgba(46,125,50,0.1) !important;}
+        [data-theme="dark"] tr.fila-moroso{background:rgba(211,47,47,0.1) !important;}
+        [data-theme="dark"] tr.fila-pendiente{background:rgba(245,124,0,0.08) !important;}
+        [data-theme="dojo"] tr.fila-aldia{background:rgba(78,140,74,0.1) !important;}
+        [data-theme="dojo"] tr.fila-moroso{background:rgba(201,80,26,0.1) !important;}
+        [data-theme="dojo"] tr.fila-pendiente{background:rgba(201,162,39,0.08) !important;}
+
+        /* ── ANIMACIONES ESCALONADAS ── */
+        @keyframes pageIn{
+            from{opacity:0;transform:translateY(8px);}
+            to{opacity:1;transform:translateY(0);}
+        }
+        @keyframes fadeInRow{
+            from{opacity:0;transform:translateX(-6px);}
+            to{opacity:1;transform:translateX(0);}
+        }
+        @keyframes fadeInWidget{
+            from{opacity:0;transform:translateY(10px) scale(0.97);}
+            to{opacity:1;transform:translateY(0) scale(1);}
+        }
+        .page.active .card-widget{
+            animation:fadeInWidget 0.3s ease both;
+        }
+        .page.active .card-widget:nth-child(1){animation-delay:0.05s;}
+        .page.active .card-widget:nth-child(2){animation-delay:0.10s;}
+        .page.active .card-widget:nth-child(3){animation-delay:0.15s;}
+        .page.active .card-widget:nth-child(4){animation-delay:0.20s;}
+        .page.active .accordion{
+            animation:fadeInWidget 0.3s ease both;
+        }
+        .page.active .accordion:nth-child(1){animation-delay:0.08s;}
+        .page.active .accordion:nth-child(2){animation-delay:0.14s;}
+        .page.active .accordion:nth-child(3){animation-delay:0.20s;}
+        /* Filas de tabla con entrada escalonada */
+        tbody tr.fila-animada{
+            animation:fadeInRow 0.25s ease both;
+        }
+
+
         .empty-state{
             display:flex;flex-direction:column;align-items:center;
             justify-content:center;padding:32px 20px;text-align:center;
@@ -1900,7 +1965,16 @@ function irAPagina(nombre) {
     document.querySelectorAll('.bn-item').forEach(b => b.classList.toggle('active', b.dataset.page === nombre));
     document.querySelectorAll('.page').forEach(p => p.classList.remove('printing-source'));
     const activo = document.querySelector(`.page[data-page-name="${nombre}"]`);
-    if (activo) activo.classList.add('printing-source');
+    if (activo) {
+        activo.classList.add('printing-source');
+        // Resetear animaciones de widgets y acordeones para que se re-ejecuten
+        // cada vez que el usuario navega a esta página
+        activo.querySelectorAll('.card-widget, .accordion').forEach(el => {
+            el.style.animation = 'none';
+            el.offsetHeight; // forzar reflow
+            el.style.animation = '';
+        });
+    }
     window.scrollTo({top:0, behavior:'instant'});
     const contentArea = document.querySelector('.content-area');
     if (contentArea) contentArea.scrollTo({top:0, behavior:'instant'});
@@ -2323,7 +2397,27 @@ function verificarAlertas() {
     } else { div.style.display = 'none'; }
 }
 
-// ── RENDER TABLA (página Inicio) ──────────────────────────────────────────
+// ── UTILIDADES VISUALES ───────────────────────────────────────────────────
+
+// Genera un color consistente a partir del nombre del alumno
+function avatarColor(nombre) {
+    const colores = [
+        '#e53e3e','#dd6b20','#d69e2e','#38a169','#319795',
+        '#3182ce','#5a67d8','#805ad5','#d53f8c','#2c7a7b',
+        '#c05621','#276749','#2a4365','#553c9a','#702459',
+    ];
+    let hash = 0;
+    for (let i = 0; i < nombre.length; i++) hash = nombre.charCodeAt(i) + ((hash << 5) - hash);
+    return colores[Math.abs(hash) % colores.length];
+}
+
+function avatarHTML(nombre) {
+    const inicial = nombre ? nombre.trim()[0].toUpperCase() : '?';
+    const color   = avatarColor(nombre || '');
+    return `<div class="avatar-inicial" style="background:${color};">${inicial}</div>`;
+}
+
+// ── RENDER TABLA (página Pagos) ───────────────────────────────────────────
 function renderalumnos() {
     tabla.innerHTML = '';
     const periodo = obtenerPeriodoSeleccionado();
@@ -2357,7 +2451,7 @@ function renderalumnos() {
     const diaHoy = hoy.getDate();
     const mesHoy = hoy.getFullYear() + '-' + String(hoy.getMonth()+1).padStart(2,'0');
     const esMesActual = periodo === mesHoy;
-    ordenados.forEach(alumno => {
+    ordenados.forEach((alumno, idx) => {
         const tr = document.createElement('tr');
         const pago = alumno.pagos && alumno.pagos[periodo];
         const pagado = esPagoValido(pago);
@@ -2372,8 +2466,17 @@ function renderalumnos() {
         const celdaCuota = descMonto > 0
             ? `$${cuotaFinal.toLocaleString('es-AR')}<br><span style="font-size:10px;color:var(--text-muted);">(desc. $${descMonto.toLocaleString('es-AR')})</span>`
             : `$${cuotaFinal.toLocaleString('es-AR')}`;
+
+        // Color de fila según estado
+        const filaClase = pagado ? 'fila-aldia' : (esMesActual && diaHoy > 10 ? 'fila-moroso' : 'fila-pendiente');
+        tr.className = `${filaClase} fila-animada`;
+        tr.style.animationDelay = `${idx * 0.03}s`;
+
         tr.innerHTML = `
-            <td>${alumno.nombre}</td>
+            <td><div class="celda-nombre-con-avatar">
+                ${avatarHTML(alumno.nombre)}
+                <div class="celda-nombre-texto"><strong>${alumno.nombre}</strong></div>
+            </div></td>
             <td class="col-telefono" data-label="Teléfono">${alumno.telefono||'-'}</td>
             <td data-label="Fecha de Pago">${celdaFecha}</td>
             <td class="col-oculta-principal" data-label="Cuota">${celdaCuota}</td>
@@ -2413,10 +2516,15 @@ function renderAlumnosSimple() {
     </div></td></tr>`;
         return;
     }
-    ordenados.forEach(alumno => {
+    ordenados.forEach((alumno, idx) => {
         const tr = document.createElement('tr');
+        tr.className = 'fila-animada';
+        tr.style.animationDelay = `${idx * 0.025}s`;
         tr.innerHTML = `
-            <td>${alumno.nombre}</td>
+            <td><div class="celda-nombre-con-avatar">
+                ${avatarHTML(alumno.nombre)}
+                <div class="celda-nombre-texto"><strong>${alumno.nombre}</strong></div>
+            </div></td>
             <td>${alumno.telefono || '—'}</td>
             <td>${alumno.graduacion || '—'}</td>
             <td class="celda-acciones-simple">
