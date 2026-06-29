@@ -584,6 +584,117 @@
         .inicio-btn-empezar:active{transform:scale(0.97);}
         .inicio-tagline{color:rgba(255,255,255,0.88);font-size:13px;margin-top:10px;font-weight:500;text-shadow:0 1px 4px rgba(0,0,0,0.4);}
 
+        /* ── HISTORIAL DE PAGOS ── */
+        .historial-wrap{margin-top:18px;border-top:1px solid var(--border-color);padding-top:14px;}
+        .historial-titulo{font-size:12px;font-weight:700;text-transform:uppercase;
+            letter-spacing:0.5px;color:var(--text-muted);margin-bottom:10px;
+            display:flex;align-items:center;gap:6px;}
+        .historial-lista{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;}
+        .historial-item{display:flex;align-items:center;justify-content:space-between;
+            background:var(--table-th-bg);border:1px solid var(--border-color);
+            border-radius:8px;padding:8px 12px;font-size:12px;gap:8px;}
+        .historial-mes{font-weight:700;color:var(--text-main);min-width:80px;}
+        .historial-fecha{color:var(--text-muted);flex:1;}
+        .historial-monto{font-weight:700;color:var(--success);}
+        .historial-sin{text-align:center;color:var(--text-muted);font-size:12px;padding:12px;}
+
+        /* ── FILTROS RÁPIDOS DE PAGOS ── */
+        .filtros-rapidos{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+        .filtro-btn{border:1px solid var(--border-color);background:var(--card-bg);
+            color:var(--text-muted);border-radius:20px;padding:5px 12px;
+            font-size:12px;font-weight:600;cursor:pointer;
+            transition:all 0.15s ease;white-space:nowrap;}
+        .filtro-btn:hover{border-color:var(--primary);color:var(--primary);}
+        .filtro-btn.activo{background:var(--primary);color:#fff;border-color:var(--primary);}
+        .filtro-btn.activo-verde{background:var(--success);color:#fff;border-color:var(--success);}
+        .filtro-btn.activo-rojo{background:#e53e3e;color:#fff;border-color:#e53e3e;}
+        .filtro-btn.activo-naranja{background:var(--warning);color:#fff;border-color:var(--warning);}
+
+        /* ── DASHBOARD INICIO ── */
+        .dashboard{padding:20px;display:flex;flex-direction:column;gap:20px;}
+        .dash-bienvenida{
+            background:linear-gradient(135deg,var(--primary),var(--primary-hover));
+            border-radius:14px;padding:20px;color:#fff;
+            display:flex;align-items:center;gap:16px;
+        }
+        .dash-bienvenida-texto h2{font-size:18px;font-weight:800;margin-bottom:4px;}
+        .dash-bienvenida-texto p{font-size:13px;opacity:0.88;line-height:1.4;}
+        .dash-bienvenida img{width:72px;opacity:0.95;flex-shrink:0;
+            filter:drop-shadow(0 2px 8px rgba(0,0,0,0.2));}
+        .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+        @media(min-width:640px){.dash-grid{grid-template-columns:repeat(4,1fr);}}
+        .dash-card{background:var(--card-bg);border:1px solid var(--border-color);
+            border-radius:12px;padding:16px;text-align:center;
+            display:flex;flex-direction:column;align-items:center;gap:6px;}
+        .dash-card-icon{font-size:22px;}
+        .dash-card-val{font-size:24px;font-weight:800;color:var(--text-main);}
+        .dash-card-label{font-size:11px;color:var(--text-muted);font-weight:600;
+            text-transform:uppercase;letter-spacing:0.4px;}
+        .dash-section-title{font-size:13px;font-weight:700;color:var(--text-muted);
+            text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;
+            display:flex;align-items:center;gap:6px;}
+        .dash-chart-wrap{background:var(--card-bg);border:1px solid var(--border-color);
+            border-radius:12px;padding:16px;}
+        .dash-barras{display:flex;align-items:flex-end;gap:4px;height:90px;}
+        .dash-barra-col{display:flex;flex-direction:column;align-items:center;
+            gap:3px;flex:1;min-width:0;}
+        .dash-barra-fill{width:100%;border-radius:4px 4px 0 0;min-height:3px;
+            background:var(--primary);
+            -webkit-print-color-adjust:exact;print-color-adjust:exact;}
+        .dash-barra-label{font-size:8px;color:var(--text-muted);text-align:center;
+            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;}
+        .dash-barra-val{font-size:9px;font-weight:700;color:var(--text-main);}
+        .dash-top-item{display:flex;align-items:center;gap:10px;
+            background:var(--table-th-bg);border-radius:8px;padding:8px 12px;
+            margin-bottom:6px;}
+        .dash-top-num{font-size:11px;font-weight:800;color:var(--text-muted);width:18px;}
+        .dash-top-nombre{flex:1;font-size:13px;font-weight:600;color:var(--text-main);}
+        .dash-top-dato{font-size:12px;color:var(--text-muted);}
+        [data-theme="dojo"] .dash-bienvenida{background:linear-gradient(135deg,#8b181c,#0f2236);}
+        [data-theme="dojo"] .dash-barra-fill{background:#c9501a;}
+
+        /* ── FILTROS RÁPIDOS DE ESTADO ── */
+        .btn-filtro-estado{
+            display:inline-flex;align-items:center;gap:5px;
+            padding:6px 12px;border-radius:99px;font-size:12px;font-weight:600;
+            border:1.5px solid var(--border-color);
+            background:var(--card-bg);color:var(--text-muted);
+            cursor:pointer;transition:all 0.15s;
+        }
+        .btn-filtro-estado.active{
+            background:var(--primary);color:#fff;border-color:var(--primary);
+        }
+        .btn-filtro-estado:hover:not(.active){
+            border-color:var(--primary);color:var(--primary);
+        }
+        /* ── DASHBOARD BIENVENIDA ── */
+        .dash-bienvenida{
+            background:linear-gradient(135deg,var(--primary),var(--header-bg));
+            border-radius:12px;padding:18px 20px;margin-bottom:16px;
+            display:flex;align-items:center;justify-content:space-between;
+            gap:12px;color:#fff;
+        }
+        .dash-bienvenida-texto h2{font-size:17px;font-weight:800;margin-bottom:4px;}
+        .dash-bienvenida-texto p{font-size:12px;opacity:0.88;line-height:1.4;}
+        .dash-bienvenida img{width:70px;opacity:0.95;flex-shrink:0;
+            filter:drop-shadow(0 4px 8px rgba(0,0,0,0.25));}
+        .dash-barras{display:flex;align-items:flex-end;gap:4px;height:90px;}
+        .dash-barra-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:3px;}
+        .dash-barra-fill{width:100%;border-radius:4px 4px 0 0;min-height:3px;
+            background:var(--primary);transition:height 0.4s ease;
+            -webkit-print-color-adjust:exact;print-color-adjust:exact;}
+        .dash-barra-label{font-size:8px;color:var(--text-muted);text-align:center;white-space:nowrap;}
+        .dash-barra-val{font-size:9px;font-weight:700;color:var(--text-main);}
+        .dash-top-item{display:flex;align-items:center;gap:10px;
+            padding:10px 14px;border-bottom:1px solid var(--border-color);}
+        .dash-top-item:last-child{border-bottom:none;}
+        .dash-top-num{font-size:16px;font-weight:800;min-width:24px;text-align:center;}
+        .dash-top-nombre{flex:1;font-size:13px;font-weight:600;color:var(--text-main);}
+        .dash-top-dato{font-size:12px;color:var(--text-muted);}
+        [data-theme="dojo"] .dash-bienvenida{background:linear-gradient(135deg,#8b181c,#0f2236);}
+        [data-theme="dojo"] .dash-barra-fill{background:#c9501a;}
+        [data-theme="dark"] .dash-bienvenida{background:linear-gradient(135deg,#b71c1c,#1a1a2e);}
+
         /* ── AVATAR DE INICIAL ── */
         .avatar-inicial{
             display:inline-flex;align-items:center;justify-content:center;
@@ -1220,6 +1331,52 @@
                     <p class="inicio-tagline">La mejor app para gestionar tu dojo</p>
                 </div>
             </div>
+
+            <!-- Dashboard debajo de la portada -->
+            <div style="padding:20px;">
+                <!-- Tarjeta de bienvenida -->
+                <div class="dash-bienvenida" id="dash-bienvenida">
+                    <div class="dash-bienvenida-texto">
+                        <h2 id="dash-saludo">¡Buen día, Sensei!</h2>
+                        <p id="dash-resumen">Cargando resumen del mes...</p>
+                    </div>
+                    <img src="" alt="" id="dash-persona">
+                </div>
+
+                <!-- Cards métricas rápidas -->
+                <div class="dash-grid">
+                    <div class="dash-card">
+                        <div class="dash-card-icon">👥</div>
+                        <div class="dash-card-val" id="dash-total">—</div>
+                        <div class="dash-card-label">Alumnos</div>
+                    </div>
+                    <div class="dash-card">
+                        <div class="dash-card-icon">✅</div>
+                        <div class="dash-card-val" id="dash-aldia">—</div>
+                        <div class="dash-card-label">Al día</div>
+                    </div>
+                    <div class="dash-card">
+                        <div class="dash-card-icon">⚠️</div>
+                        <div class="dash-card-val" id="dash-morosos">—</div>
+                        <div class="dash-card-label">Morosos</div>
+                    </div>
+                    <div class="dash-card">
+                        <div class="dash-card-icon">💰</div>
+                        <div class="dash-card-val" id="dash-caja">—</div>
+                        <div class="dash-card-label">Caja del mes</div>
+                    </div>
+                </div>
+
+                <!-- Gráfico de barras: últimos 6 meses -->
+                <div class="dash-section-title"><i class="fas fa-chart-bar"></i> Recaudación últimos 6 meses</div>
+                <div class="dash-chart-wrap">
+                    <div class="dash-barras" id="dash-barras"></div>
+                </div>
+
+                <!-- Ranking de puntualidad -->
+                <div class="dash-section-title"><i class="fas fa-trophy"></i> Más puntuales del año</div>
+                <div class="dash-ranking" id="dash-ranking"></div>
+            </div>
         </section>
 
         <!-- ═══ PÁGINA: PAGOS ═══ -->
@@ -1306,6 +1463,21 @@
                                 <i class="fas fa-search icono-busqueda"></i>
                                 <input type="text" id="filtro-nombre" class="form-control" placeholder="Buscar alumno por nombre..." style="padding-right:34px;">
                                 <button type="button" class="btn-clear" data-target="filtro-nombre" title="Limpiar"><i class="fas fa-times"></i></button>
+                            </div>
+                            <!-- Filtros rápidos por estado -->
+                            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+                                <button class="btn-filtro-estado active" data-filtro-estado="todos" id="filtro-todos">
+                                    <i class="fas fa-list"></i> Todos
+                                </button>
+                                <button class="btn-filtro-estado" data-filtro-estado="aldia" id="filtro-aldia">
+                                    <i class="fas fa-circle-check"></i> Al día
+                                </button>
+                                <button class="btn-filtro-estado" data-filtro-estado="moroso" id="filtro-moroso">
+                                    <i class="fas fa-triangle-exclamation"></i> Morosos
+                                </button>
+                                <button class="btn-filtro-estado" data-filtro-estado="pendiente" id="filtro-pendiente">
+                                    <i class="fas fa-clock"></i> Pendientes
+                                </button>
                             </div>
                             <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
                             <table>
@@ -1617,6 +1789,14 @@
             <p><strong><i class="fas fa-toggle-on" style="width:20px;color:var(--text-muted);"></i> Estado:</strong> <span id="modal-estado" style="margin-left:4px;"></span></p>
             <p id="modal-fecha-container"><strong><i class="fas fa-calendar-check" style="width:20px;color:var(--text-muted);"></i> Fecha de Pago:</strong> <span id="modal-fecha" style="margin-left:4px;"></span></p>
             <p id="modal-observacion-container" style="display:none;"><strong><i class="fas fa-tag" style="width:20px;color:var(--text-muted);"></i> Observación:</strong> <span id="modal-observacion" style="margin-left:4px;"></span></p>
+
+            <!-- Historial de pagos -->
+            <div class="historial-wrap">
+                <div class="historial-titulo">
+                    <i class="fas fa-clock-rotate-left"></i> Historial de Pagos
+                </div>
+                <div class="historial-lista" id="historial-lista"></div>
+            </div>
         </div>
     </div>
 </div>
@@ -2312,6 +2492,37 @@ window.verInfoAlumno = function(id) {
         } else { btnWhatsapp.style.display = 'none'; }
     }
     modalInfo.style.display = 'flex';
+
+    // ── Historial de pagos ──
+    const histLista = document.getElementById('historial-lista');
+    if (histLista) {
+        const pagos = alumno.pagos || {};
+        const periodos = Object.keys(pagos).sort().reverse();
+        if (periodos.length === 0) {
+            histLista.innerHTML = `<div class="historial-sin">Sin pagos registrados.</div>`;
+        } else {
+            histLista.innerHTML = periodos.map(p => {
+                const pago  = pagos[p];
+                const valido = esPagoValido(pago);
+                const [anio, mes] = p.split('-');
+                const label = new Date(Number(anio), Number(mes)-1, 1)
+                    .toLocaleDateString('es-AR', {month:'long', year:'numeric'});
+                const fecha = obtenerFechaPago(pago);
+                const fStr  = fecha ? (() => { const [a,m,d] = fecha.split('-'); return `${d}/${m}/${a}`; })() : '—';
+                const monto = getCuotaEfectiva(alumno, p);
+                return valido
+                    ? `<div class="historial-item">
+                        <span class="historial-mes">${label}</span>
+                        <span class="historial-fecha">${fStr}</span>
+                        <span class="historial-monto">$${monto.toLocaleString('es-AR')}</span>
+                      </div>`
+                    : `<div class="historial-item">
+                        <span class="historial-mes">${label}</span>
+                        <span class="historial-pendiente">Sin pago registrado</span>
+                      </div>`;
+            }).join('');
+        }
+    }
 };
 document.getElementById('close-modal').addEventListener('click', () => { modalInfo.style.display = 'none'; });
 window.addEventListener('click', e => { if (e.target === modalInfo) modalInfo.style.display = 'none'; });
@@ -2340,6 +2551,90 @@ window.eliminarAlumno = async function(id) {
 };
 
 // ── MÉTRICAS ──────────────────────────────────────────────────────────────
+// ── DASHBOARD ─────────────────────────────────────────────────────────────
+function renderDashboard() {
+    // Imagen del personaje
+    const dashPersona = document.getElementById('dash-persona');
+    if (dashPersona) dashPersona.src = PERSONA_IMG;
+
+    const periodo = obtenerPeriodoSeleccionado();
+    const hoy = new Date();
+    const hora = hoy.getHours();
+    const saludo = hora < 12 ? '¡Buenos días' : hora < 19 ? '¡Buenas tardes' : '¡Buenas noches';
+    const salEl = document.getElementById('dash-saludo');
+    if (salEl) salEl.innerText = `${saludo}, Sensei!`;
+
+    const total  = alumnos.length;
+    const alDia  = alumnos.filter(a => esPagoValido(a.pagos && a.pagos[periodo]));
+    const morosos = total - alDia.length;
+    const caja   = alDia.reduce((s,a) => s + getCuotaEfectiva(a,periodo), 0);
+    const pct    = total > 0 ? Math.round(alDia.length / total * 100) : 0;
+
+    // Resumen en el card de bienvenida
+    const resEl = document.getElementById('dash-resumen');
+    if (resEl) resEl.innerText = total === 0
+        ? 'Todavía no hay alumnos registrados.'
+        : `${formatearMesTexto(periodo)}: ${pct}% al día · $${caja.toLocaleString('es-AR')} recaudados`;
+
+    // Cards métricas
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+    set('dash-total', total);
+    set('dash-aldia', alDia.length);
+    set('dash-morosos', morosos);
+    set('dash-caja', `$${caja.toLocaleString('es-AR')}`);
+
+    // Gráfico de barras: últimos 6 meses
+    const barras = document.getElementById('dash-barras');
+    if (barras) {
+        const meses = [];
+        for (let i = 5; i >= 0; i--) {
+            const d = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1);
+            const p = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+            const etiqueta = d.toLocaleDateString('es-AR', {month:'short'}).replace('.','');
+            const recaud = alumnos
+                .filter(a => esPagoValido(a.pagos && a.pagos[p]))
+                .reduce((s,a) => s + getCuotaEfectiva(a,p), 0);
+            meses.push({ p, etiqueta, recaud });
+        }
+        const maxRecaud = Math.max(...meses.map(m => m.recaud), 1);
+        barras.innerHTML = meses.map(m => {
+            const h = Math.round((m.recaud / maxRecaud) * 80) || 3;
+            return `<div class="dash-barra-col">
+                <div class="dash-barra-val">$${m.recaud > 0 ? (m.recaud/1000).toFixed(0)+'k' : '0'}</div>
+                <div class="dash-barra-fill" style="height:${h}px;" title="${m.p}: $${m.recaud.toLocaleString('es-AR')}"></div>
+                <div class="dash-barra-label">${m.etiqueta}</div>
+            </div>`;
+        }).join('');
+    }
+
+    // Ranking de puntualidad: top 5 más pagadores del año en curso
+    const ranking = document.getElementById('dash-ranking');
+    if (ranking) {
+        const anio = hoy.getFullYear().toString();
+        const conteo = alumnos.map(a => {
+            const mesesPagados = Object.keys(a.pagos || {})
+                .filter(k => k.startsWith(anio) && esPagoValido(a.pagos[k])).length;
+            return { nombre: a.nombre, mesesPagados };
+        }).sort((a,b) => b.mesesPagados - a.mesesPagados).slice(0, 5);
+
+        if (conteo.length === 0) {
+            ranking.innerHTML = `<div class="dash-top-item">
+                <span class="dash-top-dato" style="width:100%;text-align:center;padding:8px 0;">
+                    Sin datos de pagos este año.
+                </span>
+            </div>`;
+        } else {
+            const medallas = ['🥇','🥈','🥉','4°','5°'];
+            ranking.innerHTML = conteo.map((a,i) => `
+                <div class="dash-top-item">
+                    <span class="dash-top-num">${medallas[i]}</span>
+                    <span class="dash-top-nombre">${a.nombre}</span>
+                    <span class="dash-top-dato">${a.mesesPagados} mes${a.mesesPagados !== 1 ? 'es' : ''} al día</span>
+                </div>`).join('');
+        }
+    }
+}
+
 function calcularMetricas() {
     const periodo = obtenerPeriodoSeleccionado();
     const total = alumnos.length;
@@ -2383,6 +2678,9 @@ function calcularMetricas() {
             bnBadge.style.display = 'none';
         }
     }
+
+    // Actualizar dashboard (sección Inicio)
+    renderDashboard();
 }
 
 function verificarAlertas() {
@@ -2431,8 +2729,22 @@ function renderalumnos() {
         return;
     }
     const filtro = filtroNombre?.value.toLowerCase().trim() || '';
+    const hoyTemp = new Date();
+    const diaHoyTemp = hoyTemp.getDate();
+    const mesHoyTemp = hoyTemp.getFullYear() + '-' + String(hoyTemp.getMonth()+1).padStart(2,'0');
+    const esMesActualTemp = periodo === mesHoyTemp;
+
     const ordenados = [...alumnos]
-        .filter(a => a.nombre.toLowerCase().includes(filtro))
+        .filter(a => {
+            if (!a.nombre.toLowerCase().includes(filtro)) return false;
+            if (filtroEstadoActivo === 'todos') return true;
+            const pago = a.pagos && a.pagos[periodo];
+            const pagado = esPagoValido(pago);
+            if (filtroEstadoActivo === 'aldia') return pagado;
+            if (filtroEstadoActivo === 'moroso') return !pagado && esMesActualTemp && diaHoyTemp > 10;
+            if (filtroEstadoActivo === 'pendiente') return !pagado && !(esMesActualTemp && diaHoyTemp > 10);
+            return true;
+        })
         .sort((a, b) => {
             const aP = esPagoValido(a.pagos && a.pagos[periodo]) ? 1 : 0;
             const bP = esPagoValido(b.pagos && b.pagos[periodo]) ? 1 : 0;
@@ -3018,6 +3330,17 @@ document.querySelectorAll('.theme-card').forEach(card => {
 });
 btnImprimir.addEventListener('click', imprimirReporteCuotas);
 filtroNombre.addEventListener('input', renderalumnos);
+
+// ── FILTROS RÁPIDOS DE ESTADO EN TABLA DE PAGOS ───────────────────────────
+let filtroEstadoActivo = 'todos';
+document.querySelectorAll('.btn-filtro-estado').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.btn-filtro-estado').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        filtroEstadoActivo = btn.dataset.filtroEstado;
+        renderalumnos();
+    });
+});
 irAPagina('inicio');
 renderListaGraduaciones();
 
