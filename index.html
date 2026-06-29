@@ -386,6 +386,7 @@
         td:first-child{text-align:left;}
         .badge{padding:5px 10px;border-radius:12px;font-size:11px;font-weight:bold;text-transform:uppercase;display:inline-block;}
         .badge-paid{background-color:#e8f5e9;color:var(--success);}
+        .badge-exento{background:#805ad5;color:white;}
         .badge-debt{background-color:#ffe0b2;color:var(--warning);}
         .badge-moroso{background-color:#fde8e8;color:#c53030;}
         [data-theme="dark"] .badge-paid{background-color:#1b3822;color:#81c784;}
@@ -1178,7 +1179,46 @@
         }
         @media(min-width:600px){ .pm-acciones { padding:14px 20px; } }
         .pm-acciones .btn { width:auto; }
-    </style>
+    
+/* Feedback visual al registrar pago */
+.fila-pago-confirmado {
+    animation: pagoConfirmado 0.8s ease;
+}
+
+@keyframes pagoConfirmado {
+    0% { transform: scale(1); background-color: rgba(72,187,120,0.05); }
+    35% { transform: scale(1.015); background-color: rgba(72,187,120,0.35); }
+    100% { transform: scale(1); background-color: transparent; }
+}
+
+.pago-check-flotante {
+    position: fixed;
+    right: 25px;
+    bottom: 25px;
+    z-index: 9999;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: #48bb78;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    box-shadow: 0 8px 25px rgba(0,0,0,.25);
+    animation: checkEntrada .45s ease, checkSalida .5s ease 1.8s forwards;
+}
+
+@keyframes checkEntrada {
+    from { transform: scale(0); opacity:0; }
+    to { transform: scale(1); opacity:1; }
+}
+
+@keyframes checkSalida {
+    to { transform: scale(.8); opacity:0; }
+}
+
+</style>
 </head>
 <body>
 
@@ -1786,6 +1826,7 @@
             <p><strong><i class="fas fa-cake-candles" style="width:20px;color:var(--text-muted);"></i> Fecha de Nac.:</strong> <span id="modal-fechanac" style="margin-left:4px;"></span><span id="modal-edad" class="edad-badge"></span></p>
             <p><strong><i class="fas fa-medal" style="width:20px;color:var(--text-muted);"></i> Graduación:</strong> <span id="modal-graduacion" style="margin-left:4px;"></span></p>
             <p><strong><i class="fas fa-money-bill-wave" style="width:20px;color:var(--text-muted);"></i> Arancel Cuota:</strong> <span id="modal-cuota" style="margin-left:4px;"></span></p>
+            <p id="modal-exento-container" style="display:none;"><strong><i class="fas fa-star" style="width:20px;color:#805ad5;"></i> Condición:</strong> <span id="modal-exento" style="margin-left:4px;"></span></p>
             <p><strong><i class="fas fa-toggle-on" style="width:20px;color:var(--text-muted);"></i> Estado:</strong> <span id="modal-estado" style="margin-left:4px;"></span></p>
             <p id="modal-fecha-container"><strong><i class="fas fa-calendar-check" style="width:20px;color:var(--text-muted);"></i> Fecha de Pago:</strong> <span id="modal-fecha" style="margin-left:4px;"></span></p>
             <p id="modal-observacion-container" style="display:none;"><strong><i class="fas fa-tag" style="width:20px;color:var(--text-muted);"></i> Observación:</strong> <span id="modal-observacion" style="margin-left:4px;"></span></p>
@@ -1850,6 +1891,21 @@
                 <button type="button" class="btn-clear" data-target="editar-descuento" title="Limpiar"><i class="fas fa-times"></i></button>
             </div>
         </div>
+        <div class="form-group" id="editar-motivo-descuento-group" style="display:none;">
+            <label for="editar-motivo-descuento">Motivo del descuento</label>
+            <input type="text" id="editar-motivo-descuento" class="form-control" placeholder="Ej: promoción, beca, familiar...">
+        </div>
+        <div class="form-group">
+            <label for="editar-exento">Estado de pago</label>
+            <select id="editar-exento" class="form-control">
+                <option value="false">No exento</option>
+                <option value="true">Exento</option>
+            </select>
+        </div>
+        <div class="form-group" id="editar-motivo-exencion-group" style="display:none;">
+            <label for="editar-motivo-exencion">Motivo de exención</label>
+            <input type="text" id="editar-motivo-exencion" class="form-control" placeholder="Ej: beca, instructor, promoción...">
+        </div>
         <div class="form-group" id="editar-observacion-group" style="display:none;">
             <label for="editar-observacion">Observación del Pago</label>
             <select id="editar-observacion" class="form-control">
@@ -1859,7 +1915,10 @@
                 <option value="Alquiler">Alquiler</option>
             </select>
         </div>
-        <button id="btn-guardar-edicion" class="btn" style="margin-top:5px;"><i class="fas fa-floppy-disk"></i> Guardar Cambios</button>
+        <div style="display:flex;gap:10px;margin-top:12px;justify-content:flex-end;">
+            <button type="button" id="btn-cancelar-edicion" class="btn" style="background:#666;"><i class="fas fa-xmark"></i> Cancelar</button>
+            <button id="btn-guardar-edicion" class="btn"><i class="fas fa-floppy-disk"></i> Guardar Cambios</button>
+        </div>
     </div>
 </div>
 
@@ -2056,7 +2115,10 @@ function alumnoBase(a) {
         telefono: a.telefono || '',
         cuota: a.cuota || cuotaPredeterminada,
         descuento: a.descuento || 0,
+        motivoDescuento: a.motivoDescuento || '',
         pagos: a.pagos || {},
+        exentoPago: a.exentoPago || false,
+        motivoExencion: a.motivoExencion || '',
         dni: a.dni || '',
         fechaNacimiento: a.fechaNacimiento || '',
         graduacion: a.graduacion || ''
@@ -2438,9 +2500,47 @@ window.cambiarEstadoPago = async function(id) {
     }
     try {
         await set(ref(db, 'alumnos/' + id), { ...alumnoBase(alumno), pagos });
+        if (!esPagoValido(alumno.pagos && alumno.pagos[periodo])) {
+            mostrarConfirmacionPago(id);
+        }
         if (modalInfo.style.display === 'flex') modalInfo.style.display = 'none';
     } catch(e) {
         await dcAlert('Error al guardar el pago: ' + e.message, 'err');
+    }
+};
+
+// ── CAMBIAR EXENCIÓN DE PAGO ─────────────────────────────────────────────
+window.cambiarExencion = async function(id) {
+    const alumno = alumnos.find(a => a.id === id);
+    if (!alumno) return;
+
+    const nuevoEstado = !alumno.exentoPago;
+    let motivo = alumno.motivoExencion || '';
+
+    if (nuevoEstado) {
+        motivo = await dcPrompt('Motivo de la exención (beca, instructor, promoción, familiar, etc.):');
+        if (motivo === null) return;
+        motivo = motivo.trim();
+        if (!motivo) motivo = 'Sin especificar';
+    } else {
+        motivo = '';
+    }
+
+    try {
+        await set(ref(db, 'alumnos/' + id), {
+            ...alumnoBase(alumno),
+            exentoPago: nuevoEstado,
+            motivoExencion: motivo
+        });
+
+        await dcAlert(
+            nuevoEstado
+            ? `Alumno marcado como exento de pago ⭐<br><small>Motivo: ${motivo}</small>`
+            : 'Exención eliminada. El alumno vuelve al estado normal.',
+            'ok'
+        );
+    } catch(e) {
+        await dcAlert('Error al cambiar exención: ' + e.message, 'err');
     }
 };
 
@@ -2459,15 +2559,24 @@ window.verInfoAlumno = function(id) {
     const cuotaBase = getCuotaMes(periodo);
     const descuento = Number(alumno.descuento) || 0;
     const cuotaFinal = Math.max(0, cuotaBase - descuento);
-    document.getElementById('modal-cuota').innerHTML = descuento > 0
+    document.getElementById('modal-cuota').innerHTML = alumno.exentoPago
+        ? '<span class="badge badge-exento">Exento</span>'
+        : (descuento > 0
         ? `$${cuotaFinal.toLocaleString('es-AR')} <span style="font-size:12px;color:var(--text-muted);">(cuota $${cuotaBase.toLocaleString('es-AR')} − descuento $${descuento.toLocaleString('es-AR')})</span>`
-        : `$${cuotaFinal.toLocaleString('es-AR')}`;
+        : `$${cuotaFinal.toLocaleString('es-AR')}`);
+    const exentoBox = document.getElementById('modal-exento-container');
+    if (exentoBox) {
+        exentoBox.style.display = alumno.exentoPago ? 'block' : 'none';
+        document.getElementById('modal-exento').innerText = alumno.exentoPago ? ('Exento - ' + (alumno.motivoExencion || 'Sin especificar')) : '';
+    }
     const pago = alumno.pagos && alumno.pagos[periodo];
     const pagoValido = esPagoValido(pago);
+    const estrellaExento = alumno.exentoPago ? ' ⭐' : '';
+    document.getElementById('modal-nombre').innerHTML = `${alumno.nombre}${estrellaExento}`;
     const fechaContainer = document.getElementById('modal-fecha-container');
     const obsContainer = document.getElementById('modal-observacion-container');
     if (pagoValido) {
-        document.getElementById('modal-estado').innerHTML = `<span class="badge badge-paid">Al día</span>`;
+        document.getElementById('modal-estado').innerHTML = alumno.exentoPago ? `<span class="badge badge-exento">⭐ Exento</span>` : `<span class="badge badge-paid">Al día</span>`;
         const f = obtenerFechaPago(pago);
         if (f) { const [a,m,d] = f.split('-'); document.getElementById('modal-fecha').innerText = `${d}/${m}/${a}`; }
         fechaContainer.style.display = 'block';
@@ -2564,8 +2673,9 @@ function renderDashboard() {
     const salEl = document.getElementById('dash-saludo');
     if (salEl) salEl.innerText = `${saludo}, Sensei!`;
 
-    const total  = alumnos.length;
-    const alDia  = alumnos.filter(a => esPagoValido(a.pagos && a.pagos[periodo]));
+    const activos = alumnos.filter(a => !a.exentoPago);
+    const total  = activos.length;
+    const alDia  = activos.filter(a => esPagoValido(a.pagos && a.pagos[periodo]));
     const morosos = total - alDia.length;
     const caja   = alDia.reduce((s,a) => s + getCuotaEfectiva(a,periodo), 0);
     const pct    = total > 0 ? Math.round(alDia.length / total * 100) : 0;
@@ -2637,8 +2747,9 @@ function renderDashboard() {
 
 function calcularMetricas() {
     const periodo = obtenerPeriodoSeleccionado();
-    const total = alumnos.length;
-    const alDia = alumnos.filter(a => esPagoValido(a.pagos && a.pagos[periodo]));
+    const activos = alumnos.filter(a => !a.exentoPago);
+    const total = activos.length;
+    const alDia = activos.filter(a => esPagoValido(a.pagos && a.pagos[periodo]));
     const morosos = total - alDia.length;
     const caja = alDia.reduce((s, a) => s + getCuotaEfectiva(a, periodo), 0);
     document.getElementById('widget-alumnos').innerText = total;
@@ -2767,17 +2878,19 @@ function renderalumnos() {
         const tr = document.createElement('tr');
         const pago = alumno.pagos && alumno.pagos[periodo];
         const pagado = esPagoValido(pago);
-        let estadoClase = pagado ? 'badge-paid' : (esMesActual && diaHoy > 10 ? 'badge-moroso' : 'badge-debt');
-        let estadoTexto = pagado ? 'Al día' : (esMesActual && diaHoy > 10 ? 'Moroso' : 'Pendiente');
-        const obs = pagado ? obtenerObservacion(pago) : '';
+        let estadoClase = alumno.exentoPago ? 'badge-exento' : (pagado ? 'badge-paid' : (esMesActual && diaHoy > 10 ? 'badge-moroso' : 'badge-debt'));
+        let estadoTexto = alumno.exentoPago ? 'Exento' : (pagado ? 'Al día' : (esMesActual && diaHoy > 10 ? 'Moroso' : 'Pendiente'));
+        const obs = alumno.exentoPago ? `Exento: ${alumno.motivoExencion || 'Sin especificar'}` : (pagado ? obtenerObservacion(pago) : '');
         let celdaFecha = pagado
             ? (() => { const f = obtenerFechaPago(pago); const p = f ? f.split('-') : ['','','']; return `<span class="badge badge-paid">Pagó</span><span class="print-only">${p[2]}/${p[1]}/${p[0]}</span>`; })()
             : `<input type="date" id="fecha-pago-${alumno.id}" class="table-date-input" value="${hoyStr}"><span class="print-only">${estadoTexto}</span>`;
         const cuotaFinal = getCuotaEfectiva(alumno, periodo);
         const descMonto = Number(alumno.descuento) || 0;
-        const celdaCuota = descMonto > 0
+        const celdaCuota = alumno.exentoPago
+            ? `<span class="badge badge-exento">Exento</span>`
+            : (descMonto > 0
             ? `$${cuotaFinal.toLocaleString('es-AR')}<br><span style="font-size:10px;color:var(--text-muted);">(desc. $${descMonto.toLocaleString('es-AR')})</span>`
-            : `$${cuotaFinal.toLocaleString('es-AR')}`;
+            : `$${cuotaFinal.toLocaleString('es-AR')}`);
 
         // Color de fila según estado
         const filaClase = pagado ? 'fila-aldia' : (esMesActual && diaHoy > 10 ? 'fila-moroso' : 'fila-pendiente');
@@ -2787,7 +2900,7 @@ function renderalumnos() {
         tr.innerHTML = `
             <td><div class="celda-nombre-con-avatar">
                 ${avatarHTML(alumno.nombre)}
-                <div class="celda-nombre-texto"><strong>${alumno.nombre}</strong></div>
+                <div class="celda-nombre-texto"><strong>${alumno.nombre}${alumno.exentoPago ? " ⭐" : ""}</strong></div>
             </div></td>
             <td class="col-telefono" data-label="Teléfono">${alumno.telefono||'-'}</td>
             <td data-label="Fecha de Pago">${celdaFecha}</td>
@@ -2835,7 +2948,7 @@ function renderAlumnosSimple() {
         tr.innerHTML = `
             <td><div class="celda-nombre-con-avatar">
                 ${avatarHTML(alumno.nombre)}
-                <div class="celda-nombre-texto"><strong>${alumno.nombre}</strong></div>
+                <div class="celda-nombre-texto"><strong>${alumno.nombre}${alumno.exentoPago ? " ⭐" : ""}</strong></div>
             </div></td>
             <td>${alumno.telefono || '—'}</td>
             <td>${alumno.graduacion || '—'}</td>
@@ -2862,6 +2975,11 @@ window.editarAlumno = function(id) {
     document.getElementById('editar-fechaNacimiento').value = alumno.fechaNacimiento || '';
     document.getElementById('editar-edad-calculada').innerText = calcularEdad(alumno.fechaNacimiento) !== null ? `${calcularEdad(alumno.fechaNacimiento)} años` : '— años';
     document.getElementById('editar-descuento').value = alumno.descuento ? alumno.descuento : '';
+    document.getElementById('editar-motivo-descuento').value = alumno.motivoDescuento || '';
+    document.getElementById('editar-exento').value = alumno.exentoPago ? 'true' : 'false';
+    document.getElementById('editar-motivo-exencion').value = alumno.motivoExencion || '';
+    document.getElementById('editar-motivo-descuento-group').style.display = Number(alumno.descuento) > 0 ? 'block' : 'none';
+    document.getElementById('editar-motivo-exencion-group').style.display = alumno.exentoPago ? 'block' : 'none';
     actualizarSelectsGraduacion();
     setTimeout(() => { document.getElementById('editar-graduacion').value = alumno.graduacion || ''; }, 50);
     ['editar-nombre','editar-telefono','editar-dni','editar-descuento'].forEach(i => actualizarBtnClear(document.getElementById(i)));
@@ -2877,7 +2995,15 @@ window.editarAlumno = function(id) {
 };
 
 document.getElementById('close-modal-editar').addEventListener('click', () => { modalEditar.style.display = 'none'; });
+document.getElementById('btn-cancelar-edicion').addEventListener('click', () => { modalEditar.style.display = 'none'; });
 window.addEventListener('click', e => { if (e.target === modalEditar) modalEditar.style.display = 'none'; });
+
+document.getElementById('editar-descuento').addEventListener('input', function() {
+    document.getElementById('editar-motivo-descuento-group').style.display = Number(this.value) > 0 ? 'block' : 'none';
+});
+document.getElementById('editar-exento').addEventListener('change', function() {
+    document.getElementById('editar-motivo-exencion-group').style.display = this.value === 'true' ? 'block' : 'none';
+});
 
 document.getElementById('btn-guardar-edicion').addEventListener('click', async () => {
     const pwd = await dcPrompt('Ingresá la contraseña del Sensei para guardar los cambios:');
@@ -2904,6 +3030,9 @@ document.getElementById('btn-guardar-edicion').addEventListener('click', async (
             fechaNacimiento: document.getElementById('editar-fechaNacimiento').value || '',
             graduacion: document.getElementById('editar-graduacion').value || '',
             descuento: parseInt(document.getElementById('editar-descuento').value) || 0,
+            motivoDescuento: document.getElementById('editar-motivo-descuento').value.trim(),
+            exentoPago: document.getElementById('editar-exento').value === 'true',
+            motivoExencion: document.getElementById('editar-motivo-exencion').value.trim(),
             cuota: alumno.cuota,
             pagos
         });
@@ -3044,17 +3173,21 @@ function imprimirReporteCuotas() {
     const total   = alumnos.length;
     const alDia   = alumnos.filter(a => esPagoValido(a.pagos && a.pagos[periodo]));
     const morosos = total - alDia.length;
-    const caja    = alDia.reduce((s,a) => s + getCuotaEfectiva(a,periodo), 0).toLocaleString('es-AR');
+    const caja    = alDia.reduce((s,a) => s + (a.exentoPago ? 0 : getCuotaEfectiva(a,periodo)), 0).toLocaleString('es-AR');
 
     const filas = alumnos.slice().sort((a,b) => a.nombre.localeCompare(b.nombre)).map(a => {
         const pago   = a.pagos && a.pagos[periodo];
         const valido = esPagoValido(pago);
         const color  = valido ? '#1a5c1a' : '#7a1a1a';
-        return `<tr><td>${a.nombre}</td><td>${a.telefono||'—'}</td>
+        const nombre = a.nombre;
+        const cuota = a.exentoPago ? 'Exento' : `$${getCuotaEfectiva(a,periodo).toLocaleString('es-AR')}`;
+        const estado = a.exentoPago ? 'Exento' : (valido?'Al día':'Moroso');
+        const observacion = a.exentoPago ? (a.motivoExencion || '') : (pago&&pago.observacion?pago.observacion:'');
+        return `<tr><td>${nombre}</td><td>${a.telefono||'—'}</td>
             <td>${pago&&pago.fecha?pago.fecha:'—'}</td>
-            <td>$${getCuotaEfectiva(a,periodo).toLocaleString('es-AR')}</td>
-            <td style="color:${color};font-weight:700">${valido?'Al día':'Moroso'}</td>
-            <td>${pago&&pago.observacion?pago.observacion:''}</td></tr>`;
+            <td>${cuota}</td>
+            <td style="color:${a.exentoPago?'#6b46c1':color};font-weight:700">${estado}</td>
+            <td>${observacion}</td></tr>`;
     }).join('');
 
     imprimirEnIframe(`<!DOCTYPE html><html lang="es"><head>
@@ -3282,6 +3415,7 @@ function abrirPadron() {
             <td>${edad !== null ? edad + ' años' : '—'}</td>
             <td>${a.telefono || '—'}</td>
             <td>${a.graduacion || '—'}</td>
+            <td>${a.exentoPago ? 'EXENTO: ' + (a.motivoExencion || 'Sin especificar') : '—'}</td>
         </tr>`;
     }).join('');
 
@@ -3343,6 +3477,25 @@ document.querySelectorAll('.btn-filtro-estado').forEach(btn => {
 });
 irAPagina('inicio');
 renderListaGraduaciones();
+
+
+// ── FEEDBACK VISUAL DE PAGO ───────────────────────────────────────────────
+function mostrarConfirmacionPago(id) {
+    const fila = document.querySelector(`button[onclick="cambiarEstadoPago('${id}')"]`)?.closest('tr');
+    if (fila) {
+        fila.classList.remove('fila-pago-confirmado');
+        void fila.offsetWidth;
+        fila.classList.add('fila-pago-confirmado');
+    }
+
+    const check = document.createElement('div');
+    check.className = 'pago-check-flotante';
+    check.innerHTML = '<i class="fas fa-check"></i>';
+    document.body.appendChild(check);
+
+    setTimeout(() => check.remove(), 2400);
+}
+
 
 </script>
 </body>
