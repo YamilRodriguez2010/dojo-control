@@ -2674,11 +2674,15 @@ function renderDashboard() {
     const salEl = document.getElementById('dash-saludo');
     if (salEl) salEl.innerText = `${saludo}, Sensei!`;
 
+    const totalAlumnos = alumnos.length;
     const activos = alumnos.filter(a => !a.exentoPago);
-    const total  = activos.length;
     const alDia  = activos.filter(a => esPagoValido(a.pagos && a.pagos[periodo]));
-    const morosos = total - alDia.length;
-    const caja   = alDia.reduce((s,a) => s + getCuotaEfectiva(a,periodo), 0);
+    const morosos = activos.filter(a => !esPagoValido(a.pagos && a.pagos[periodo]));
+    const caja   = alumnos.reduce((s,a) => {
+        const pago = a.pagos && a.pagos[periodo];
+        if (!esPagoValido(pago)) return s;
+        return s + (typeof pago === 'number' ? pago : (Number(a.montoPago) || getCuotaEfectiva(a,periodo)));
+    }, 0);
     const pct    = total > 0 ? Math.round(alDia.length / total * 100) : 0;
 
     // Resumen en el card de bienvenida
@@ -2689,7 +2693,7 @@ function renderDashboard() {
 
     // Cards métricas
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
-    set('dash-total', total);
+    set('dash-total', totalAlumnos);
     set('dash-aldia', alDia.length);
     set('dash-morosos', morosos);
     set('dash-caja', `$${caja.toLocaleString('es-AR')}`);
@@ -2748,11 +2752,15 @@ function renderDashboard() {
 
 function calcularMetricas() {
     const periodo = obtenerPeriodoSeleccionado();
+    const total = alumnos.length;
     const activos = alumnos.filter(a => !a.exentoPago);
-    const total = activos.length;
     const alDia = activos.filter(a => esPagoValido(a.pagos && a.pagos[periodo]));
-    const morosos = total - alDia.length;
-    const caja = alDia.reduce((s, a) => s + getCuotaEfectiva(a, periodo), 0);
+    const morosos = activos.filter(a => !esPagoValido(a.pagos && a.pagos[periodo]));
+    const caja = alumnos.reduce((s, a) => {
+        const pago = a.pagos && a.pagos[periodo];
+        if (!esPagoValido(pago)) return s;
+        return s + (typeof pago === 'number' ? pago : (Number(a.montoPago) || getCuotaEfectiva(a,periodo)));
+    }, 0);
     document.getElementById('widget-alumnos').innerText = total;
     document.getElementById('widget-aldia').innerText = alDia.length;
     document.getElementById('widget-morosos').innerText = morosos;
