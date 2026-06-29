@@ -387,6 +387,7 @@
         .badge{padding:5px 10px;border-radius:12px;font-size:11px;font-weight:bold;text-transform:uppercase;display:inline-block;}
         .badge-paid{background-color:#e8f5e9;color:var(--success);}
         .badge-exento{background:#805ad5;color:white;}
+        .estrella-descuento{color:#2563eb;font-weight:bold;}
         .badge-debt{background-color:#ffe0b2;color:var(--warning);}
         .badge-moroso{background-color:#fde8e8;color:#c53030;}
         [data-theme="dark"] .badge-paid{background-color:#1b3822;color:#81c784;}
@@ -2880,7 +2881,7 @@ function renderalumnos() {
         const pagado = esPagoValido(pago);
         let estadoClase = alumno.exentoPago ? 'badge-exento' : (pagado ? 'badge-paid' : (esMesActual && diaHoy > 10 ? 'badge-moroso' : 'badge-debt'));
         let estadoTexto = alumno.exentoPago ? 'Exento' : (pagado ? 'Al día' : (esMesActual && diaHoy > 10 ? 'Moroso' : 'Pendiente'));
-        const obs = alumno.exentoPago ? `Exento: ${alumno.motivoExencion || 'Sin especificar'}` : (pagado ? obtenerObservacion(pago) : '');
+        const obs = alumno.exentoPago ? `Exento: ${alumno.motivoExencion || 'Sin especificar'}` : ((Number(alumno.descuento)||0) > 0 ? `Descuento: ${alumno.motivoDescuento || 'Sin especificar'}` : (pagado ? obtenerObservacion(pago) : ''));
         let celdaFecha = pagado
             ? (() => { const f = obtenerFechaPago(pago); const p = f ? f.split('-') : ['','','']; return `<span class="badge badge-paid">Pagó</span><span class="print-only">${p[2]}/${p[1]}/${p[0]}</span>`; })()
             : `<input type="date" id="fecha-pago-${alumno.id}" class="table-date-input" value="${hoyStr}"><span class="print-only">${estadoTexto}</span>`;
@@ -2900,7 +2901,7 @@ function renderalumnos() {
         tr.innerHTML = `
             <td><div class="celda-nombre-con-avatar">
                 ${avatarHTML(alumno.nombre)}
-                <div class="celda-nombre-texto"><strong>${alumno.nombre}${alumno.exentoPago ? " ⭐" : ""}</strong></div>
+                <div class="celda-nombre-texto"><strong>${alumno.nombre}${alumno.exentoPago ? ' <span class="estrella-exento">⭐</span>' : ''}${(Number(alumno.descuento)||0) > 0 ? ' <span class="estrella-descuento">⭐</span>' : ''}</strong></div>
             </div></td>
             <td class="col-telefono" data-label="Teléfono">${alumno.telefono||'-'}</td>
             <td data-label="Fecha de Pago">${celdaFecha}</td>
@@ -2948,7 +2949,7 @@ function renderAlumnosSimple() {
         tr.innerHTML = `
             <td><div class="celda-nombre-con-avatar">
                 ${avatarHTML(alumno.nombre)}
-                <div class="celda-nombre-texto"><strong>${alumno.nombre}${alumno.exentoPago ? " ⭐" : ""}</strong></div>
+                <div class="celda-nombre-texto"><strong>${alumno.nombre}${alumno.exentoPago ? ' <span class="estrella-exento">⭐</span>' : ''}${(Number(alumno.descuento)||0) > 0 ? ' <span class="estrella-descuento">⭐</span>' : ''}</strong></div>
             </div></td>
             <td>${alumno.telefono || '—'}</td>
             <td>${alumno.graduacion || '—'}</td>
