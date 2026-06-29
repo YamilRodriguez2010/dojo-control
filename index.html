@@ -387,7 +387,7 @@
         .badge{padding:5px 10px;border-radius:12px;font-size:11px;font-weight:bold;text-transform:uppercase;display:inline-block;}
         .badge-paid{background-color:#e8f5e9;color:var(--success);}
         .badge-exento{background:#805ad5;color:white;}
-        .estrella-descuento{color:#2563eb;font-weight:bold;}
+        .estrella-descuento{display:inline-block;width:12px;height:12px;background:#38bdf8;border-radius:50%;margin-left:5px;vertical-align:middle;}
         .badge-debt{background-color:#ffe0b2;color:var(--warning);}
         .badge-moroso{background-color:#fde8e8;color:#c53030;}
         [data-theme="dark"] .badge-paid{background-color:#1b3822;color:#81c784;}
@@ -2901,7 +2901,7 @@ function renderalumnos() {
         tr.innerHTML = `
             <td><div class="celda-nombre-con-avatar">
                 ${avatarHTML(alumno.nombre)}
-                <div class="celda-nombre-texto"><strong>${alumno.nombre}${alumno.exentoPago ? ' <span class="estrella-exento">⭐</span>' : ''}${(Number(alumno.descuento)||0) > 0 ? ' <span class="estrella-descuento">⭐</span>' : ''}</strong></div>
+                <div class="celda-nombre-texto"><strong>${alumno.nombre}${alumno.exentoPago ? ' <span class="estrella-exento">⭐</span>' : ''}${(Number(alumno.descuento)||0) > 0 ? ' <span class="estrella-descuento"></span>' : ''}</strong></div>
             </div></td>
             <td class="col-telefono" data-label="Teléfono">${alumno.telefono||'-'}</td>
             <td data-label="Fecha de Pago">${celdaFecha}</td>
@@ -2949,7 +2949,7 @@ function renderAlumnosSimple() {
         tr.innerHTML = `
             <td><div class="celda-nombre-con-avatar">
                 ${avatarHTML(alumno.nombre)}
-                <div class="celda-nombre-texto"><strong>${alumno.nombre}${alumno.exentoPago ? ' <span class="estrella-exento">⭐</span>' : ''}${(Number(alumno.descuento)||0) > 0 ? ' <span class="estrella-descuento">⭐</span>' : ''}</strong></div>
+                <div class="celda-nombre-texto"><strong>${alumno.nombre}${alumno.exentoPago ? ' <span class="estrella-exento">⭐</span>' : ''}${(Number(alumno.descuento)||0) > 0 ? ' <span class="estrella-descuento"></span>' : ''}</strong></div>
             </div></td>
             <td>${alumno.telefono || '—'}</td>
             <td>${alumno.graduacion || '—'}</td>
@@ -3183,7 +3183,7 @@ function imprimirReporteCuotas() {
         const nombre = a.nombre;
         const cuota = a.exentoPago ? 'Exento' : `$${getCuotaEfectiva(a,periodo).toLocaleString('es-AR')}`;
         const estado = a.exentoPago ? 'Exento' : (valido?'Al día':'Moroso');
-        const observacion = a.exentoPago ? (a.motivoExencion || '') : (pago&&pago.observacion?pago.observacion:'');
+        const observacion = a.exentoPago ? ('Exento: ' + (a.motivoExencion || 'Sin especificar')) : ((Number(a.descuento)||0) > 0 ? ('Descuento: ' + (a.motivoDescuento || 'Sin especificar')) : (pago&&pago.observacion?pago.observacion:''));
         return `<tr><td>${nombre}</td><td>${a.telefono||'—'}</td>
             <td>${pago&&pago.fecha?pago.fecha:'—'}</td>
             <td>${cuota}</td>
