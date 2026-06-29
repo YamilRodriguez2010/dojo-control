@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -2683,11 +2683,11 @@ function renderDashboard() {
         if (!esPagoValido(pago)) return s;
         return s + (typeof pago === 'number' ? pago : (Number(a.montoPago) || getCuotaEfectiva(a,periodo)));
     }, 0);
-    const pct    = total > 0 ? Math.round(alDia.length / total * 100) : 0;
+    const pct    = totalAlumnos > 0 ? Math.round(alDia.length / totalAlumnos * 100) : 0;
 
     // Resumen en el card de bienvenida
     const resEl = document.getElementById('dash-resumen');
-    if (resEl) resEl.innerText = total === 0
+    if (resEl) resEl.innerText = totalAlumnos === 0
         ? 'Todavía no hay alumnos registrados.'
         : `${formatearMesTexto(periodo)}: ${pct}% al día · $${caja.toLocaleString('es-AR')} recaudados`;
 
@@ -2695,7 +2695,7 @@ function renderDashboard() {
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
     set('dash-total', totalAlumnos);
     set('dash-aldia', alDia.length);
-    set('dash-morosos', morosos);
+    set('dash-morosos', morosos.length);
     set('dash-caja', `$${caja.toLocaleString('es-AR')}`);
 
     // Gráfico de barras: últimos 6 meses
@@ -2708,7 +2708,7 @@ function renderDashboard() {
             const etiqueta = d.toLocaleDateString('es-AR', {month:'short'}).replace('.','');
             const recaud = alumnos
                 .filter(a => esPagoValido(a.pagos && a.pagos[p]))
-                .reduce((s,a) => s + getCuotaEfectiva(a,p), 0);
+                .reduce((s,a) => s + (typeof (a.pagos && a.pagos[p]) === 'number' ? a.pagos[p] : (Number(a.montoPago) || getCuotaEfectiva(a,p))), 0);
             meses.push({ p, etiqueta, recaud });
         }
         const maxRecaud = Math.max(...meses.map(m => m.recaud), 1);
@@ -2763,7 +2763,7 @@ function calcularMetricas() {
     }, 0);
     document.getElementById('widget-alumnos').innerText = total;
     document.getElementById('widget-aldia').innerText = alDia.length;
-    document.getElementById('widget-morosos').innerText = morosos;
+    document.getElementById('widget-morosos').innerText = morosos.length;
     document.getElementById('widget-caja').innerText = `$${caja.toLocaleString('es-AR')}`;
     document.getElementById('print-mes').innerText = formatearMesTexto(periodo);
 
@@ -2778,14 +2778,14 @@ function calcularMetricas() {
         : `${total} alumno${total !== 1 ? 's' : ''} registrado${total !== 1 ? 's' : ''}`;
 
     // ── Barra de progreso del mes ──
-    const pct = total > 0 ? Math.round((alDia.length / total) * 100) : 0;
+    const pct = totalAlumnos > 0 ? Math.round((alDia.length / totalAlumnos) * 100) : 0;
     const barFill = document.getElementById('progreso-bar-fill');
     const barPct  = document.getElementById('progreso-pct-num');
     const barIzq  = document.getElementById('progreso-detalle-izq');
     const barDer  = document.getElementById('progreso-detalle-der');
     if (barFill) barFill.style.width = pct + '%';
     if (barPct)  barPct.innerText = pct;
-    if (barIzq)  barIzq.innerText = `${alDia.length} al día`;
+    if (barIzq)  barIzq.innerText = `${alDia.length} al dia`;
     if (barDer)  barDer.innerText = `${morosos} pendiente${morosos !== 1 ? 's' : ''}`;
 
     // ── Badge de morosos en bottom nav ──
