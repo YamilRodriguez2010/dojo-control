@@ -1481,7 +1481,7 @@
                         <div class="progreso-bar-fill" id="progreso-bar-fill" style="width:0%;"></div>
                     </div>
                     <div class="progreso-detalle">
-                        <span id="progreso-detalle-izq">0 al día</span>
+                        <span id="progreso-detalle-izq">0 al dia</span>
                         <span id="progreso-detalle-der">0 pendientes</span>
                     </div>
                 </div>
@@ -1826,8 +1826,7 @@
             <p><strong><i class="fas fa-id-card" style="width:20px;color:var(--text-muted);"></i> DNI:</strong> <span id="modal-dni" style="margin-left:4px;"></span></p>
             <p><strong><i class="fas fa-cake-candles" style="width:20px;color:var(--text-muted);"></i> Fecha de Nac.:</strong> <span id="modal-fechanac" style="margin-left:4px;"></span><span id="modal-edad" class="edad-badge"></span></p>
             <p><strong><i class="fas fa-medal" style="width:20px;color:var(--text-muted);"></i> Graduación:</strong> <span id="modal-graduacion" style="margin-left:4px;"></span></p>
-            <p><strong><i class="fas fa-money-bill-wave" style="width:20px;color:var(--text-muted);"></i> Arancel Cuota:</strong> <span id="modal-cuota" style="margin-left:4px;"></span></p>
-            <p id="modal-exento-container" style="display:none;"><strong><i class="fas fa-star" style="width:20px;color:#805ad5;"></i> Condición:</strong> <span id="modal-exento" style="margin-left:4px;"></span></p>
+            <p><strong><i class="fas fa-money-bill-wave" style="width:20px;color:var(--text-muted);"></i> Arancel Cuota:</strong> <span id="modal-cuota" style="margin-left:4px;"></span><span id="modal-descuento" style="display:block;width:100%;margin-left:24px;color:var(--text-muted);font-size:12px;"></span></p>
             <p><strong><i class="fas fa-toggle-on" style="width:20px;color:var(--text-muted);"></i> Estado:</strong> <span id="modal-estado" style="margin-left:4px;"></span></p>
             <p id="modal-fecha-container"><strong><i class="fas fa-calendar-check" style="width:20px;color:var(--text-muted);"></i> Fecha de Pago:</strong> <span id="modal-fecha" style="margin-left:4px;"></span></p>
             <p id="modal-observacion-container" style="display:none;"><strong><i class="fas fa-tag" style="width:20px;color:var(--text-muted);"></i> Observación:</strong> <span id="modal-observacion" style="margin-left:4px;"></span></p>
@@ -2560,28 +2559,36 @@ window.verInfoAlumno = function(id) {
     const cuotaBase = getCuotaMes(periodo);
     const descuento = Number(alumno.descuento) || 0;
     const cuotaFinal = Math.max(0, cuotaBase - descuento);
-    document.getElementById('modal-cuota').innerHTML = alumno.exentoPago
-        ? '<span class="badge badge-exento">Exento</span>'
-        : (descuento > 0
-        ? `$${cuotaFinal.toLocaleString('es-AR')} <span style="font-size:12px;color:var(--text-muted);">(cuota $${cuotaBase.toLocaleString('es-AR')} − descuento $${descuento.toLocaleString('es-AR')})</span>`
-        : `$${cuotaFinal.toLocaleString('es-AR')}`);
-    const exentoBox = document.getElementById('modal-exento-container');
-    if (exentoBox) {
-        exentoBox.style.display = alumno.exentoPago ? 'block' : 'none';
-        document.getElementById('modal-exento').innerText = alumno.exentoPago ? ('Exento - ' + (alumno.motivoExencion || 'Sin especificar')) : '';
+    document.getElementById('modal-cuota').innerText = alumno.exentoPago ? 'Exento' : `$${cuotaFinal.toLocaleString('es-AR')}`;
+    const detalleDescuento = document.getElementById('modal-descuento');
+    if (detalleDescuento) {
+        if (alumno.exentoPago) {
+            detalleDescuento.innerHTML = `<small>Motivo: ${alumno.motivoExencion || 'Sin especificar'}</small>`;
+        } else if (descuento > 0) {
+            detalleDescuento.innerHTML = `<small>Descuento aplicado: $${descuento.toLocaleString('es-AR')}<br>Motivo: ${alumno.motivoDescuento || 'Sin especificar'}</small>`;
+        } else {
+            detalleDescuento.innerHTML = '';
+        }
+    }
+    const motivoInfo = document.getElementById('modal-observacion');
+    const obsContainerInfo = document.getElementById('modal-observacion-container');
+    if (motivoInfo && obsContainerInfo) {
+        motivoInfo.innerText = '';
+        obsContainerInfo.style.display = 'none';
     }
     const pago = alumno.pagos && alumno.pagos[periodo];
     const pagoValido = esPagoValido(pago);
-    const estrellaExento = alumno.exentoPago ? ' ⭐' : '';
-    document.getElementById('modal-nombre').innerHTML = `${alumno.nombre}${estrellaExento}`;
+    document.getElementById('modal-nombre').innerHTML = `${alumno.nombre}`;
     const fechaContainer = document.getElementById('modal-fecha-container');
     const obsContainer = document.getElementById('modal-observacion-container');
     if (pagoValido) {
-        document.getElementById('modal-estado').innerHTML = alumno.exentoPago ? `<span class="badge badge-exento">⭐ Exento</span>` : `<span class="badge badge-paid">Al día</span>`;
+        document.getElementById('modal-estado').innerHTML = `<span class="badge badge-paid">Al día</span>`;
         const f = obtenerFechaPago(pago);
         if (f) { const [a,m,d] = f.split('-'); document.getElementById('modal-fecha').innerText = `${d}/${m}/${a}`; }
         fechaContainer.style.display = 'block';
         btnWhatsapp.style.display = 'none';
+        // La observacion del modal siempre muestra el estado del pago (rendido, no rendido, etc.).
+        // Los motivos de descuento/exencion se muestran solamente en Arancel Cuota.
         document.getElementById('modal-observacion').innerText = obtenerObservacion(pago) || '—';
         obsContainer.style.display = 'flex';
     } else {
@@ -2662,6 +2669,34 @@ window.eliminarAlumno = async function(id) {
 
 // ── MÉTRICAS ──────────────────────────────────────────────────────────────
 // ── DASHBOARD ─────────────────────────────────────────────────────────────
+
+function getEstadoMensual(periodo) {
+    const activos = alumnos.filter(a => !a.exentoPago);
+    const alDia = activos.filter(a => esPagoValido(a.pagos && a.pagos[periodo]));
+    const morosos = activos.filter(a => !esPagoValido(a.pagos && a.pagos[periodo]));
+
+    // La caja solo suma dinero realmente cobrado.
+    // Respeta descuentos, cuota personalizada y excluye alumnos exentos.
+    const caja = alumnos.reduce((total, a) => {
+        if (a.exentoPago) return total;
+
+        const pago = a.pagos && a.pagos[periodo];
+        if (!esPagoValido(pago)) return total;
+
+        let valor = 0;
+        if (typeof pago === 'number') {
+            valor = pago;
+        } else if (pago && typeof pago === 'object') {
+            valor = Number(pago.monto || pago.valor || pago.importe || getCuotaEfectiva(a, periodo)) || 0;
+        } else {
+            valor = Number(getCuotaEfectiva(a, periodo)) || 0;
+        }
+
+        return total + valor;
+    }, 0);
+
+    return { activos, alDia, morosos, caja };
+}
 function renderDashboard() {
     // Imagen del personaje
     const dashPersona = document.getElementById('dash-persona');
@@ -2675,21 +2710,14 @@ function renderDashboard() {
     if (salEl) salEl.innerText = `${saludo}, Sensei!`;
 
     const totalAlumnos = alumnos.length;
-    const activos = alumnos.filter(a => !a.exentoPago);
-    const alDia  = activos.filter(a => esPagoValido(a.pagos && a.pagos[periodo]));
-    const morosos = activos.filter(a => !esPagoValido(a.pagos && a.pagos[periodo]));
-    const caja   = alumnos.reduce((s,a) => {
-        const pago = a.pagos && a.pagos[periodo];
-        if (!esPagoValido(pago)) return s;
-        return s + (typeof pago === 'number' ? pago : (Number(a.montoPago) || getCuotaEfectiva(a,periodo)));
-    }, 0);
+    const { alDia, morosos, caja } = getEstadoMensual(periodo);
     const pct    = totalAlumnos > 0 ? Math.round(alDia.length / totalAlumnos * 100) : 0;
 
     // Resumen en el card de bienvenida
     const resEl = document.getElementById('dash-resumen');
     if (resEl) resEl.innerText = totalAlumnos === 0
         ? 'Todavía no hay alumnos registrados.'
-        : `${formatearMesTexto(periodo)}: ${pct}% al día · $${caja.toLocaleString('es-AR')} recaudados`;
+        : `${formatearMesTexto(periodo)}: ${pct}% al dia · $${caja.toLocaleString('es-AR')} recaudados`;
 
     // Cards métricas
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
@@ -2706,9 +2734,20 @@ function renderDashboard() {
             const d = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1);
             const p = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
             const etiqueta = d.toLocaleDateString('es-AR', {month:'short'}).replace('.','');
-            const recaud = alumnos
-                .filter(a => esPagoValido(a.pagos && a.pagos[p]))
-                .reduce((s,a) => s + (typeof (a.pagos && a.pagos[p]) === 'number' ? a.pagos[p] : (Number(a.montoPago) || getCuotaEfectiva(a,p))), 0);
+            const recaud = alumnos.reduce((s,a) => {
+                if (a.exentoPago) return s;
+                const pago = a.pagos && a.pagos[p];
+                if (!esPagoValido(pago)) return s;
+                let valor = 0;
+                if (typeof pago === 'number') {
+                    valor = pago;
+                } else if (pago && typeof pago === 'object') {
+                    valor = Number(pago.monto || pago.valor || pago.importe || getCuotaEfectiva(a,p)) || 0;
+                } else {
+                    valor = Number(getCuotaEfectiva(a,p)) || 0;
+                }
+                return s + valor;
+            }, 0);
             meses.push({ p, etiqueta, recaud });
         }
         const maxRecaud = Math.max(...meses.map(m => m.recaud), 1);
@@ -2744,7 +2783,7 @@ function renderDashboard() {
                 <div class="dash-top-item">
                     <span class="dash-top-num">${medallas[i]}</span>
                     <span class="dash-top-nombre">${a.nombre}</span>
-                    <span class="dash-top-dato">${a.mesesPagados} mes${a.mesesPagados !== 1 ? 'es' : ''} al día</span>
+                    <span class="dash-top-dato">${a.mesesPagados} mes${a.mesesPagados !== 1 ? 'es' : ''} al dia</span>
                 </div>`).join('');
         }
     }
@@ -2753,14 +2792,7 @@ function renderDashboard() {
 function calcularMetricas() {
     const periodo = obtenerPeriodoSeleccionado();
     const total = alumnos.length;
-    const activos = alumnos.filter(a => !a.exentoPago);
-    const alDia = activos.filter(a => esPagoValido(a.pagos && a.pagos[periodo]));
-    const morosos = activos.filter(a => !esPagoValido(a.pagos && a.pagos[periodo]));
-    const caja = alumnos.reduce((s, a) => {
-        const pago = a.pagos && a.pagos[periodo];
-        if (!esPagoValido(pago)) return s;
-        return s + (typeof pago === 'number' ? pago : (Number(a.montoPago) || getCuotaEfectiva(a,periodo)));
-    }, 0);
+    const { alDia, morosos, caja } = getEstadoMensual(periodo);
     document.getElementById('widget-alumnos').innerText = total;
     document.getElementById('widget-aldia').innerText = alDia.length;
     document.getElementById('widget-morosos').innerText = morosos.length;
@@ -2778,7 +2810,7 @@ function calcularMetricas() {
         : `${total} alumno${total !== 1 ? 's' : ''} registrado${total !== 1 ? 's' : ''}`;
 
     // ── Barra de progreso del mes ──
-    const pct = totalAlumnos > 0 ? Math.round((alDia.length / totalAlumnos) * 100) : 0;
+    const pct = alumnos.filter(a => !a.exentoPago).length > 0 ? Math.round((alDia.length / alumnos.filter(a => !a.exentoPago).length) * 100) : 0;
     const barFill = document.getElementById('progreso-bar-fill');
     const barPct  = document.getElementById('progreso-pct-num');
     const barIzq  = document.getElementById('progreso-detalle-izq');
@@ -2786,13 +2818,13 @@ function calcularMetricas() {
     if (barFill) barFill.style.width = pct + '%';
     if (barPct)  barPct.innerText = pct;
     if (barIzq)  barIzq.innerText = `${alDia.length} al dia`;
-    if (barDer)  barDer.innerText = `${morosos} pendiente${morosos !== 1 ? 's' : ''}`;
+    if (barDer)  barDer.innerText = `${morosos.length} pendiente${morosos.length !== 1 ? 's' : ''}`;
 
     // ── Badge de morosos en bottom nav ──
     const bnBadge = document.getElementById('bn-badge-morosos');
     if (bnBadge) {
-        if (morosos > 0) {
-            bnBadge.innerText = morosos > 99 ? '99+' : morosos;
+        if (morosos.length > 0) {
+            bnBadge.innerText = morosos.length > 99 ? '99+' : morosos.length;
             bnBadge.style.display = 'flex';
         } else {
             bnBadge.style.display = 'none';
@@ -2889,7 +2921,7 @@ function renderalumnos() {
         const pagado = esPagoValido(pago);
         let estadoClase = alumno.exentoPago ? 'badge-exento' : (pagado ? 'badge-paid' : (esMesActual && diaHoy > 10 ? 'badge-moroso' : 'badge-debt'));
         let estadoTexto = alumno.exentoPago ? 'Exento' : (pagado ? 'Al día' : (esMesActual && diaHoy > 10 ? 'Moroso' : 'Pendiente'));
-        const obs = alumno.exentoPago ? `Exento: ${alumno.motivoExencion || 'Sin especificar'}` : ((Number(alumno.descuento)||0) > 0 ? `Descuento: ${alumno.motivoDescuento || 'Sin especificar'}` : (pagado ? obtenerObservacion(pago) : ''));
+        const obs = (Number(alumno.descuento)||0) > 0 ? (alumno.motivoDescuento || '') : (pagado ? obtenerObservacion(pago) : '');
         let celdaFecha = pagado
             ? (() => { const f = obtenerFechaPago(pago); const p = f ? f.split('-') : ['','','']; return `<span class="badge badge-paid">Pagó</span><span class="print-only">${p[2]}/${p[1]}/${p[0]}</span>`; })()
             : `<input type="date" id="fecha-pago-${alumno.id}" class="table-date-input" value="${hoyStr}"><span class="print-only">${estadoTexto}</span>`;
@@ -3189,9 +3221,10 @@ function imprimirReporteCuotas() {
         const valido = esPagoValido(pago);
         const color  = valido ? '#1a5c1a' : '#7a1a1a';
         const nombre = a.nombre;
-        const cuota = a.exentoPago ? 'Exento' : `$${getCuotaEfectiva(a,periodo).toLocaleString('es-AR')}`;
+        const descuentoTxt = (!a.exentoPago && (Number(a.descuento)||0)>0) ? `<div style="font-size:10px;color:#666;margin-top:2px;">Desc: $${(Number(a.descuento)||0).toLocaleString('es-AR')}</div>` : '';
+        const cuota = a.exentoPago ? 'Exento' : `$${getCuotaEfectiva(a,periodo).toLocaleString('es-AR')}${descuentoTxt}`;
         const estado = a.exentoPago ? 'Exento' : (valido?'Al día':'Moroso');
-        const observacion = a.exentoPago ? ('Exento: ' + (a.motivoExencion || 'Sin especificar')) : ((Number(a.descuento)||0) > 0 ? ('Descuento: ' + (a.motivoDescuento || 'Sin especificar')) : (pago&&pago.observacion?pago.observacion:''));
+        const observacion = (pago&&pago.observacion?pago.observacion:'');
         return `<tr><td>${nombre}</td><td>${a.telefono||'—'}</td>
             <td>${pago&&pago.fecha?pago.fecha:'—'}</td>
             <td>${cuota}</td>
@@ -3424,7 +3457,6 @@ function abrirPadron() {
             <td>${edad !== null ? edad + ' años' : '—'}</td>
             <td>${a.telefono || '—'}</td>
             <td>${a.graduacion || '—'}</td>
-            <td>${a.exentoPago ? 'EXENTO: ' + (a.motivoExencion || 'Sin especificar') : '—'}</td>
         </tr>`;
     }).join('');
 
