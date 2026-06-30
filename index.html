@@ -2095,6 +2095,44 @@ function dcConfirm(mensaje, textoBotonOk = 'Confirmar') {
     });
 }
 
+
+// ── CONFIGURACION MENSUAL DE EXENTOS Y DESCUENTOS ───────────────────────
+// Permite que un alumno sea exento o tenga descuento solo en un mes concreto
+function getSituacionMes(alumno, periodo) {
+    const cfg = (alumno.situacionesMensuales || {})[periodo];
+
+    // La condicion exento/descuento es exclusiva del mes seleccionado.
+    // Si el mes no tiene una configuracion guardada, vuelve a estado normal.
+    if (!cfg) {
+        return {
+            exento: false,
+            descuento: 0,
+            motivoExencion: '',
+            motivoDescuento: ''
+        };
+    }
+
+    return {
+        exento: typeof cfg.exento === 'boolean' ? cfg.exento : false,
+        descuento: cfg.descuento !== undefined ? Number(cfg.descuento)||0 : 0,
+        motivoExencion: cfg.motivoExencion || '',
+        motivoDescuento: cfg.motivoDescuento || ''
+    };
+}
+
+function limpiarCondicionesMensualesAlCambiarPeriodo(periodo) {
+    // Fuerza a que la vista no arrastre beneficios del mes anterior.
+    // Los beneficios guardados en otros meses se mantienen en historial.
+    alumnos.forEach(a => {
+        if (!a.situacionesMensuales || !a.situacionesMensuales[periodo]) {
+            a.exentoPago = false;
+            a.motivoExencion = '';
+            a.descuento = 0;
+            a.motivoDescuento = '';
+        }
+    });
+}
+
 // ── HELPERS GENERALES ─────────────────────────────────────────────────────
 function aplicarConfigDojo() {
     const sub = `Sede ${nombreSede} | Sensei ${nombreSensei}`;
@@ -2119,6 +2157,7 @@ function alumnoBase(a) {
         pagos: a.pagos || {},
         exentoPago: a.exentoPago || false,
         motivoExencion: a.motivoExencion || '',
+        situacionesMensuales: a.situacionesMensuales || {},
         dni: a.dni || '',
         fechaNacimiento: a.fechaNacimiento || '',
         graduacion: a.graduacion || ''
@@ -2316,7 +2355,7 @@ function getCuotaMes(periodo) {
 
 function getCuotaEfectiva(alumno, periodo) {
     const base = getCuotaMes(periodo);
-    const descuento = Number(alumno.descuento) || 0;
+    const descuento = getSituacionMes(alumno, periodo).descuento;
     return Math.max(0, base - descuento);
 }
 
@@ -2386,6 +2425,8 @@ function inicializarSelector() {
     const hoy = new Date();
     mesSelector.value = hoy.getFullYear() + '-' + String(hoy.getMonth()+1).padStart(2,'0');
     mesSelector.addEventListener('change', () => {
+        const periodo = obtenerPeriodoSeleccionado();
+        limpiarCondicionesMensualesAlCambiarPeriodo(periodo);
         actualizarPopoverCuota();
         renderalumnos(); calcularMetricas(); verificarAlertas();
     });
@@ -2557,15 +2598,16 @@ window.verInfoAlumno = function(id) {
     document.getElementById('modal-edad').innerText = edad !== null ? `(${edad} años)` : '';
     document.getElementById('modal-graduacion').innerText = alumno.graduacion || '—';
     const cuotaBase = getCuotaMes(periodo);
-    const descuento = Number(alumno.descuento) || 0;
+    const situacion = getSituacionMes(alumno, periodo);
+    const descuento = situacion.descuento;
     const cuotaFinal = Math.max(0, cuotaBase - descuento);
-    document.getElementById('modal-cuota').innerText = alumno.exentoPago ? 'Exento' : `$${cuotaFinal.toLocaleString('es-AR')}`;
+    document.getElementById('modal-cuota').innerText = situacion.exento ? 'Exento' : `$${cuotaFinal.toLocaleString('es-AR')}`;
     const detalleDescuento = document.getElementById('modal-descuento');
     if (detalleDescuento) {
-        if (alumno.exentoPago) {
-            detalleDescuento.innerHTML = `<small>Motivo: ${alumno.motivoExencion || 'Sin especificar'}</small>`;
+        if (situacion.exento) {
+            detalleDescuento.innerHTML = `<small>Motivo: ${situacion.motivoExencion || alumno.motivoExencion || 'Sin especificar'}</small>`;
         } else if (descuento > 0) {
-            detalleDescuento.innerHTML = `<small>Descuento aplicado: $${descuento.toLocaleString('es-AR')}<br>Motivo: ${alumno.motivoDescuento || 'Sin especificar'}</small>`;
+            detalleDescuento.innerHTML = `<small>Descuento aplicado: $${descuento.toLocaleString('es-AR')}<br>Motivo: ${situacion.motivoDescuento || alumno.motivoDescuento || 'Sin especificar'}</small>`;
         } else {
             detalleDescuento.innerHTML = '';
         }
@@ -2671,14 +2713,14 @@ window.eliminarAlumno = async function(id) {
 // ── DASHBOARD ─────────────────────────────────────────────────────────────
 
 function getEstadoMensual(periodo) {
-    const activos = alumnos.filter(a => !a.exentoPago);
+    const activos = alumnos.filter(a => !getSituacionMes(a, periodo).exento);
     const alDia = activos.filter(a => esPagoValido(a.pagos && a.pagos[periodo]));
     const morosos = activos.filter(a => !esPagoValido(a.pagos && a.pagos[periodo]));
 
     // La caja solo suma dinero realmente cobrado.
     // Respeta descuentos, cuota personalizada y excluye alumnos exentos.
     const caja = alumnos.reduce((total, a) => {
-        if (a.exentoPago) return total;
+        if (getSituacionMes(a, periodo).exento) return total;
 
         const pago = a.pagos && a.pagos[periodo];
         if (!esPagoValido(pago)) return total;
@@ -2735,7 +2777,7 @@ function renderDashboard() {
             const p = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
             const etiqueta = d.toLocaleDateString('es-AR', {month:'short'}).replace('.','');
             const recaud = alumnos.reduce((s,a) => {
-                if (a.exentoPago) return s;
+                if (getSituacionMes(a, p).exento) return s;
                 const pago = a.pagos && a.pagos[p];
                 if (!esPagoValido(pago)) return s;
                 let valor = 0;
@@ -2810,7 +2852,7 @@ function calcularMetricas() {
         : `${total} alumno${total !== 1 ? 's' : ''} registrado${total !== 1 ? 's' : ''}`;
 
     // ── Barra de progreso del mes ──
-    const pct = alumnos.filter(a => !a.exentoPago).length > 0 ? Math.round((alDia.length / alumnos.filter(a => !a.exentoPago).length) * 100) : 0;
+    const pct = alumnos.filter(a => !getSituacionMes(a, periodo).exento).length > 0 ? Math.round((alDia.length / alumnos.filter(a => !getSituacionMes(a, periodo).exento).length) * 100) : 0;
     const barFill = document.getElementById('progreso-bar-fill');
     const barPct  = document.getElementById('progreso-pct-num');
     const barIzq  = document.getElementById('progreso-detalle-izq');
@@ -2836,15 +2878,37 @@ function calcularMetricas() {
 }
 
 function verificarAlertas() {
+    const periodo = obtenerPeriodoSeleccionado();
     const hoy = new Date();
     const mesHoy = hoy.getFullYear() + '-' + String(hoy.getMonth()+1).padStart(2,'0');
-    const deudores = alumnos.filter(a => !esPagoValido(a.pagos && a.pagos[mesHoy]));
+    const esMesActual = periodo === mesHoy;
+    const esMesFuturo = periodo > mesHoy;
     const div = document.getElementById('alerta-morosos');
-    if (hoy.getDate() > 10 && deudores.length > 0) {
+
+    // No tiene sentido reclamar cuotas de un mes que todavía no llegó.
+    if (esMesFuturo) { div.style.display = 'none'; return; }
+
+    // Excluye alumnos exentos de pago en ese mes puntual.
+    const deudores = alumnos.filter(a =>
+        !getSituacionMes(a, periodo).exento &&
+        !esPagoValido(a.pagos && a.pagos[periodo])
+    );
+
+    // En el mes actual solo avisa después del día 10 (igual que antes).
+    // En meses pasados, cualquier deuda ya está vencida, así que avisa siempre que haya.
+    const debeMostrar = esMesActual ? (hoy.getDate() > 10 && deudores.length > 0) : deudores.length > 0;
+
+    if (debeMostrar) {
         const n = deudores.length;
-        document.getElementById('texto-alerta').innerText = `Ya pasó el día 10 y ${n === 1 ? 'el siguiente alumno tiene' : `los siguientes ${n} alumnos tienen`} su cuota sin abonar: ${deudores.map(a=>a.nombre).join(', ')}. Recordales que regularicen su situación. Oss 🥋`;
+        const mesTexto = formatearMesTexto(periodo);
+        const intro = esMesActual
+            ? `Ya pasó el día 10 y ${n === 1 ? 'el siguiente alumno tiene' : `los siguientes ${n} alumnos tienen`} su cuota de ${mesTexto} sin abonar`
+            : `${n === 1 ? 'El siguiente alumno quedó con' : `Los siguientes ${n} alumnos quedaron con`} su cuota de ${mesTexto} sin abonar`;
+        document.getElementById('texto-alerta').innerText = `${intro}: ${deudores.map(a=>a.nombre).join(', ')}. Recordales que regularicen su situación. Oss 🥋`;
         div.style.display = 'block';
-    } else { div.style.display = 'none'; }
+    } else {
+        div.style.display = 'none';
+    }
 }
 
 // ── UTILIDADES VISUALES ───────────────────────────────────────────────────
@@ -2919,15 +2983,16 @@ function renderalumnos() {
         const tr = document.createElement('tr');
         const pago = alumno.pagos && alumno.pagos[periodo];
         const pagado = esPagoValido(pago);
-        let estadoClase = alumno.exentoPago ? 'badge-exento' : (pagado ? 'badge-paid' : (esMesActual && diaHoy > 10 ? 'badge-moroso' : 'badge-debt'));
-        let estadoTexto = alumno.exentoPago ? 'Exento' : (pagado ? 'Al día' : (esMesActual && diaHoy > 10 ? 'Moroso' : 'Pendiente'));
-        const obs = (Number(alumno.descuento)||0) > 0 ? (alumno.motivoDescuento || '') : (pagado ? obtenerObservacion(pago) : '');
+        const situacionFila = getSituacionMes(alumno, periodo);
+        let estadoClase = situacionFila.exento ? 'badge-exento' : (pagado ? 'badge-paid' : (esMesActual && diaHoy > 10 ? 'badge-moroso' : 'badge-debt'));
+        let estadoTexto = situacionFila.exento ? 'Exento' : (pagado ? 'Al día' : (esMesActual && diaHoy > 10 ? 'Moroso' : 'Pendiente'));
+        const obs = (situacionFila.descuento > 0) ? (situacionFila.motivoDescuento || '') : (pagado ? obtenerObservacion(pago) : '');
         let celdaFecha = pagado
             ? (() => { const f = obtenerFechaPago(pago); const p = f ? f.split('-') : ['','','']; return `<span class="badge badge-paid">Pagó</span><span class="print-only">${p[2]}/${p[1]}/${p[0]}</span>`; })()
             : `<input type="date" id="fecha-pago-${alumno.id}" class="table-date-input" value="${hoyStr}"><span class="print-only">${estadoTexto}</span>`;
         const cuotaFinal = getCuotaEfectiva(alumno, periodo);
-        const descMonto = Number(alumno.descuento) || 0;
-        const celdaCuota = alumno.exentoPago
+        const descMonto = situacionFila.descuento;
+        const celdaCuota = situacionFila.exento
             ? `<span class="badge badge-exento">Exento</span>`
             : (descMonto > 0
             ? `$${cuotaFinal.toLocaleString('es-AR')}<br><span style="font-size:10px;color:var(--text-muted);">(desc. $${descMonto.toLocaleString('es-AR')})</span>`
@@ -2941,7 +3006,7 @@ function renderalumnos() {
         tr.innerHTML = `
             <td><div class="celda-nombre-con-avatar">
                 ${avatarHTML(alumno.nombre)}
-                <div class="celda-nombre-texto"><strong>${alumno.nombre}${alumno.exentoPago ? ' <span class="estrella-exento">⭐</span>' : ''}${(Number(alumno.descuento)||0) > 0 ? ' <span class="estrella-descuento"></span>' : ''}</strong></div>
+                <div class="celda-nombre-texto"><strong>${alumno.nombre}${situacionFila.exento ? ' <span class="estrella-exento">⭐</span>' : ''}${descMonto > 0 ? ' <span class="estrella-descuento"></span>' : ''}</strong></div>
             </div></td>
             <td class="col-telefono" data-label="Teléfono">${alumno.telefono||'-'}</td>
             <td data-label="Fecha de Pago">${celdaFecha}</td>
@@ -2971,6 +3036,7 @@ function renderAlumnosSimple() {
         return;
     }
     const filtro = filtroNombreAlumnos?.value.toLowerCase().trim() || '';
+    const periodoActivo = obtenerPeriodoSeleccionado();
     const ordenados = [...alumnos]
         .filter(a => a.nombre.toLowerCase().includes(filtro))
         .sort((a, b) => a.nombre.localeCompare(b.nombre));
@@ -2989,7 +3055,7 @@ function renderAlumnosSimple() {
         tr.innerHTML = `
             <td><div class="celda-nombre-con-avatar">
                 ${avatarHTML(alumno.nombre)}
-                <div class="celda-nombre-texto"><strong>${alumno.nombre}${alumno.exentoPago ? ' <span class="estrella-exento">⭐</span>' : ''}${(Number(alumno.descuento)||0) > 0 ? ' <span class="estrella-descuento"></span>' : ''}</strong></div>
+                <div class="celda-nombre-texto"><strong>${alumno.nombre}${getSituacionMes(alumno, periodoActivo).exento ? ' <span class="estrella-exento">⭐</span>' : ''}${getSituacionMes(alumno, periodoActivo).descuento > 0 ? ' <span class="estrella-descuento"></span>' : ''}</strong></div>
             </div></td>
             <td>${alumno.telefono || '—'}</td>
             <td>${alumno.graduacion || '—'}</td>
@@ -3009,18 +3075,19 @@ window.editarAlumno = function(id) {
     if (!alumno) return;
     const periodo = obtenerPeriodoSeleccionado();
     const pago = alumno.pagos && alumno.pagos[periodo];
+    const situacionEdit = getSituacionMes(alumno, periodo);
     document.getElementById('editar-id').value = id;
     document.getElementById('editar-nombre').value = alumno.nombre;
     document.getElementById('editar-telefono').value = alumno.telefono || '';
     document.getElementById('editar-dni').value = alumno.dni || '';
     document.getElementById('editar-fechaNacimiento').value = alumno.fechaNacimiento || '';
     document.getElementById('editar-edad-calculada').innerText = calcularEdad(alumno.fechaNacimiento) !== null ? `${calcularEdad(alumno.fechaNacimiento)} años` : '— años';
-    document.getElementById('editar-descuento').value = alumno.descuento ? alumno.descuento : '';
-    document.getElementById('editar-motivo-descuento').value = alumno.motivoDescuento || '';
-    document.getElementById('editar-exento').value = alumno.exentoPago ? 'true' : 'false';
-    document.getElementById('editar-motivo-exencion').value = alumno.motivoExencion || '';
-    document.getElementById('editar-motivo-descuento-group').style.display = Number(alumno.descuento) > 0 ? 'block' : 'none';
-    document.getElementById('editar-motivo-exencion-group').style.display = alumno.exentoPago ? 'block' : 'none';
+    document.getElementById('editar-descuento').value = situacionEdit.descuento ? situacionEdit.descuento : '';
+    document.getElementById('editar-motivo-descuento').value = situacionEdit.motivoDescuento || '';
+    document.getElementById('editar-exento').value = situacionEdit.exento ? 'true' : 'false';
+    document.getElementById('editar-motivo-exencion').value = situacionEdit.motivoExencion || '';
+    document.getElementById('editar-motivo-descuento-group').style.display = situacionEdit.descuento > 0 ? 'block' : 'none';
+    document.getElementById('editar-motivo-exencion-group').style.display = situacionEdit.exento ? 'block' : 'none';
     actualizarSelectsGraduacion();
     setTimeout(() => { document.getElementById('editar-graduacion').value = alumno.graduacion || ''; }, 50);
     ['editar-nombre','editar-telefono','editar-dni','editar-descuento'].forEach(i => actualizarBtnClear(document.getElementById(i)));
@@ -3070,10 +3137,19 @@ document.getElementById('btn-guardar-edicion').addEventListener('click', async (
             dni: document.getElementById('editar-dni').value.trim(),
             fechaNacimiento: document.getElementById('editar-fechaNacimiento').value || '',
             graduacion: document.getElementById('editar-graduacion').value || '',
-            descuento: parseInt(document.getElementById('editar-descuento').value) || 0,
-            motivoDescuento: document.getElementById('editar-motivo-descuento').value.trim(),
-            exentoPago: document.getElementById('editar-exento').value === 'true',
-            motivoExencion: document.getElementById('editar-motivo-exencion').value.trim(),
+            descuento: alumno.descuento || 0,
+            motivoDescuento: alumno.motivoDescuento || '',
+            exentoPago: alumno.exentoPago || false,
+            motivoExencion: alumno.motivoExencion || '',
+            situacionesMensuales: {
+                ...(alumno.situacionesMensuales || {}),
+                [periodo]: {
+                    descuento: parseInt(document.getElementById('editar-descuento').value) || 0,
+                    motivoDescuento: document.getElementById('editar-motivo-descuento').value.trim(),
+                    exento: document.getElementById('editar-exento').value === 'true',
+                    motivoExencion: document.getElementById('editar-motivo-exencion').value.trim()
+                }
+            },
             cuota: alumno.cuota,
             pagos
         });
@@ -3214,21 +3290,22 @@ function imprimirReporteCuotas() {
     const total   = alumnos.length;
     const alDia   = alumnos.filter(a => esPagoValido(a.pagos && a.pagos[periodo]));
     const morosos = total - alDia.length;
-    const caja    = alDia.reduce((s,a) => s + (a.exentoPago ? 0 : getCuotaEfectiva(a,periodo)), 0).toLocaleString('es-AR');
+    const caja    = alDia.reduce((s,a) => s + (getSituacionMes(a, periodo).exento ? 0 : getCuotaEfectiva(a,periodo)), 0).toLocaleString('es-AR');
 
     const filas = alumnos.slice().sort((a,b) => a.nombre.localeCompare(b.nombre)).map(a => {
         const pago   = a.pagos && a.pagos[periodo];
         const valido = esPagoValido(pago);
         const color  = valido ? '#1a5c1a' : '#7a1a1a';
         const nombre = a.nombre;
-        const descuentoTxt = (!a.exentoPago && (Number(a.descuento)||0)>0) ? `<div style="font-size:10px;color:#666;margin-top:2px;">Desc: $${(Number(a.descuento)||0).toLocaleString('es-AR')}</div>` : '';
-        const cuota = a.exentoPago ? 'Exento' : `$${getCuotaEfectiva(a,periodo).toLocaleString('es-AR')}${descuentoTxt}`;
-        const estado = a.exentoPago ? 'Exento' : (valido?'Al día':'Moroso');
+        const situacionFila = getSituacionMes(a, periodo);
+        const descuentoTxt = (!situacionFila.exento && situacionFila.descuento>0) ? `<div style="font-size:10px;color:#666;margin-top:2px;">Desc: $${situacionFila.descuento.toLocaleString('es-AR')}</div>` : '';
+        const cuota = situacionFila.exento ? 'Exento' : `$${getCuotaEfectiva(a,periodo).toLocaleString('es-AR')}${descuentoTxt}`;
+        const estado = situacionFila.exento ? 'Exento' : (valido?'Al día':'Moroso');
         const observacion = (pago&&pago.observacion?pago.observacion:'');
         return `<tr><td>${nombre}</td><td>${a.telefono||'—'}</td>
             <td>${pago&&pago.fecha?pago.fecha:'—'}</td>
             <td>${cuota}</td>
-            <td style="color:${a.exentoPago?'#6b46c1':color};font-weight:700">${estado}</td>
+            <td style="color:${situacionFila.exento?'#6b46c1':color};font-weight:700">${estado}</td>
             <td>${observacion}</td></tr>`;
     }).join('');
 
