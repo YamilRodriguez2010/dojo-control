@@ -387,6 +387,7 @@
         .badge{padding:5px 10px;border-radius:12px;font-size:11px;font-weight:bold;text-transform:uppercase;display:inline-block;}
         .badge-paid{background-color:#e8f5e9;color:var(--success);}
         .badge-exento{background:#805ad5;color:white;}
+        .badge-baja{background-color:#4a5568;color:white;}
         .estrella-descuento{display:inline-block;width:12px;height:12px;background:#38bdf8;border-radius:50%;margin-left:5px;vertical-align:middle;}
         .badge-debt{background-color:#ffe0b2;color:var(--warning);}
         .badge-moroso{background-color:#fde8e8;color:#c53030;}
@@ -724,12 +725,18 @@
         tr.fila-pendiente{
             background:rgba(245,124,0,0.05) !important;
         }
+        tr.fila-baja{
+            background:rgba(113,128,150,0.08) !important;
+            opacity:0.75;
+        }
         [data-theme="dark"] tr.fila-aldia{background:rgba(46,125,50,0.1) !important;}
         [data-theme="dark"] tr.fila-moroso{background:rgba(211,47,47,0.1) !important;}
         [data-theme="dark"] tr.fila-pendiente{background:rgba(245,124,0,0.08) !important;}
+        [data-theme="dark"] tr.fila-baja{background:rgba(113,128,150,0.12) !important;}
         [data-theme="dojo"] tr.fila-aldia{background:rgba(78,140,74,0.1) !important;}
         [data-theme="dojo"] tr.fila-moroso{background:rgba(201,80,26,0.1) !important;}
         [data-theme="dojo"] tr.fila-pendiente{background:rgba(201,162,39,0.08) !important;}
+        [data-theme="dojo"] tr.fila-baja{background:rgba(113,128,150,0.12) !important;}
 
         /* ── ANIMACIONES ESCALONADAS ── */
         @keyframes pageIn{
@@ -1589,6 +1596,9 @@
                                 <button class="btn-filtro-estado" data-filtro-estado="pendiente" id="filtro-pendiente">
                                     <i class="fas fa-clock"></i> Pendientes
                                 </button>
+                                <button class="btn-filtro-estado" data-filtro-estado="baja" id="filtro-baja">
+                                    <i class="fas fa-user-slash"></i> De baja
+                                </button>
                             </div>
                             <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
                             <table>
@@ -1706,6 +1716,10 @@
                                 <input type="text" id="filtro-nombre-alumnos" class="form-control" placeholder="Buscar alumno por nombre..." style="padding-right:34px;">
                                 <button type="button" class="btn-clear" data-target="filtro-nombre-alumnos" title="Limpiar"><i class="fas fa-times"></i></button>
                             </div>
+                            <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-muted);margin:10px 0 4px;cursor:pointer;">
+                                <input type="checkbox" id="check-mostrar-bajas" style="cursor:pointer;">
+                                Mostrar alumnos dados de baja
+                            </label>
                             <div class="tabla-alumnos-wrapper">
                                 <table id="tabla-alumnos-simple-el">
                                     <thead>
@@ -2215,6 +2229,16 @@ function getSituacionMes(alumno, periodo) {
     };
 }
 
+// ── BAJA DE ALUMNOS (period-aware) ───────────────────────────────────────
+// Un alumno con bajaDesde='YYYY-MM' se considera dado de baja a partir de
+// ese mes (inclusive) en adelante. Los meses anteriores conservan intacto
+// su historial de pagos/situaciones y lo siguen mostrando con normalidad
+// al navegar hacia atrás con el selector de mes.
+function estaActivoEnPeriodo(alumno, periodo) {
+    if (!alumno.bajaDesde) return true;
+    return periodo < alumno.bajaDesde;
+}
+
 function limpiarCondicionesMensualesAlCambiarPeriodo(periodo) {
     // Fuerza a que la vista no arrastre beneficios del mes anterior.
     // Los beneficios guardados en otros meses se mantienen en historial.
@@ -2253,6 +2277,7 @@ function alumnoBase(a) {
         exentoPago: a.exentoPago || false,
         motivoExencion: a.motivoExencion || '',
         situacionesMensuales: a.situacionesMensuales || {},
+        bajaDesde: a.bajaDesde || null,
         dni: a.dni || '',
         fechaNacimiento: a.fechaNacimiento || '',
         graduacion: a.graduacion || ''
@@ -2612,7 +2637,7 @@ function inicializarSelector() {
         const periodo = obtenerPeriodoSeleccionado();
         limpiarCondicionesMensualesAlCambiarPeriodo(periodo);
         actualizarPopoverCuota();
-        renderalumnos(); calcularMetricas(); verificarAlertas();
+        renderalumnos(); renderAlumnosSimple(); calcularMetricas(); verificarAlertas();
     });
     actualizarPopoverCuota();
 }
@@ -2804,7 +2829,7 @@ window.verInfoAlumno = function(id) {
     }
     const pago = alumno.pagos && alumno.pagos[periodo];
     const pagoValido = esPagoValido(pago);
-    document.getElementById('modal-nombre').innerHTML = `${alumno.nombre}`;
+    document.getElementById('modal-nombre').innerHTML = `${alumno.nombre}${!estaActivoEnPeriodo(alumno, periodo) ? ' <span class="badge badge-baja" style="vertical-align:middle;">De baja desde ' + formatearMesTexto(alumno.bajaDesde) + '</span>' : ''}`;
     const fechaContainer = document.getElementById('modal-fecha-container');
     const obsContainer = document.getElementById('modal-observacion-container');
     if (pagoValido) {
@@ -2870,10 +2895,15 @@ window.verInfoAlumno = function(id) {
 document.getElementById('close-modal').addEventListener('click', () => { modalInfo.style.display = 'none'; });
 window.addEventListener('click', e => { if (e.target === modalInfo) modalInfo.style.display = 'none'; });
 
-// ── ELIMINAR ALUMNO ───────────────────────────────────────────────────────
-window.eliminarAlumno = async function(id) {
+// ── DAR DE BAJA / REACTIVAR ALUMNO ─────────────────────────────────────────
+// En vez de borrar al alumno (lo que destruiría su historial de pagos),
+// se guarda el mes desde el cual queda inactivo. Los meses anteriores a
+// bajaDesde siguen mostrando al alumno con todo su historial intacto.
+window.darDeBajaAlumno = async function(id) {
     const alumno = alumnos.find(a => a.id === id);
-    const nombre = alumno ? alumno.nombre : 'este alumno';
+    if (!alumno) return;
+    const nombre = alumno.nombre;
+    const periodo = obtenerPeriodoSeleccionado();
     const pwd = await dcPrompt(`Para dar de baja a ${nombre} se requiere autorización.\nIngresá la contraseña del Sensei:`);
     if (!pwd) return;
     if (pwd !== PASSWORD_REQUERIDA) {
@@ -2881,15 +2911,34 @@ window.eliminarAlumno = async function(id) {
         return;
     }
     const confirmar = await dcConfirm(
-        `¿Confirmás que querés eliminar a <strong>${nombre}</strong> del registro?<br><br><small style="color:var(--text-muted);">Esta acción no se puede deshacer.</small>`,
-        'Sí, eliminar'
+        `¿Confirmás dar de baja a <strong>${nombre}</strong> a partir de <strong>${formatearMesTexto(periodo)}</strong>?<br><br>`
+        + `<small style="color:var(--text-muted);">El historial de meses anteriores no se modifica. `
+        + `Si querés dar de baja desde otro mes, cambiá el selector de arriba antes de confirmar. `
+        + `Más adelante podés reactivarlo/a cuando quieras.</small>`,
+        'Sí, dar de baja'
     );
     if (!confirmar) return;
     try {
-        await set(ref(db, 'alumnos/' + id), null);
+        await set(ref(db, 'alumnos/' + id + '/bajaDesde'), periodo);
         if (modalInfo.style.display === 'flex') modalInfo.style.display = 'none';
     } catch(e) {
-        await dcAlert('Error al eliminar: ' + e.message, 'err');
+        await dcAlert('Error al dar de baja: ' + e.message, 'err');
+    }
+};
+
+window.reactivarAlumno = async function(id) {
+    const alumno = alumnos.find(a => a.id === id);
+    if (!alumno) return;
+    const confirmar = await dcConfirm(
+        `¿Reactivás a <strong>${alumno.nombre}</strong>? Volverá a figurar como alumno activo.`,
+        'Sí, reactivar'
+    );
+    if (!confirmar) return;
+    try {
+        await set(ref(db, 'alumnos/' + id + '/bajaDesde'), null);
+        if (modalInfo.style.display === 'flex') modalInfo.style.display = 'none';
+    } catch(e) {
+        await dcAlert('Error al reactivar: ' + e.message, 'err');
     }
 };
 
@@ -2897,13 +2946,14 @@ window.eliminarAlumno = async function(id) {
 // ── DASHBOARD ─────────────────────────────────────────────────────────────
 
 function getEstadoMensual(periodo) {
-    const activos = alumnos.filter(a => !getSituacionMes(a, periodo).exento);
+    const activos = alumnos.filter(a => estaActivoEnPeriodo(a, periodo) && !getSituacionMes(a, periodo).exento);
     const alDia = activos.filter(a => esPagoValido(a.pagos && a.pagos[periodo]));
     const morosos = activos.filter(a => !esPagoValido(a.pagos && a.pagos[periodo]));
 
     // La caja solo suma dinero realmente cobrado.
-    // Respeta descuentos, cuota personalizada y excluye alumnos exentos.
+    // Respeta descuentos, cuota personalizada y excluye alumnos exentos o de baja.
     const caja = alumnos.reduce((total, a) => {
+        if (!estaActivoEnPeriodo(a, periodo)) return total;
         if (getSituacionMes(a, periodo).exento) return total;
 
         const pago = a.pagos && a.pagos[periodo];
@@ -2935,7 +2985,7 @@ function renderDashboard() {
     const salEl = document.getElementById('dash-saludo');
     if (salEl) salEl.innerText = `${saludo}, Sensei!`;
 
-    const totalAlumnos = alumnos.length;
+    const totalAlumnos = alumnos.filter(a => estaActivoEnPeriodo(a, periodo)).length;
     const { alDia, morosos, caja } = getEstadoMensual(periodo);
     const pct    = totalAlumnos > 0 ? Math.round(alDia.length / totalAlumnos * 100) : 0;
 
@@ -3017,7 +3067,7 @@ function renderDashboard() {
 
 function calcularMetricas() {
     const periodo = obtenerPeriodoSeleccionado();
-    const total = alumnos.length;
+    const total = alumnos.filter(a => estaActivoEnPeriodo(a, periodo)).length;
     const { alDia, morosos, caja } = getEstadoMensual(periodo);
     document.getElementById('widget-alumnos').innerText = total;
     document.getElementById('widget-aldia').innerText = alDia.length;
@@ -3036,7 +3086,7 @@ function calcularMetricas() {
         : `${total} alumno${total !== 1 ? 's' : ''} registrado${total !== 1 ? 's' : ''}`;
 
     // ── Barra de progreso del mes ──
-    const pct = alumnos.filter(a => !getSituacionMes(a, periodo).exento).length > 0 ? Math.round((alDia.length / alumnos.filter(a => !getSituacionMes(a, periodo).exento).length) * 100) : 0;
+    const pct = alumnos.filter(a => estaActivoEnPeriodo(a, periodo) && !getSituacionMes(a, periodo).exento).length > 0 ? Math.round((alDia.length / alumnos.filter(a => estaActivoEnPeriodo(a, periodo) && !getSituacionMes(a, periodo).exento).length) * 100) : 0;
     const barFill = document.getElementById('progreso-bar-fill');
     const barPct  = document.getElementById('progreso-pct-num');
     const barIzq  = document.getElementById('progreso-detalle-izq');
@@ -3072,8 +3122,9 @@ function verificarAlertas() {
     // No tiene sentido reclamar cuotas de un mes que todavía no llegó.
     if (esMesFuturo) { div.style.display = 'none'; return; }
 
-    // Excluye alumnos exentos de pago en ese mes puntual.
+    // Excluye alumnos exentos de pago, o dados de baja, en ese mes puntual.
     const deudores = alumnos.filter(a =>
+        estaActivoEnPeriodo(a, periodo) &&
         !getSituacionMes(a, periodo).exento &&
         !esPagoValido(a.pagos && a.pagos[periodo])
     );
@@ -3137,6 +3188,9 @@ function renderalumnos() {
     const ordenados = [...alumnos]
         .filter(a => {
             if (!a.nombre.toLowerCase().includes(filtro)) return false;
+            const activoEnPeriodo = estaActivoEnPeriodo(a, periodo);
+            if (filtroEstadoActivo === 'baja') return !activoEnPeriodo;
+            if (!activoEnPeriodo) return false;
             if (filtroEstadoActivo === 'todos') return true;
             const pago = a.pagos && a.pagos[periodo];
             const pagado = esPagoValido(pago);
@@ -3165,15 +3219,18 @@ function renderalumnos() {
     const esMesActual = periodo === mesHoy;
     ordenados.forEach((alumno, idx) => {
         const tr = document.createElement('tr');
+        const activoEnPeriodo = estaActivoEnPeriodo(alumno, periodo);
         const pago = alumno.pagos && alumno.pagos[periodo];
         const pagado = esPagoValido(pago);
         const situacionFila = getSituacionMes(alumno, periodo);
-        let estadoClase = situacionFila.exento ? 'badge-exento' : (pagado ? 'badge-paid' : (esMesActual && diaHoy > 10 ? 'badge-moroso' : 'badge-debt'));
-        let estadoTexto = situacionFila.exento ? 'Exento' : (pagado ? 'Al día' : (esMesActual && diaHoy > 10 ? 'Moroso' : 'Pendiente'));
+        let estadoClase = !activoEnPeriodo ? 'badge-baja' : (situacionFila.exento ? 'badge-exento' : (pagado ? 'badge-paid' : (esMesActual && diaHoy > 10 ? 'badge-moroso' : 'badge-debt')));
+        let estadoTexto = !activoEnPeriodo ? 'De baja' : (situacionFila.exento ? 'Exento' : (pagado ? 'Al día' : (esMesActual && diaHoy > 10 ? 'Moroso' : 'Pendiente')));
         const obs = (situacionFila.descuento > 0) ? (situacionFila.motivoDescuento || '') : (pagado ? obtenerObservacion(pago) : '');
-        let celdaFecha = pagado
+        let celdaFecha = !activoEnPeriodo
+            ? `<span class="badge badge-baja">De baja desde ${formatearMesTexto(alumno.bajaDesde)}</span>`
+            : (pagado
             ? (() => { const f = obtenerFechaPago(pago); const p = f ? f.split('-') : ['','','']; return `<span class="badge badge-paid">Pagó</span><span class="print-only">${p[2]}/${p[1]}/${p[0]}</span>`; })()
-            : `<input type="date" id="fecha-pago-${alumno.id}" class="table-date-input" value="${hoyStr}"><span class="print-only">${estadoTexto}</span>`;
+            : `<input type="date" id="fecha-pago-${alumno.id}" class="table-date-input" value="${hoyStr}"><span class="print-only">${estadoTexto}</span>`);
         const cuotaFinal = getCuotaEfectiva(alumno, periodo);
         const descMonto = situacionFila.descuento;
         const celdaCuota = situacionFila.exento
@@ -3183,9 +3240,17 @@ function renderalumnos() {
             : `$${cuotaFinal.toLocaleString('es-AR')}`);
 
         // Color de fila según estado
-        const filaClase = pagado ? 'fila-aldia' : (esMesActual && diaHoy > 10 ? 'fila-moroso' : 'fila-pendiente');
+        const filaClase = !activoEnPeriodo ? 'fila-baja' : (pagado ? 'fila-aldia' : (esMesActual && diaHoy > 10 ? 'fila-moroso' : 'fila-pendiente'));
         tr.className = `${filaClase} fila-animada`;
         tr.style.animationDelay = `${idx * 0.03}s`;
+
+        const acciones = activoEnPeriodo
+            ? `<button class="btn-sm btn-icon-only btn-info" onclick="verInfoAlumno('${alumno.id}')" title="Ver Detalles"><i class="fas fa-info-circle"></i></button>
+                <button class="btn-sm btn-icon-only" style="background-color:#6b46c1;color:white;" onclick="editarAlumno('${alumno.id}')" title="Editar"><i class="fas fa-user-pen"></i></button>
+                <button class="btn-sm btn-icon-only ${pagado?'btn-secondary':'btn-success'}" onclick="cambiarEstadoPago('${alumno.id}')" title="${pagado?'Anular Pago':'Registrar Pago'}">${pagado?'<i class="fas fa-undo"></i>':'<i class="fas fa-money-bill-wave"></i>'}</button>
+                <button class="btn-sm btn-icon-only" style="background-color:#e53e3e;color:white;" onclick="darDeBajaAlumno('${alumno.id}')" title="Dar de baja"><i class="fas fa-user-slash"></i></button>`
+            : `<button class="btn-sm btn-icon-only btn-info" onclick="verInfoAlumno('${alumno.id}')" title="Ver Detalles"><i class="fas fa-info-circle"></i></button>
+                <button class="btn-sm btn-icon-only btn-success" onclick="reactivarAlumno('${alumno.id}')" title="Reactivar"><i class="fas fa-rotate-left"></i></button>`;
 
         tr.innerHTML = `
             <td><div class="celda-nombre-con-avatar">
@@ -3198,10 +3263,7 @@ function renderalumnos() {
             <td class="col-oculta-principal col-estado-screen" data-label="Estado"><span class="badge ${estadoClase}">${estadoTexto}</span></td>
             <td class="col-observacion-print" data-label="Observación">${obs||'—'}</td>
             <td class="acciones-header" style="display:flex;gap:6px;justify-content:center;align-items:center;">
-                <button class="btn-sm btn-icon-only btn-info" onclick="verInfoAlumno('${alumno.id}')" title="Ver Detalles"><i class="fas fa-info-circle"></i></button>
-                <button class="btn-sm btn-icon-only" style="background-color:#6b46c1;color:white;" onclick="editarAlumno('${alumno.id}')" title="Editar"><i class="fas fa-user-pen"></i></button>
-                <button class="btn-sm btn-icon-only ${pagado?'btn-secondary':'btn-success'}" onclick="cambiarEstadoPago('${alumno.id}')" title="${pagado?'Anular Pago':'Registrar Pago'}">${pagado?'<i class="fas fa-undo"></i>':'<i class="fas fa-money-bill-wave"></i>'}</button>
-                <button class="btn-sm btn-icon-only" style="background-color:#e53e3e;color:white;" onclick="eliminarAlumno('${alumno.id}')" title="Eliminar"><i class="fas fa-trash"></i></button>
+                ${acciones}
             </td>`;
         tabla.appendChild(tr);
     });
@@ -3221,8 +3283,10 @@ function renderAlumnosSimple() {
     }
     const filtro = filtroNombreAlumnos?.value.toLowerCase().trim() || '';
     const periodoActivo = obtenerPeriodoSeleccionado();
+    const mostrarBajas = document.getElementById('check-mostrar-bajas')?.checked || false;
     const ordenados = [...alumnos]
         .filter(a => a.nombre.toLowerCase().includes(filtro))
+        .filter(a => mostrarBajas ? true : estaActivoEnPeriodo(a, periodoActivo))
         .sort((a, b) => a.nombre.localeCompare(b.nombre));
     if (ordenados.length === 0) {
         tablaSimple.innerHTML = `<tr><td colspan="4"><div class="empty-state">
@@ -3234,24 +3298,30 @@ function renderAlumnosSimple() {
     }
     ordenados.forEach((alumno, idx) => {
         const tr = document.createElement('tr');
-        tr.className = 'fila-animada';
+        const activoEnPeriodo = estaActivoEnPeriodo(alumno, periodoActivo);
+        tr.className = `fila-animada${activoEnPeriodo ? '' : ' fila-baja'}`;
         tr.style.animationDelay = `${idx * 0.025}s`;
+        const acciones = activoEnPeriodo
+            ? `<button class="btn-sm btn-icon-only btn-info" onclick="verInfoAlumno('${alumno.id}')" title="Ver Detalles"><i class="fas fa-info-circle"></i></button>
+                <button class="btn-sm btn-icon-only" style="background-color:#6b46c1;color:white;" onclick="editarAlumno('${alumno.id}')" title="Editar"><i class="fas fa-user-pen"></i></button>
+                <button class="btn-sm btn-icon-only" style="background-color:#e53e3e;color:white;" onclick="darDeBajaAlumno('${alumno.id}')" title="Dar de baja"><i class="fas fa-user-slash"></i></button>`
+            : `<button class="btn-sm btn-icon-only btn-info" onclick="verInfoAlumno('${alumno.id}')" title="Ver Detalles"><i class="fas fa-info-circle"></i></button>
+                <button class="btn-sm btn-icon-only btn-success" onclick="reactivarAlumno('${alumno.id}')" title="Reactivar"><i class="fas fa-rotate-left"></i></button>`;
         tr.innerHTML = `
             <td><div class="celda-nombre-con-avatar">
                 ${avatarHTML(alumno.nombre)}
-                <div class="celda-nombre-texto"><strong>${alumno.nombre}${getSituacionMes(alumno, periodoActivo).exento ? ' <span class="estrella-exento">⭐</span>' : ''}${getSituacionMes(alumno, periodoActivo).descuento > 0 ? ' <span class="estrella-descuento"></span>' : ''}</strong></div>
+                <div class="celda-nombre-texto"><strong>${alumno.nombre}${!activoEnPeriodo ? ' <span class="badge badge-baja" style="margin-left:4px;">De baja</span>' : ''}${getSituacionMes(alumno, periodoActivo).exento ? ' <span class="estrella-exento">⭐</span>' : ''}${getSituacionMes(alumno, periodoActivo).descuento > 0 ? ' <span class="estrella-descuento"></span>' : ''}</strong></div>
             </div></td>
             <td>${alumno.telefono || '—'}</td>
             <td>${alumno.graduacion || '—'}</td>
             <td class="celda-acciones-simple">
-                <button class="btn-sm btn-icon-only btn-info" onclick="verInfoAlumno('${alumno.id}')" title="Ver Detalles"><i class="fas fa-info-circle"></i></button>
-                <button class="btn-sm btn-icon-only" style="background-color:#6b46c1;color:white;" onclick="editarAlumno('${alumno.id}')" title="Editar"><i class="fas fa-user-pen"></i></button>
-                <button class="btn-sm btn-icon-only" style="background-color:#e53e3e;color:white;" onclick="eliminarAlumno('${alumno.id}')" title="Eliminar"><i class="fas fa-trash"></i></button>
+                ${acciones}
             </td>`;
         tablaSimple.appendChild(tr);
     });
 }
 if (filtroNombreAlumnos) filtroNombreAlumnos.addEventListener('input', renderAlumnosSimple);
+document.getElementById('check-mostrar-bajas')?.addEventListener('change', renderAlumnosSimple);
 
 // ── EDITAR ALUMNO ─────────────────────────────────────────────────────────
 window.editarAlumno = function(id) {
@@ -3471,12 +3541,13 @@ function imprimirReporteCuotas() {
     const sub     = `Sede ${nombreSede} | Sensei ${nombreSensei}`;
     const mes     = document.getElementById('print-mes')?.textContent || '';
     const periodo = obtenerPeriodoSeleccionado();
-    const total   = alumnos.length;
-    const alDia   = alumnos.filter(a => esPagoValido(a.pagos && a.pagos[periodo]));
+    const activosPeriodo = alumnos.filter(a => estaActivoEnPeriodo(a, periodo));
+    const total   = activosPeriodo.length;
+    const alDia   = activosPeriodo.filter(a => esPagoValido(a.pagos && a.pagos[periodo]));
     const morosos = total - alDia.length;
     const caja    = alDia.reduce((s,a) => s + (getSituacionMes(a, periodo).exento ? 0 : getCuotaEfectiva(a,periodo)), 0).toLocaleString('es-AR');
 
-    const filas = alumnos.slice().sort((a,b) => a.nombre.localeCompare(b.nombre)).map(a => {
+    const filas = activosPeriodo.slice().sort((a,b) => a.nombre.localeCompare(b.nombre)).map(a => {
         const pago   = a.pagos && a.pagos[periodo];
         const valido = esPagoValido(pago);
         const color  = valido ? '#1a5c1a' : '#7a1a1a';
@@ -3533,7 +3604,10 @@ function imprimirDesdePadron() {
     const dojo     = nombreDojo;
     const sub      = `Sede ${nombreSede} | Sensei ${nombreSensei}`;
     const fechaHoy = new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
-    const ordenados = [...alumnos].sort((a,b) => a.nombre.localeCompare(b.nombre));
+    const hoyISO = new Date();
+    const periodoHoy = hoyISO.getFullYear() + '-' + String(hoyISO.getMonth()+1).padStart(2,'0');
+    const ordenados = alumnos.filter(a => estaActivoEnPeriodo(a, periodoHoy)).sort((a,b) => a.nombre.localeCompare(b.nombre));
+    if (!ordenados.length) { dcAlert('No hay alumnos activos para imprimir.', 'warn'); return; }
 
     const filas = ordenados.map((a,i) => {
         const edad = calcularEdad(a.fechaNacimiento);
